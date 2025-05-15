@@ -16,7 +16,14 @@ end
 
 const MPS = MatrixProductState
 
-DelegatorTrait(interface, tn::MPS) = DelegatorTrait(interface, tn.tn)
+ImplementorTrait(interface, tn::MPS) = ImplementorTrait(interface, tn.tn)
+function DelegatorTrait(interface, tn::MPS)
+    if ImplementorTrait(interface, tn.tn) === Implements()
+        DelegateTo{:tn}()
+    else
+        DontDelegate()
+    end
+end
 form(tn::MPS) = tn.form
 
 MPS(arrays; form::CanonicalFormTrait=NonCanonical(), kwargs...) = MPS(form, arrays; kwargs...)
