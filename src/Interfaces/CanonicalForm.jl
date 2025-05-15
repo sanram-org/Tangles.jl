@@ -2,30 +2,30 @@ using QuantumTags
 using TenetCore: AbstractTensorNetwork
 
 """
-    CanonicalForm
+    CanonicalFormTrait
 
 Abstract type representing the canonical form trait of a Tensor Network.
 """
-abstract type CanonicalForm end
+abstract type CanonicalFormTrait end
 
-Base.copy(x::CanonicalForm) = x
+Base.copy(x::CanonicalFormTrait) = x
 
 """
     NonCanonical
 
-[`CanonicalForm`](@ref) trait representing a Tensor Network in a non-canonical form.
+[`CanonicalFormTrait`](@ref) trait representing a Tensor Network in a non-canonical form.
 """
-struct NonCanonical <: CanonicalForm end
+struct NonCanonical <: CanonicalFormTrait end
 
 """
     MixedCanonical
 
-[`CanonicalForm`](@ref) trait representing a Tensor Network in the mixed-canonical form.
+[`CanonicalFormTrait`](@ref) trait representing a Tensor Network in the mixed-canonical form.
 
   - The orthogonality center is a [`Site`](@ref) or a vector of [`Site`](@ref)s.
   - The tensors to the left and right of the orthogonality center are isommetries pointing towards the orthogonality center.
 """
-struct MixedCanonical <: CanonicalForm
+struct MixedCanonical <: CanonicalFormTrait
     orthog_center::Union{S,Vector{S}} where {S<:Site}
 end
 
@@ -35,12 +35,12 @@ Base.:(==)(a::MixedCanonical, b::MixedCanonical) = a.orthog_center == b.orthog_c
 """
     BondCanonical
 
-[`CanonicalForm`](@ref) trait representing a Tensor Network in the bond-canonical form.
+[`CanonicalFormTrait`](@ref) trait representing a Tensor Network in the bond-canonical form.
 
   - The orthogonality center is a [`Link`](@ref) or a vector of [`Link`](@ref)s.
   - The tensors to the left and right of the orthogonality center are isommetries pointing towards the orthogonality center.
 """
-struct BondCanonical <: CanonicalForm
+struct BondCanonical <: CanonicalFormTrait
     orthog_center::Link
 end
 
@@ -50,10 +50,10 @@ Base.:(==)(a::BondCanonical, b::BondCanonical) = a.orthog_center == b.orthog_cen
 """
     VidalGauge
 
-[`CanonicalForm`](@ref) trait representing a Tensor Network in canonical form or Vidal gauge; i.e. the singular values matrix
+[`CanonicalFormTrait`](@ref) trait representing a Tensor Network in canonical form or Vidal gauge; i.e. the singular values matrix
 ``\\Lambda_i`` between each tensor ``\\Gamma_{i-1}`` and ``\\Gamma_i``.
 """
-struct VidalGauge <: CanonicalForm end
+struct VidalGauge <: CanonicalFormTrait end
 
 struct VidalLambda{B} <: Site
     bond::B
@@ -71,7 +71,7 @@ form(::AbstractTensorNetwork) = NonCanonical()
 """
     canonize!(tn, form)
 
-Transform an Tensor Network into a canonical [`CanonicalForm`](@ref).
+Transform an Tensor Network into a canonical [`CanonicalFormTrait`](@ref).
 
 See also: [`NonCanonical`](@ref), [`MixedCanonical`](@ref), [`Canonical`](@ref).
 """
@@ -82,7 +82,7 @@ function canonize! end
 
 Like [`canonize!`](@ref), but returns a new Tensor Network instead of modifying the original one.
 """
-canonize(tn::AbstractTensorNetwork, args...; kwargs...) = canonize!(deepcopy(tn), args...; kwargs...)
+canonize(tn::Tangle, args...; kwargs...) = canonize!(deepcopy(tn), args...; kwargs...)
 
 # canonize_site(tn::AbstractTensorNetwork, args...; kwargs...) = canonize_site!(deepcopy(tn), args...; kwargs...)
 

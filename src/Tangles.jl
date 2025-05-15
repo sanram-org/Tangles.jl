@@ -1,10 +1,14 @@
 module Tangles
 
-using Networks
-import Networks: ImplementorTrait, DelegatorTrait
-
 using Reexport
+
+@reexport using QuantumTags
+@reexport using Muscle
+@reexport using Networks
+import Networks: ImplementorTrait, DelegatorTrait, Implements, DelegateTo, DontDelegate, Effect
 @reexport using TenetCore
+
+abstract type Tangle <: TenetCore.AbstractTensorNetwork end
 
 include("Interfaces/CanonicalForm.jl")
 export NonCanonical, MixedCanonical, BondCanonical, VidalGauge

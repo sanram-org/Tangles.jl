@@ -1,17 +1,17 @@
 using TenetCore
 
-abstract type AbstractMPO <: AbstractTensorNetwork end
+abstract type AbstractMPO <: Tangle end
 
 defaultorder(::Type{<:AbstractMPO}) = (:o, :i, :l, :r)
 
 """
-    MPO <: AbstractMPO
+    MatrixProductOperator
 
-A Matrix Product Operator (MPO) [`Ansatz`](@ref) Tensor Network.
+A Matrix Product Operator (MPO) Tensor Network.
 """
 mutable struct MatrixProductOperator <: AbstractMPO
     const tn::GenericTensorNetwork
-    form::CanonicalForm
+    form::CanonicalFormTrait
 end
 
 const MPO = MatrixProductOperator

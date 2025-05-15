@@ -5,13 +5,13 @@ abstract type AbstractMPS <: AbstractMPO end
 defaultorder(::Type{<:AbstractMPS}) = (:o, :l, :r)
 
 """
-    MPS <: AbstractMPS
+    MatrixProductState
 
 A Matrix Product State Tensor Network.
 """
 mutable struct MatrixProductState <: AbstractMPS
     const tn::GenericTensorNetwork
-    form::CanonicalForm
+    form::CanonicalFormTrait
 end
 
 const MPS = MatrixProductState
@@ -19,7 +19,7 @@ const MPS = MatrixProductState
 DelegatorTrait(interface, tn::MPS) = DelegatorTrait(interface, tn.tn)
 form(tn::MPS) = tn.form
 
-MPS(arrays; form::CanonicalForm=NonCanonical(), kwargs...) = MPS(form, arrays; kwargs...)
+MPS(arrays; form::CanonicalFormTrait=NonCanonical(), kwargs...) = MPS(form, arrays; kwargs...)
 MPS(arrays::Vector{<:AbstractArray}, λ; kwargs...) = MPS(VidalGauge(), arrays, λ; kwargs...)
 
 """

@@ -1,13 +1,12 @@
 using Networks
 using TenetCore
-using TenetCore: AbstractTensorNetwork
 using QuantumTags
 using LinearAlgebra
 
-abstract type AbstractProduct <: AbstractTensorNetwork end
+abstract type AbstractProduct <: Tangle end
 
 """
-    ProductState <: AbstractTensorNetwork
+    ProductState
 
 A Tensor Network representing a product state.
 """
@@ -16,7 +15,7 @@ struct ProductState <: AbstractProduct
 end
 
 """
-    ProductOperator <: AbstractTensorNetwork
+    ProductOperator
 
 A Tensor Network representing a product operator.
 """
