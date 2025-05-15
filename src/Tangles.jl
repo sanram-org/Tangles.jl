@@ -13,4 +13,10 @@ export form, canonize, canonize!
 include("ProductState.jl")
 export ProductState, ProductOperator
 
+include("MPO.jl")
+export MatrixProductOperator, MPO
+
+include("MPS.jl")
+export MatrixProductState, MPS
+
 end
