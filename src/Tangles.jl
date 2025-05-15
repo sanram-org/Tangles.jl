@@ -10,13 +10,13 @@ include("Interfaces/CanonicalForm.jl")
 export NonCanonical, MixedCanonical, BondCanonical, VidalGauge
 export form, canonize, canonize!
 
-include("ProductState.jl")
+include("Components/ProductState.jl")
 export ProductState, ProductOperator
 
-include("MPO.jl")
+include("Components/MPO.jl")
 export MatrixProductOperator, MPO
 
-include("MPS.jl")
+include("Components/MPS.jl")
 export MatrixProductState, MPS
 
 end
