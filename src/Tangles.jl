@@ -11,8 +11,7 @@ import Networks: ImplementorTrait, DelegatorTrait, Implements, DelegateTo, DontD
 abstract type Tangle <: TenetCore.AbstractTensorNetwork end
 
 include("Interfaces/CanonicalForm.jl")
-export NonCanonical, MixedCanonical, BondCanonical, VidalGauge
-export form, canonize, canonize!
+export form, NonCanonical, MixedCanonical, BondCanonical, VidalGauge
 
 include("Components/ProductState.jl")
 export ProductState, ProductOperator
@@ -25,5 +24,11 @@ export MatrixProductState, MPS
 
 include("Operations/simple_update.jl")
 export simple_update, simple_update!
+
+include("Operations/evolve.jl")
+export evolve, evolve!
+
+include("Operations/canonize.jl")
+export canonize, canonize!
 
 end
