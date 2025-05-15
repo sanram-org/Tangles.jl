@@ -38,8 +38,9 @@ Base.zero(tn::P) where {P<:AbstractProduct} = P(zero(tn.tn))
 function ProductState(arrays::AbstractArray{<:AbstractVector})
     tn = GenericTensorNetwork()
     for coord in eachindex(IndexCartesian(), arrays)
-        addtensor!(tn, Tensor(arrays[coord], [Index(plug"coord")]))
-        tag!(tn, tensor, CartesianSite(coord))
+        _tensor = Tensor(arrays[coord], [Index(plug"coord")])
+        addtensor!(tn, _tensor)
+        tag!(tn, _tensor, CartesianSite(coord))
         tag!(tn, Index(plug"coord"), plug"coord")
     end
 
@@ -51,9 +52,9 @@ function ProductState(tensors::AbstractArray{<:Tensor})
 
     tn = GenericTensorNetwork()
     for coord in eachindex(IndexCartesian(), tensors)
-        tensor = tensors[coord]
-        addtensor!(tn, tensor)
-        index = only(inds(tensor))
+        _tensor = tensors[coord]
+        addtensor!(tn, _tensor)
+        index = only(inds(_tensor))
         tag!(tn, index, plug"coord")
     end
 
