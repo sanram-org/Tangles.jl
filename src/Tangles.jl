@@ -5,7 +5,7 @@ using Reexport
 @reexport using QuantumTags
 @reexport using Muscle
 @reexport using Networks
-import Networks: ImplementorTrait, DelegatorTrait, Implements, DelegateTo, DontDelegate, Effect
+import Networks: ImplementorTrait, DelegatorTrait, Implements, DelegateTo, DontDelegate, Effect, checkeffect, handle!
 @reexport using TenetCore
 
 abstract type Tangle <: TenetCore.AbstractTensorNetwork end
@@ -22,5 +22,8 @@ export MatrixProductOperator, MPO
 
 include("Components/MPS.jl")
 export MatrixProductState, MPS
+
+include("Operations/simple_update.jl")
+export simple_update, simple_update!
 
 end
