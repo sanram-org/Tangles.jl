@@ -4,6 +4,7 @@ authors = ["Sergio Sánchez Ramírez <sergio.sanchez.ramirez+git@bsc.es>"]
 version = "0.1.0"
 
 [deps]
+ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Muscle = "21fe5c4b-a943-414d-bf3e-516f24900631"
 Networks = "634dcf3f-6aa7-47ba-9e85-1fb329c9ebfe"
@@ -12,6 +13,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 TenetCore = "2cc23cfe-e55e-4940-9d06-ab16fa76dba6"
 
 [compat]
+ArgCheck = "2.5.0"
 LinearAlgebra = "1.10.0"
 Muscle = "0.3.1"
 Networks = "0.1.2"
