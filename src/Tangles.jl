@@ -6,6 +6,7 @@ using Reexport
 @reexport using Muscle
 @reexport using Networks
 import Networks: ImplementorTrait, DelegatorTrait, Implements, DelegateTo, DontDelegate, Effect, checkeffect, handle!
+using Networks: fallback
 @reexport using TenetCore
 
 abstract type Tangle <: TenetCore.AbstractTensorNetwork end
