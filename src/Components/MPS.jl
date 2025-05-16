@@ -26,6 +26,8 @@ function DelegatorTrait(interface, tn::MPS)
 end
 form(tn::MPS) = tn.form
 
+Base.copy(tn::MPS) = MPS(copy(tn.tn), tn.form)
+
 MPS(arrays; form::CanonicalFormTrait=NonCanonical(), kwargs...) = MPS(form, arrays; kwargs...)
 MPS(arrays::Vector{<:AbstractArray}, λ; kwargs...) = MPS(VidalGauge(), arrays, λ; kwargs...)
 
