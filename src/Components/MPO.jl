@@ -1,4 +1,5 @@
 using TenetCore
+using Random
 
 abstract type AbstractMPO <: Tangle end
 
@@ -90,4 +91,47 @@ function MPO(form::MixedCanonical, arrays::Vector; kwargs...)
     ψ = MPO(arrays; form=NonCanonical(), kwargs...)
     ψ.form = form
     return ψ
+end
+
+# TODO normalize as we canonize for numerical stability
+# TODO different input/output physical dims
+# TODO let choose the orthogonality center
+"""
+    Base.rand(rng::Random.AbstractRNG, ::Type{MPO}; n, maxdim, eltype=Float64, physdim=2)
+
+Create a random [`MPO`](@ref) Tensor Network.
+In order to avoid norm explosion issues, the tensors are orthogonalized by QR factorization so its normalized and mixed canonized to the last site.
+
+# Keyword Arguments
+
+  - `n` The number of sites.
+  - `maxdim` The maximum bond dimension. If it is `nothing`, the maximum bond dimension increases exponentially with the number of sites up to `(physdim^2)^(n ÷ 2)`.
+  - `eltype` The element type of the tensors. Defaults to `Float64`.
+  - `physdim` The physical or output dimension of each site. Defaults to 2.
+"""
+function Base.rand(rng::Random.AbstractRNG, ::Type{MPO}; n, maxdim=nothing, eltype=Float64, physdim=2)
+    T = eltype
+    ip = op = physdim
+    χ = isnothing(maxdim) ? (ip * op)^(n ÷ 2) : maxdim
+
+    arrays::Vector{AbstractArray{T,N} where {N}} = map(1:n) do i
+        χl, χr = let after_mid = i > n ÷ 2, i = (n + 1 - abs(2i - n - 1)) ÷ 2
+            χl = min(χ, ip^(i - 1) * op^(i - 1))
+            χr = min(χ, ip^i * op^i)
+
+            # swap bond dims after mid and handle midpoint for odd-length MPO
+            (isodd(n) && i == n ÷ 2 + 1) ? (χl, χl) : (after_mid ? (χr, χl) : (χl, χr))
+        end
+
+        # orthogonalize by QR factorization
+        F = lq!(rand(rng, T, χl, ip * op * χr))
+        reshape(Matrix(F.Q), χl, ip, op, χr)
+    end
+
+    # reshape boundary sites
+    arrays[1] = reshape(arrays[1], ip, op, min(χ, ip * op))
+    arrays[n] = reshape(arrays[n], min(χ, ip * op), ip, op)
+
+    # TODO order might not be the best for performance
+    return MPO(arrays; order=(:l, :i, :o, :r))
 end

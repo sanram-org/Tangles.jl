@@ -1,4 +1,5 @@
 using TenetCore
+using Random
 
 abstract type AbstractMPS <: AbstractMPO end
 
@@ -24,6 +25,7 @@ function DelegatorTrait(interface, tn::MPS)
         DontDelegate()
     end
 end
+
 form(tn::MPS) = tn.form
 
 Base.copy(tn::MPS) = MPS(copy(tn.tn), tn.form)
@@ -120,4 +122,48 @@ function MPS(::VidalGauge, Γ, λ; order=defaultorder(MPS)) # , check=true)
     # check && checkform(tn)
 
     return mps
+end
+
+# TODO normalize as we canonize for numerical stability
+# TODO different input/output physical dims
+# TODO let choose the orthogonality center
+# TODO add form information
+"""
+    Base.rand(rng::Random.AbstractRNG, ::Type{MPS}; n, maxdim, eltype=Float64, physdim=2)
+
+Create a random [`MPS`](@ref) Tensor Network in the MixedCanonical form where all tensors are right-canonical (ortogonality
+center at the first site). In order to avoid norm explosion issues, the tensors are orthogonalized by LQ factorization.
+
+# Keyword Arguments
+
+  - `n` The number of sites.
+  - `maxdim` The maximum bond dimension.  If it is `nothing`, the maximum bond dimension increases exponentially with the number of sites up to `physdim^(n ÷ 2)`.
+  - `eltype` The element type of the tensors. Defaults to `Float64`.
+  - `physdim` The physical or output dimension of each site. Defaults to 2.
+"""
+function Base.rand(rng::Random.AbstractRNG, ::Type{MPS}; n, maxdim=nothing, eltype=Float64, physdim=2)
+    p = physdim
+    T = eltype
+    χ = isnothing(maxdim) ? p^(n ÷ 2) : maxdim
+
+    arrays::Vector{AbstractArray{T,N} where {N}} = map(1:n) do i
+        χl, χr = let after_mid = i > n ÷ 2, i = (n + 1 - abs(2i - n - 1)) ÷ 2
+            χl = min(χ, p^(i - 1))
+            χr = min(χ, p^i)
+
+            # swap bond dims after mid and handle midpoint for odd-length MPS
+            (isodd(n) && i == n ÷ 2 + 1) ? (χl, χl) : (after_mid ? (χr, χl) : (χl, χr))
+        end
+
+        # orthogonalize by QR factorization
+        F = lq!(rand(rng, T, χl, p * χr))
+
+        reshape(Matrix(F.Q), χl, p, χr)
+    end
+
+    # reshape boundary sites
+    arrays[1] = reshape(arrays[1], p, p)
+    arrays[n] = reshape(arrays[n], p, p)
+
+    return MPS(arrays; order=(:l, :o, :r), form=MixedCanonical(site"1"))
 end
