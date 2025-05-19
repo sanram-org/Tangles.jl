@@ -86,8 +86,9 @@ function ProductOperator(arrays::AbstractArray{<:AbstractMatrix})
     tn = GenericTensorNetwork()
 
     for coord in eachindex(IndexCartesian(), arrays)
-        addtensor!(tn, Tensor(arrays[coord], [Index(plug"coord"), Index(plug"coord'")]))
-        tag!(tn, tensor, CartesianSite(coord))
+        _tensor = Tensor(arrays[coord], [Index(plug"coord"), Index(plug"coord'")])
+        addtensor!(tn, _tensor)
+        tag!(tn, _tensor, CartesianSite(coord))
         tag!(tn, Index(plug"coord"), plug"coord")
         tag!(tn, Index(plug"coord'"), plug"coord'")
     end
