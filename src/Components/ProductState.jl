@@ -27,7 +27,13 @@ end
 @deprecate Product(arrays::AbstractArray{<:AbstractMatrix}) ProductOperator(arrays)
 
 ImplementorTrait(interface, tn::AbstractProduct) = ImplementorTrait(interface, tn.tn)
-DelegatorTrait(interface, tn::AbstractProduct) = DelegatorTrait(interface, tn.tn)
+function DelegatorTrait(interface, tn::AbstractProduct)
+    if ImplementorTrait(interface, tn.tn) === Implements()
+        DelegateTo{:tn}()
+    else
+        DontDelegate()
+    end
+end
 
 Base.copy(tn::P) where {P<:AbstractProduct} = P(copy(tn.tn))
 Base.similar(tn::P) where {P<:AbstractProduct} = P(similar(tn.tn))
