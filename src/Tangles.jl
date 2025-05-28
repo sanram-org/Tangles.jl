@@ -2,18 +2,23 @@ module Tangles
 
 using Reexport
 
+using DelegatorTraits
+import DelegatorTraits: ImplementorTrait, DelegatorTrait, Implements, NotImplements
+using DelegatorTraits: Interface, fallback
+
 @reexport using QuantumTags
 @reexport using Muscle
-@reexport using Networks
-import Networks: ImplementorTrait, DelegatorTrait, Implements, DelegateTo, DontDelegate, Effect, checkeffect, handle!
-using Networks: fallback
+using Networks
 @reexport using TenetCore
 
-abstract type Tangle <: TenetCore.AbstractTensorNetwork end
+abstract type AbstractTangle <: TenetCore.AbstractTensorNetwork end
+struct Tangle <: Interface end
 
-include("Interfaces/CanonicalForm.jl")
-export form, NonCanonical, MixedCanonical, BondCanonical, VidalGauge
+# traits
+include("CanonicalForm.jl")
+export CanonicalForm, form, NonCanonical, MixedCanonical, BondCanonical, VidalGauge
 
+# components
 include("Components/ProductState.jl")
 export ProductState, ProductOperator
 
@@ -23,13 +28,23 @@ export MatrixProductOperator, MPO
 include("Components/MPS.jl")
 export MatrixProductState, MPS
 
-include("Operations/simple_update.jl")
-export simple_update, simple_update!
+include("Components/MixedCanonicalMPS.jl")
+export MixedCanonicalMatrixProductState, MixedCanonicalMPS
+
+# operations
+include("Operations/canonize.jl")
+export canonize, canonize!
+
+include("Operations/absorb.jl")
+export absorb, absorb!
 
 include("Operations/evolve.jl")
 export evolve, evolve!
 
-include("Operations/canonize.jl")
-export canonize, canonize!
+include("Operations/simple_update.jl")
+export simple_update, simple_update!
+
+include("Operations/overlap.jl")
+export overlap
 
 end

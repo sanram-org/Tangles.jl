@@ -1,46 +1,17 @@
 using ArgCheck
 using Muscle
-import Muscle: simple_update
 using QuantumTags
 
-"""
-    SimpleUpdateEffect{T}
+function simple_update! end
 
-The effect emitted by the `simple_update!` function.
-"""
-struct SimpleUpdateEffect{T} <: Effect
-    op::T
-end
+simple_update!(tn, operator; kwargs...) = simple_update!(tn, operator, DelegatorTrait(Tangle(), tn); kwargs...)
+simple_update!(tn, operator, ::DelegateToField; kw...) = simple_update!(delegator(Tangle(), tn), operator; kw...)
+simple_update!(tn, operator, ::DontDelegate) = generic_simple_update!(tn, operator; maxdim=nothing)
 
-# TODO can't write it more generically (i.e. needs `Tangle`) because `simple_update` belongs to `Muscle`
-function simple_update!(tn::Tangle, op; kwargs...)
-    checkeffect(tn, SimpleUpdateEffect(op))
-    simple_update_inner!(tn, op; kwargs...)
-    handle!(tn, SimpleUpdateEffect(op))
-    return tn
-end
-
-simple_update(tn::Tangle, op; kwargs...) = simple_update!(copy(tn), op; kwargs...)
-
-function checkeffect(tn, e::SimpleUpdateEffect)
-    operator = e.op
-
+function generic_simple_update!(tn, operator; maxdim=nothing)
     @argcheck ndims(operator) == 4 "Operator must have 4 dimensions (2-site operator)"
     @argcheck all(isplug, inds(operator)) "Operator indices must be plugs to be treated as an operator"
 
-    target_plugs = plugs(operator)
-    target_plugs_dual = filter(isdual, target_plugs)
-    target_plugs_normal = filter(!isdual, target_plugs)
-
-    @argcheck issetequal(target_plugs_normal, adjoint.(target_plugs_dual)) "Operator must have same input and output plugs"
-    @argcheck all(Base.Fix1(hasplug, tn), target_plugs_normal) "Operator plugs must be present in the MPS"
-end
-
-handle!(_, ::SimpleUpdateEffect) = nothing
-
-simple_update_inner!(tn::MPS, operator::Tensor; kwargs...) = simple_update_inner!(tn, operator, form(tn); kwargs...)
-
-function simple_update_inner!(tn::MPS, operator, ::NonCanonical; maxdim=nothing)
     target_plugs = plugs(operator)
     target_plugs_dual = filter(isdual, target_plugs)
     target_plugs_normal = filter(!isdual, target_plugs)
@@ -62,7 +33,7 @@ function simple_update_inner!(tn::MPS, operator, ::NonCanonical; maxdim=nothing)
         operator, Index(plug"site_a'") => tmp_contracting_ind_a, Index(plug"site_b'") => tmp_contracting_ind_b
     )
 
-    new_tensor_a, new_tensor_b = simple_update(
+    new_tensor_a, new_tensor_b = Muscle.simple_update(
         tensor_a,
         tmp_contracting_ind_a, # ind_physical_a,
         tensor_b,
@@ -86,8 +57,13 @@ function simple_update_inner!(tn::MPS, operator, ::NonCanonical; maxdim=nothing)
     return tn
 end
 
-function simple_update_inner!(tn::MPS, operator, orthog_form::MixedCanonical)
-    # TODO canonize! to site
-end
+simple_update!(tn::AbstractProduct, operator; kwargs...)
 
-function simple_update_inner!(tn::MPS, operator, ::VidalGauge) end
+simple_update!(tn::MPS, operator::Tensor; kwargs...) = simple_update!(tn, operator, form(tn); kwargs...)
+simple_update!(tn::MPS, operator::Tensor, ::NonCanonical; kwargs...) = generic_simple_update!(tn, operator; kwargs...)
+
+function simple_update!(tn::MPS, operator::Tensor, orthog_form::MixedCanonical; kwargs...) end
+
+# TODO
+# function simple_update_inner!(tn::MPS, operator, orthog_form::MixedCanonical) end
+# function simple_update_inner!(tn::MPS, operator, ::VidalGauge) end

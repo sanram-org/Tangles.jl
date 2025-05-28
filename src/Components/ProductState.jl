@@ -3,7 +3,7 @@ using TenetCore
 using QuantumTags
 using LinearAlgebra
 
-abstract type AbstractProduct <: Tangle end
+abstract type AbstractProduct <: AbstractTangle end
 
 """
     ProductState

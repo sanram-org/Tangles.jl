@@ -108,3 +108,6 @@ Manifest.toml
 
 # Ignore VSCode settings
 .vscode/settings.json
+
+# Archived files
+archive/

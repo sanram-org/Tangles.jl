@@ -1,7 +1,7 @@
 using TenetCore
 using Random
 
-abstract type AbstractMPO <: Tangle end
+abstract type AbstractMPO <: AbstractTangle end
 
 defaultorder(::Type{<:AbstractMPO}) = (:o, :i, :l, :r)
 
