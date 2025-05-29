@@ -4,10 +4,7 @@ using QuantumTags
 
 function simple_update! end
 
-simple_update!(tn, operator; kwargs...) = simple_update!(tn, operator, DelegatorTrait(Tangle(), tn); kwargs...)
-simple_update!(tn, operator, ::DelegateToField; kw...) = simple_update!(delegator(Tangle(), tn), operator; kw...)
-simple_update!(tn, operator, ::DontDelegate) = generic_simple_update!(tn, operator; maxdim=nothing)
-
+# auxiliar functions
 function generic_simple_update!(tn, operator; maxdim=nothing)
     @argcheck ndims(operator) == 4 "Operator must have 4 dimensions (2-site operator)"
     @argcheck all(isplug, inds(operator)) "Operator indices must be plugs to be treated as an operator"
@@ -57,13 +54,26 @@ function generic_simple_update!(tn, operator; maxdim=nothing)
     return tn
 end
 
-simple_update!(tn::AbstractProduct, operator; kwargs...)
+## `MixedCanonicalMPS`
+function simple_update!(tn::MixedCanonicalMPS, operator::Tensor; kwargs...)
+    op_site = unique(site.(plugs(operator)))
+    @assert length(op_site) == 2 "Operator must have exactly two sites"
 
+    # move orthogonality center to operator sites
+    canonize!(tn, MixedCanonical(op_site))
+
+    # perform the simple update routine
+    generic_simple_update!(tn, operator; kwargs...)
+
+    return tn
+end
+
+## `MatrixProductState` / `MatrixProductOperator`
 simple_update!(tn::MPS, operator::Tensor; kwargs...) = simple_update!(tn, operator, form(tn); kwargs...)
 simple_update!(tn::MPS, operator::Tensor, ::NonCanonical; kwargs...) = generic_simple_update!(tn, operator; kwargs...)
 
 function simple_update!(tn::MPS, operator::Tensor, orthog_form::MixedCanonical; kwargs...) end
 
 # TODO
-# function simple_update_inner!(tn::MPS, operator, orthog_form::MixedCanonical) end
-# function simple_update_inner!(tn::MPS, operator, ::VidalGauge) end
+# function simple_update!(tn::MPS, operator, orthog_form::MixedCanonical) end
+# function simple_update!(tn::MPS, operator, ::VidalGauge) end
