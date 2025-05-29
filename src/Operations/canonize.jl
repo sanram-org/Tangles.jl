@@ -1,28 +1,22 @@
-using DelegatorTraits
 using ArgCheck
 using Muscle
 
-struct Canonizable <: Interface end
-
 """
-    canonize!(tn, form::CanonicalFormTrait)
+    canonize!(tn, form)
 
-Transform a Tensor Network into a canonical form specified by `form`.
+Change the canonical form specified by `form`.
 
-See also: [`CanonicalForm`](@ref).
+See also: [`form`](@ref).
 """
 function canonize! end
 
-canonize!(tn, of, nf) = canonize!(tn, of, nf, DelegatorTrait(Canonizable(), tn))
-canonize!(tn, of, nf, ::DelegateTo) = canonize!(delegator(Canonizable(), tn), of, nf)
-canonize!(tn, of, nf, ::DontDelegate) = throw(MethodError(canonize!, (tn, of, nf)))
-
 canonize(tn, args...; kwargs...) = canonize!(copy(tn), args...; kwargs...)
 
-function canonize_site!(tn, _site, _bond; method=:qr)
+# auxiliar functions
+function generic_canonize_site!(tn, _site::Site, _bond::Bond; method=:qr)
     @assert hassite(_bond, _site)
     @assert hassite(tn, _site)
-    @assert haslink(tn, _bond)
+    @assert hasbond(tn, _bond)
 
     # A it the tensor where we perform the factorization, but B is also affected by the gauge transformation
     A = tensor(tn; at=_site)
@@ -72,22 +66,11 @@ function canonize_site!(tn, _site, _bond; method=:qr)
     return tn
 end
 
-function canonize_inner!(tn::AbstractMPO, new_form; kwargs...)
-    canonize_inner!(tn, form(tn), new_form; kwargs...)
-end
+## `MixedCanonicalMPS`
+function canonize!(tn::MixedCanonicalMPS, new_form::MixedCanonical)
+    old_form = form(tn)
+    old_form == new_form && return tn
 
-# do nothing
-# canonize_inner!(tn::AbstractMPO, old_form::NonCanonical, new_form::NonCanonical; kwargs...) = tn
-
-# just overwrite form
-canonize_inner!(tn::MPS, old_form, new_form::NonCanonical; kwargs...) = tn.form = NonCanonical()
-canonize_inner!(tn::MPO, old_form, new_form::NonCanonical; kwargs...) = tn.form = NonCanonical()
-
-function canonize_inner!(tn::AbstractMPO, old_form::NonCanonical, new_form::MixedCanonical; kwargs...)
-    canonize_inner!(tn, MixedCanonical(sites(tn)), new_form; kwargs...)
-end
-
-function canonize_inner!(tn::AbstractMPO, old_form::MixedCanonical, new_form::MixedCanonical; kwargs...)
     # TODO maybe use sth different to `.id`?
     src_left, src_right = site(min_orthog_center(old_form)).id[1], site(max_orthog_center(old_form)).id[1]
     dst_left, dst_right = site(min_orthog_center(new_form)).id[1] - 1, site(max_orthog_center(new_form)).id[1] + 1
@@ -95,13 +78,50 @@ function canonize_inner!(tn::AbstractMPO, old_form::MixedCanonical, new_form::Mi
     # left-to-right QR sweep (left-canonical tensors)
     for i in src_left:dst_left
         bond = Bond(CartesianSite(i), CartesianSite(i + 1))
-        canonize_site!(tn, site"i", bond; method=:qr)
+        generic_canonize_site!(tn, site"i", bond; method=:qr)
     end
 
     # right-to-left QR sweep (right-canonical tensors)
     for i in src_right:-1:dst_right
         bond = Bond(CartesianSite(i - 1), CartesianSite(i))
-        canonize_site!(tn, site"i", bond; method=:qr)
+        generic_canonize_site!(tn, site"i", bond; method=:qr)
+    end
+
+    tn.orthog_center = copy(new_form)
+    return tn
+end
+
+# `MatrixProductState` / `MatrixProductOperator`
+function canonize!(tn::AbstractMPO, new_form; kwargs...)
+    canonize!(tn, form(tn), new_form; kwargs...)
+end
+
+# do nothing
+# canonize!(tn::AbstractMPO, old_form::NonCanonical, new_form::NonCanonical; kwargs...) = tn
+
+# just overwrite form
+canonize!(tn::MPS, old_form, new_form::NonCanonical; kwargs...) = tn.form = NonCanonical()
+canonize!(tn::MPO, old_form, new_form::NonCanonical; kwargs...) = tn.form = NonCanonical()
+
+function canonize!(tn::AbstractMPO, old_form::NonCanonical, new_form::MixedCanonical; kwargs...)
+    canonize!(tn, MixedCanonical(sites(tn)), new_form; kwargs...)
+end
+
+function canonize!(tn::AbstractMPO, old_form::MixedCanonical, new_form::MixedCanonical; kwargs...)
+    # TODO maybe use sth different to `.id`?
+    src_left, src_right = site(min_orthog_center(old_form)).id[1], site(max_orthog_center(old_form)).id[1]
+    dst_left, dst_right = site(min_orthog_center(new_form)).id[1] - 1, site(max_orthog_center(new_form)).id[1] + 1
+
+    # left-to-right QR sweep (left-canonical tensors)
+    for i in src_left:dst_left
+        bond = Bond(CartesianSite(i), CartesianSite(i + 1))
+        generic_canonize_site!(tn, site"i", bond; method=:qr)
+    end
+
+    # right-to-left QR sweep (right-canonical tensors)
+    for i in src_right:-1:dst_right
+        bond = Bond(CartesianSite(i - 1), CartesianSite(i))
+        generic_canonize_site!(tn, site"i", bond; method=:qr)
     end
 
     tn.form = copy(new_form)
@@ -109,7 +129,7 @@ function canonize_inner!(tn::AbstractMPO, old_form::MixedCanonical, new_form::Mi
 end
 
 # TODO
-function canonize_inner!(tn::AbstractMPO, old_form::VidalGauge, new_form::MixedCanonical; kwargs...)
+function canonize!(tn::AbstractMPO, old_form::VidalGauge, new_form::MixedCanonical; kwargs...)
     for i in 1:(min_orthog_center(new_form) - 1)
         bond = Bond(CartesianSite(i), CartesianSite(i + 1))
         # TODO absorb!(tn, bond, :right)
@@ -129,17 +149,17 @@ function canonize_inner!(tn::AbstractMPO, old_form::VidalGauge, new_form::MixedC
 end
 
 # TODO
-function canonize_inner!(tn::AbstractMPO, old_form::VidalGauge, new_form::VidalGauge; kwargs...) end
+function canonize!(tn::AbstractMPO, old_form::VidalGauge, new_form::VidalGauge; kwargs...) end
 
 # TODO
-function canonize_inner!(tn::AbstractMPO, old_form::NonCanonical, new_form::VidalGauge; kwargs...)
+function canonize!(tn::AbstractMPO, old_form::NonCanonical, new_form::VidalGauge; kwargs...)
     # right-to-left QR sweep, get right-canonical tensors
     canonize!(tn, MixedCanonical(site"1"))
 
     # left-to-right SVD sweep, get left-canonical tensors and singular values without reversing
     for i in 1:(nsites(tn) - 1)
         bond = Bond(CartesianSite(i), CartesianSite(i + 1))
-        canonize_site!(tn, CartesianSite(i), bond; method=:svd, absorb=nothing)
+        generic_canonize_site!(tn, site"i", bond; method=:svd)
 
         # extract the singular values and contract them with the next tensor
         # NOTE do not remove them, since they will be needed but TN can in be in a inconsistent state while processing
