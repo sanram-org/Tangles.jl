@@ -1,4 +1,5 @@
 using Bijections
+using ArgCheck
 
 mutable struct MixedCanonicalMatrixProductState <: AbstractMPS
     const tensors::Vector{Tensor}
@@ -61,23 +62,27 @@ end
 # TensorNetwork interface
 ImplementorTrait(::TensorNetwork, ::MixedCanonicalMPS) = Implements()
 
-TenetCore.all_tensors(tn::MixedCanonicalMPS) = tn.tensors
+TenetCore.all_tensors(tn::MixedCanonicalMPS) = collect(tn.tensors)
+TenetCore.all_tensors_iter(tn::MixedCanonicalMPS) = tn.tensors
 
-function TenetCore.checkeffect(::MixedCanonicalMPS, e::TenetCore.AddTensorEffect)
-    error("MixedCanonicalMPS does not support adding tensors directly")
+TenetCore.tensor_at(tn::MixedCanonicalMPS, site::CartesianSite{1}) = tn.tensors[site.id[1]]
+TenetCore.ind_at(tn::MixedCanonicalMPS, plug::Plug) = tn.plugs[plug]
+
+TenetCore.addtensor!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `addtensor!`")
+TenetCore.rmtensor!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `rmtensor!`")
+
+function TenetCore.ind_at(tn::MixedCanonicalMPS, bond::Bond)
+    @argcheck hasbond(tn, bond) "Bond $bond not found"
+    inds(tensor_at(tn, sites(bond)[1])) ∩ inds(tensor_at(tn, sites(bond)[2])) |> only
 end
 
-function TenetCore.checkeffect(::MixedCanonicalMPS, e::TenetCore.RemoveTensorEffect)
-    error("MixedCanonicalMPS does not support adding tensors directly")
-end
-
-function TenetCore.replace_tensor_inner!(tn::MixedCanonicalMPS, old, new)
+function TenetCore.replace_tensor!(tn::MixedCanonicalMPS, old, new)
     i = findfirst(Base.Fix1(===, old), all_tensors(tn))
     tn.tensors[i] = new
     return tn
 end
 
-function TenetCore.replace_ind_inner!(tn::MixedCanonicalMPS, old, new)
+function TenetCore.replace_ind!(tn::MixedCanonicalMPS, old, new)
     # replace tensors
     for (i, tensor) in enumerate(tn.tensors)
         if old ∈ inds(tensor)
@@ -92,34 +97,30 @@ function TenetCore.replace_ind_inner!(tn::MixedCanonicalMPS, old, new)
     end
 end
 
-# Taggable interface
-ImplementorTrait(::TenetCore.Taggable, ::MixedCanonicalMPS) = Implements()
+# Lattice interface
+ImplementorTrait(::TenetCore.Lattice, ::MixedCanonicalMPS) = Implements()
 
 TenetCore.all_sites(tn::MixedCanonicalMPS) = CartesianSite.(1:length(tn.tensors))
-function TenetCore.all_links(tn::MixedCanonicalMPS)
-    return [Bond(CartesianSite(i), CartesianSite(i + 1)) for i in 1:(length(tn.tensors) - 1)] ∪ plugs(tn)
+TenetCore.all_bonds(tn::MixedCanonicalMPS) = [Bond(CartesianSite.((i, i + 1))...) for i in 1:(length(tn.tensors) - 1)]
+
+function TenetCore.site_at(tn::MixedCanonicalMPS, tensor::Tensor)
+    i = findfirst(all_tensors_iter(tn)) do t
+        t === tensor
+    end
+    isnothing(i) && throw(ArgumentError("Tensor not found"))
+    return site"i"
 end
 
-TenetCore.tensor_at(tn::MixedCanonicalMPS, site::CartesianSite{1}) = tn.tensors[site.id[1]]
-
-function TenetCore.ind_at(tn::MixedCanonicalMPS, bond::Bond)
-    inds(tensor_at(tn, sites(bond)[1])) ∩ inds(tensor_at(tn, sites(bond)[2])) |> only
+function TenetCore.bond_at(tn::MixedCanonicalMPS, ind::Index)
+    _tensors = tensors_with_inds(tn, ind)
+    _sites = site_at.(Ref(tn), _tensors)
+    return Bond(_sites...)
 end
 
-TenetCore.ind_at(tn::MixedCanonicalMPS, plug::Plug) = tn.plugs[plug]
-
-function TenetCore.checkeffect(::MixedCanonicalMPS, ::TenetCore.TagEffect)
-    error("MixedCanonicalMPS does not support tagging operations directly")
-end
-function TenetCore.checkeffect(::MixedCanonicalMPS, ::TenetCore.UntagEffect)
-    error("MixedCanonicalMPS does not support untagging operations directly")
-end
-function TenetCore.checkeffect(::MixedCanonicalMPS, ::TenetCore.ReplaceEffect{<:Site,<:Site})
-    error("MixedCanonicalMPS does not support replacing sites directly")
-end
-function TenetCore.checkeffect(::MixedCanonicalMPS, ::TenetCore.ReplaceEffect{<:Link,<:Link})
-    error("MixedCanonicalMPS does not support replacing plugs directly")
-end
+TenetCore.setsite!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `setsite!`")
+TenetCore.setbond!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `setbond!`")
+TenetCore.unsetsite!(::MixedCanonicalMPS, site) = error("MixedCanonicalMPS doesn't allow `unsetsite!`")
+TenetCore.unsetbond!(::MixedCanonicalMPS, bond) = error("MixedCanonicalMPS doesn't allow `unsetbond!`")
 
 # Pluggable interface
 ImplementorTrait(::TenetCore.Pluggable, ::MixedCanonicalMPS) = Implements()
@@ -129,45 +130,10 @@ TenetCore.all_plugs_iter(tn::MixedCanonicalMPS) = values(tn.plugs)
 TenetCore.hasplug(tn::MixedCanonicalMPS, plug) = haskey(tn.plugs, plug)
 TenetCore.nplugs(tn::MixedCanonicalMPS) = length(tn.plugs)
 
-function TenetCore.ind_at_plug(tn::MixedCanonicalMPS, plug)
-    get(tn.plugs, plug, throw(ArgumentError("Plug not found in MixedCanonicalMPS: $plug")))
-end
+TenetCore.plug_at(tn::MixedCanonicalMPS, ind::Index) = tn.plugs(ind)
 
-# Tangle interface
-form(tn::MixedCanonicalMPS) = tn.orthog_center
+TenetCore.setplug!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `setplug!`")
+TenetCore.unsetplug!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `unsetplug!`")
 
-function canonize_inner!(tn::MixedCanonicalMPS, old_form::MixedCanonical, new_form::MixedCanonical)
-    old_form == new_form && return tn
-
-    # TODO maybe use sth different to `.id`?
-    src_left, src_right = site(min_orthog_center(old_form)).id[1], site(max_orthog_center(old_form)).id[1]
-    dst_left, dst_right = site(min_orthog_center(new_form)).id[1] - 1, site(max_orthog_center(new_form)).id[1] + 1
-
-    # left-to-right QR sweep (left-canonical tensors)
-    for i in src_left:dst_left
-        bond = Bond(CartesianSite(i), CartesianSite(i + 1))
-        canonize_site!(tn, site"i", bond; method=:qr)
-    end
-
-    # right-to-left QR sweep (right-canonical tensors)
-    for i in src_right:-1:dst_right
-        bond = Bond(CartesianSite(i - 1), CartesianSite(i))
-        canonize_site!(tn, site"i", bond; method=:qr)
-    end
-
-    tn.orthog_center = copy(new_form)
-    return tn
-end
-
-function simple_update_inner!(tn::MixedCanonicalMPS, operator::Tensor; kwargs...)
-    op_site = unique(site.(plugs(operator)))
-    @assert length(op_site) == 2 "Operator must have exactly two sites"
-
-    # move orthogonality center to operator sites
-    canonize!(tn, MixedCanonical(op_site))
-
-    # perform the simple update routine
-    __simple_update!(tn, operator; kwargs...)
-
-    return tn
-end
+# CanonicalForm trait
+CanonicalForm(tn::MixedCanonicalMPS) = tn.orthog_center
