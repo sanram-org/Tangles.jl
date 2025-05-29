@@ -12,3 +12,7 @@ end
 #         opnorm(parent(tensor), p)
 #     end
 # end
+
+# `MixedCanonicalMPS`
+# TODO what if `orthog_center` is not a single site?
+norm(tn::MixedCanonicalMPS, p::Real=2) = norm(tensor_at(tn, tn.orthog_center.orthog_center))
