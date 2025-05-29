@@ -47,4 +47,10 @@ export simple_update, simple_update!
 include("Operations/overlap.jl")
 export overlap
 
+include("Operations/norm.jl")
+export norm
+
+include("Operations/normalize.jl")
+export normalize!
+
 end

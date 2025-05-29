@@ -1,3 +1,4 @@
+using DelegatorTraits
 using Networks
 using TenetCore
 using QuantumTags
@@ -29,7 +30,7 @@ end
 ImplementorTrait(interface, tn::AbstractProduct) = ImplementorTrait(interface, tn.tn)
 function DelegatorTrait(interface, tn::AbstractProduct)
     if ImplementorTrait(interface, tn.tn) === Implements()
-        DelegateTo{:tn}()
+        DelegateToField{:tn}()
     else
         DontDelegate()
     end
@@ -45,8 +46,8 @@ function ProductState(arrays::AbstractArray{<:AbstractVector})
     for coord in eachindex(IndexCartesian(), arrays)
         _tensor = Tensor(arrays[coord], [Index(plug"coord")])
         addtensor!(tn, _tensor)
-        tag!(tn, _tensor, CartesianSite(coord))
-        tag!(tn, Index(plug"coord"), plug"coord")
+        tag_vertex!(tn, _tensor, CartesianSite(coord))
+        tag_edge!(tn, Index(plug"coord"), plug"coord")
     end
 
     return ProductState(tn)
@@ -60,14 +61,15 @@ function ProductState(tensors::AbstractArray{<:Tensor})
         _tensor = tensors[coord]
         addtensor!(tn, _tensor)
         index = only(inds(_tensor))
-        tag!(tn, index, plug"coord")
+        tag_vertex!(tn, _tensor, CartesianSite(coord))
+        tag_edge!(tn, index, plug"coord")
     end
 
     return tn
 end
 
 function ProductState(bitstr::String)
-    arrays = map(bitstr) do bitchar
+    arrays = map(collect(bitstr)) do bitchar
         if bitchar === '0'
             [1.0, 0.0]
         elseif bitchar === '1'
@@ -94,9 +96,9 @@ function ProductOperator(arrays::AbstractArray{<:AbstractMatrix})
     for coord in eachindex(IndexCartesian(), arrays)
         _tensor = Tensor(arrays[coord], [Index(plug"coord"), Index(plug"coord'")])
         addtensor!(tn, _tensor)
-        tag!(tn, _tensor, CartesianSite(coord))
-        tag!(tn, Index(plug"coord"), plug"coord")
-        tag!(tn, Index(plug"coord'"), plug"coord'")
+        tag_vertex!(tn, _tensor, site"coord")
+        tag_edge!(tn, Index(plug"coord"), plug"coord")
+        tag_edge!(tn, Index(plug"coord'"), plug"coord'")
     end
 
     return ProductOperator(tn)
@@ -107,42 +109,13 @@ function ProductOperator(tensors::AbstractArray{<:Tensor})
 
     tn = GenericTensorNetwork()
     for coord in eachindex(IndexCartesian(), tensors)
-        tensor = tensors[coord]
-        addtensor!(tn, tensor)
-        ind_out, ind_in = inds(tensor)
-        tag!(tn, ind_out, plug"coord")
-        tag!(tn, ind_in, plug"coord'")
+        _tensor = tensors[coord]
+        addtensor!(tn, _tensor)
+        tag_vertex!(tn, _tensor, site"coord")
+        ind_out, ind_in = inds(_tensor)
+        tag_edge!(tn, ind_out, plug"coord")
+        tag_edge!(tn, ind_in, plug"coord'")
     end
 
     return tn
-end
-
-# derived methods
-function LinearAlgebra.norm(tn::AbstractProduct, p::Real=2)
-    mapreduce(*, tensors(tn)) do tensor
-        norm(parent(tensor), p) # TODO is this implemented?
-    end
-end
-
-function LinearAlgebra.opnorm(tn::ProductOperator; p::Real=2)
-    return mapreduce(*, tensors(tn)) do tensor
-        opnorm(parent(tensor), p)
-    end
-end
-
-LinearAlgebra.normalize(tn::AbstractProduct; kwargs...) = normalize!(copy(tn); kwargs...)
-
-function LinearAlgebra.normalize!(tn::AbstractProduct; p::Real=2)
-    for tensor in tensors(tn)
-        normalize!(tensor, p)
-    end
-    return tn
-end
-
-# TODO move to some interface package? to TenetCore?
-function overlap(a::ProductState, b::ProductState)
-    issetequal(sites(a), sites(b)) || throw(ArgumentError("Both `ProductStates` must have the same sites"))
-    return mapreduce(*, sites(a)) do site
-        dot(tensor(a; at=site), conj(tensor(b; at=site)))
-    end
 end

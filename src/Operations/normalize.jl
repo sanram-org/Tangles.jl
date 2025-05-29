@@ -1,10 +1,12 @@
-using DelegatorTraits
+using LinearAlgebra: norm
+import LinearAlgebra: normalize!
 
-struct Normalizable <: Interface end
+LinearAlgebra.normalize(tn::AbstractTangle; kwargs...) = normalize!(copy(tn); kwargs...)
 
-# TODO this can conflict with `LinearAlgebra.normalize!` so don't export
-function normalize! end
-
-normalize!(tn) = normalize!(tn, DelegatorTrait(Normalizable(), tn))
-normalize!(tn, ::DelegateTo) = normalize!(delegator(Normalizable(), tn))
-normalize!(tn, ::DontDelegate) = throw(MethodError(normalize!, (tn,)))
+# `AbstractProduct`
+function LinearAlgebra.normalize!(tn::AbstractProduct; p::Real=2)
+    for tensor in tensors(tn)
+        normalize!(tensor, p)
+    end
+    return tn
+end
