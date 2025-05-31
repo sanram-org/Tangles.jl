@@ -1,3 +1,4 @@
+using DelegatorTraits
 using Bijections
 using ArgCheck
 
@@ -68,13 +69,13 @@ TenetCore.all_tensors_iter(tn::MixedCanonicalMPS) = tn.tensors
 TenetCore.tensor_at(tn::MixedCanonicalMPS, site::CartesianSite{1}) = tn.tensors[site.id[1]]
 TenetCore.ind_at(tn::MixedCanonicalMPS, plug::Plug) = tn.plugs[plug]
 
-TenetCore.addtensor!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `addtensor!`")
-TenetCore.rmtensor!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `rmtensor!`")
-
 function TenetCore.ind_at(tn::MixedCanonicalMPS, bond::Bond)
     @argcheck hasbond(tn, bond) "Bond $bond not found"
     inds(tensor_at(tn, sites(bond)[1])) ∩ inds(tensor_at(tn, sites(bond)[2])) |> only
 end
+
+TenetCore.addtensor!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `addtensor!`")
+TenetCore.rmtensor!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `rmtensor!`")
 
 function TenetCore.replace_tensor!(tn::MixedCanonicalMPS, old, new)
     i = findfirst(Base.Fix1(===, old), all_tensors(tn))
@@ -95,6 +96,8 @@ function TenetCore.replace_ind!(tn::MixedCanonicalMPS, old, new)
         _plug = inv(tn.plugs)[old]
         tn.plugs[_plug] = new
     end
+
+    return tn
 end
 
 # Lattice interface
