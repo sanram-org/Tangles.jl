@@ -78,7 +78,19 @@ TenetCore.addtensor!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS do
 TenetCore.rmtensor!(::MixedCanonicalMPS, args...) = error("MixedCanonicalMPS doesn't allow `rmtensor!`")
 
 function TenetCore.replace_tensor!(tn::MixedCanonicalMPS, old, new)
+    old === new && return tn
+    @argcheck issetequal(inds(new), inds(old)) "New tensor must have the same indices as the old tensor"
+    for ind in inds(old)
+        if size(new, ind) != size(old, ind)
+            throw(DimensionMismatch("New tensor must have the same size as the old tensor for index $ind"))
+        end
+    end
+
     i = findfirst(Base.Fix1(===, old), all_tensors(tn))
+    if isnothing(i)
+        throw(ArgumentError("Tensor not found in MixedCanonicalMPS"))
+    end
+
     tn.tensors[i] = new
     return tn
 end
@@ -116,6 +128,7 @@ end
 
 function TenetCore.bond_at(tn::MixedCanonicalMPS, ind::Index)
     _tensors = tensors_with_inds(tn, ind)
+    length(_tensors) != 2 && throw(ArgumentError("Bond must be between two tensors"))
     _sites = site_at.(Ref(tn), _tensors)
     return Bond(_sites...)
 end
