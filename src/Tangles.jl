@@ -34,6 +34,9 @@ export MixedCanonicalMatrixProductState, MixedCanonicalMPS
 include("Components/VidalMPS.jl")
 export VidalMatrixProductState, VidalMPS
 
+include("Components/PEPS.jl")
+export ProjectedEntangledPairState, PEPS
+
 # operations
 include("Operations/canonize.jl")
 export canonize, canonize!
