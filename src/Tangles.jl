@@ -31,6 +31,9 @@ export MatrixProductState, MPS
 include("Components/MixedCanonicalMPS.jl")
 export MixedCanonicalMatrixProductState, MixedCanonicalMPS
 
+include("Components/VidalMPS.jl")
+export VidalMatrixProductState, VidalMPS
+
 # operations
 include("Operations/canonize.jl")
 export canonize, canonize!

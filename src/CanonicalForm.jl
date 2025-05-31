@@ -71,7 +71,3 @@ Base.:(==)(a::BondCanonical, b::BondCanonical) = a.orthog_center == b.orthog_cen
 ``\\Lambda_i`` between each tensor ``\\Gamma_{i-1}`` and ``\\Gamma_i``.
 """
 struct VidalGauge <: CanonicalForm end
-
-struct VidalLambda{B} <: Site
-    bond::B
-end
