@@ -1,3 +1,4 @@
+using DelegatorTraits
 using TenetCore
 using Random
 
@@ -10,29 +11,24 @@ defaultorder(::Type{<:AbstractMPO}) = (:o, :i, :l, :r)
 
 A Matrix Product Operator (MPO) Tensor Network.
 """
-mutable struct MatrixProductOperator <: AbstractMPO
-    const tn::GenericTensorNetwork
-    form::CanonicalFormTrait
+struct MatrixProductOperator <: AbstractMPO
+    tn::GenericTensorNetwork
 end
 
 const MPO = MatrixProductOperator
 
+Base.copy(tn::MPO) = MPO(copy(tn.tn))
+
 ImplementorTrait(interface, tn::MPO) = ImplementorTrait(interface, tn.tn)
 function DelegatorTrait(interface, tn::MPO)
     if ImplementorTrait(interface, tn.tn) === Implements()
-        DelegateTo{:tn}()
+        DelegateToField{:tn}()
     else
         DontDelegate()
     end
 end
 
-form(tn::MPO) = tn.form
-
-Base.copy(tn::MPO) = MPO(copy(tn.tn), tn.form)
-
-MPO(arrays; form::CanonicalFormTrait=NonCanonical(), kwargs...) = MPO(form, arrays; kwargs...)
-
-function MPO(::NonCanonical, arrays::Vector; order=defaultorder(MPO))
+function MPO(arrays::Vector; order=defaultorder(MPO))
     @assert ndims(arrays[1]) == 3 "First array must have 3 dimensions"
     @assert all(==(4) ∘ ndims, arrays[2:(end - 1)]) "All arrays must have 4 dimensions"
     @assert ndims(arrays[end]) == 3 "Last array must have 3 dimensions"
@@ -77,21 +73,18 @@ function MPO(::NonCanonical, arrays::Vector; order=defaultorder(MPO))
 
         _tensor = Tensor(array, inds)
         addtensor!(tn, _tensor)
-        tag!(tn, _tensor, site"i")
-        tag!(tn, Index(plug"i"), plug"i")
-        tag!(tn, Index(plug"i'"), plug"i'")
-        haslink(tn, bond"i-isup") || hasind(tn, Index(bond"i-isup")) && tag!(tn, Index(bond"i-isup"), bond"i-isup")
-        haslink(tn, bond"isub-i") || hasind(tn, Index(bond"isub-i")) && tag!(tn, Index(bond"isub-i"), bond"isub-i")
+        setsite!(tn, _tensor, site"i")
+        TenetCore.setplug!(tn, Index(plug"i"), plug"i")
+        TenetCore.setplug!(tn, Index(plug"i'"), plug"i'")
+        hasbond(tn, bond"i-isup") || hasind(tn, Index(bond"i-isup")) && setbond!(tn, Index(bond"i-isup"), bond"i-isup")
+        hasbond(tn, bond"isub-i") || hasind(tn, Index(bond"isub-i")) && setbond!(tn, Index(bond"isub-i"), bond"isub-i")
     end
 
-    return MPO(tn, NonCanonical())
+    return MPO(tn)
 end
 
-function MPO(form::MixedCanonical, arrays::Vector; kwargs...)
-    ψ = MPO(arrays; form=NonCanonical(), kwargs...)
-    ψ.form = form
-    return ψ
-end
+# CanonicalForm trait
+CanonicalForm(::MPO) = NonCanonical()
 
 # TODO normalize as we canonize for numerical stability
 # TODO different input/output physical dims
