@@ -94,7 +94,7 @@ function TenetCore.replace_tensor!(tn::MixedCanonicalMPS, old, new)
     old === new && return tn
     @argcheck issetequal(inds(new), inds(old)) "New tensor must have the same indices as the old tensor"
     for ind in inds(old)
-        if size(new, ind) != size(old, ind)
+        if !isscoped(tn) && size(new, ind) != size(old, ind)
             throw(DimensionMismatch("New tensor must have the same size as the old tensor for index $ind"))
         end
     end
