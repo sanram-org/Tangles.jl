@@ -24,6 +24,8 @@ function overlap(a::ProductState, b::AbstractMPS)
     error("Not implemented for `ProductState` and `AbstractMPS`")
 end
 
+overlap(a::AbstractMPS, b::ProductState) = overlap(b, a)
+
 function overlap(a::Union{MPS,MixedCanonicalMPS}, b::Union{MPS,MixedCanonicalMPS})
     @argcheck nsites(a) == nsites(b)
 
