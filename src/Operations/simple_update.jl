@@ -48,8 +48,10 @@ function generic_simple_update!(tn, operator; maxdim=nothing)
     new_tensor_a = replace(new_tensor_a, tmp_contracting_ind_a => ind_at(tn, plug"site_a"))
     new_tensor_b = replace(new_tensor_b, tmp_contracting_ind_b => ind_at(tn, plug"site_b"))
 
-    replace_tensor!(tn, old_tensor_a, new_tensor_a)
-    replace_tensor!(tn, old_tensor_b, new_tensor_b)
+    @unsafe_region tn begin
+        replace_tensor!(tn, old_tensor_a, new_tensor_a)
+        replace_tensor!(tn, old_tensor_b, new_tensor_b)
+    end
 
     return tn
 end
