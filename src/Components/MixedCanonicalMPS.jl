@@ -70,8 +70,8 @@ end
 # UnsafeScopeable implementation
 ImplementorTrait(::TenetCore.UnsafeScopeable, ::MixedCanonicalMPS) = Implements()
 
-get_unsafe_scope(tn::MixedCanonicalMPS) = tn.unsafe[]
-set_unsafe_scope!(tn::MixedCanonicalMPS, uc::Union{Nothing,TenetCore.UnsafeScope}) = tn.unsafe[] = uc
+TenetCore.get_unsafe_scope(tn::MixedCanonicalMPS) = tn.unsafe[]
+TenetCore.set_unsafe_scope!(tn::MixedCanonicalMPS, uc) = tn.unsafe[] = uc
 
 # TensorNetwork interface
 ImplementorTrait(::TensorNetwork, ::MixedCanonicalMPS) = Implements()
