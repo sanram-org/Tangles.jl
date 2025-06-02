@@ -6,19 +6,26 @@ mutable struct MixedCanonicalMatrixProductState <: AbstractMPS
     const tensors::Vector{Tensor}
     orthog_center::MixedCanonical
     const plugs::Bijection{Plug,Index,Dict{Plug,Index},Dict{Index,Plug}}
+    unsafe::Ref{Union{Nothing,TenetCore.UnsafeScope}}
 end
 
 const MixedCanonicalMPS = MixedCanonicalMatrixProductState
 
 function Base.copy(tn::MixedCanonicalMPS)
-    MixedCanonicalMPS(copy(tn.tensors), copy(tn.orthog_center), copy(tn.plugs))
+    unsafe = Ref{Union{Nothing,TenetCore.UnsafeScope}}(tn.unsafe[])
+    new_tn = MixedCanonicalMPS(copy(tn.tensors), copy(tn.orthog_center), copy(tn.plugs), unsafe)
+
+    # register the new copy to the proper UnsafeScope
+    !isnothing(unsafe[]) && push!(unsafe[].refs, WeakRef(new_tn))
+
+    return new_tn
 end
 
 function MixedCanonicalMPS(arrays; form=MixedCanonical(CartesianSite.(1:length(arrays))), kwargs...)
     MixedCanonicalMPS(form, arrays; kwargs...)
 end
 
-function MixedCanonicalMPS(_form::MixedCanonical, arrays; order=defaultorder(MixedCanonicalMPS)) # , check=true)
+function MixedCanonicalMPS(_form::MixedCanonical, arrays; order=defaultorder(MixedCanonicalMPS), unsafe=nothing) # , check=true)
     @assert ndims(arrays[1]) == 2 "First array must have 2 dimensions"
     @assert all(==(3) ∘ ndims, arrays[2:(end - 1)]) "All arrays must have 3 dimensions"
     @assert ndims(arrays[end]) == 2 "Last array must have 2 dimensions"
@@ -57,8 +64,14 @@ function MixedCanonicalMPS(_form::MixedCanonical, arrays; order=defaultorder(Mix
         _plugs[plug"i"] = Index(plug"i")
     end
 
-    return MixedCanonicalMPS(_tensors, _form, _plugs)
+    return MixedCanonicalMPS(_tensors, _form, _plugs, Ref{Union{Nothing,TenetCore.UnsafeScope}}(unsafe))
 end
+
+# UnsafeScopeable implementation
+ImplementorTrait(::TenetCore.UnsafeScopeable, ::MixedCanonicalMPS) = Implements()
+
+get_unsafe_scope(tn::MixedCanonicalMPS) = tn.unsafe[]
+set_unsafe_scope!(tn::MixedCanonicalMPS, uc::Union{Nothing,TenetCore.UnsafeScope}) = tn.unsafe[] = uc
 
 # TensorNetwork interface
 ImplementorTrait(::TensorNetwork, ::MixedCanonicalMPS) = Implements()
