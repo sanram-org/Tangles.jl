@@ -9,6 +9,10 @@ struct LambdaSite{B} <: Site
     bond::B
 end
 
+# required for set-like equivalence of `Bond` to work on dictionaries
+Base.:(==)(s1::LambdaSite, s2::LambdaSite) = s1.bond == s2.bond
+Base.hash(s::LambdaSite, h::UInt) = hash(s.bond, h)
+
 QuantumTags.bond(s::LambdaSite) = s.bond
 QuantumTags.sites(s::LambdaSite) = sites(bond(s))
 
