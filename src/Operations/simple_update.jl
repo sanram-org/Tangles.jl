@@ -9,6 +9,9 @@ function generic_simple_update!(tn, operator; maxdim=nothing)
     @argcheck ndims(operator) == 4 "Operator must have 4 dimensions (2-site operator)"
     @argcheck all(isplug, inds(operator)) "Operator indices must be plugs to be treated as an operator"
 
+    op_site = unique(site.(plugs(operator)))
+    @assert length(op_site) == 2 "Operator must have exactly two sites"
+
     target_plugs = plugs(operator)
     target_plugs_dual = filter(isdual, target_plugs)
     target_plugs_normal = filter(!isdual, target_plugs)
@@ -56,11 +59,11 @@ function generic_simple_update!(tn, operator; maxdim=nothing)
     return tn
 end
 
+## `MPS`
+simple_update!(tn::MPS, operator::Tensor; kwargs...) = generic_simple_update!(tn, operator; kwargs...)
+
 ## `MixedCanonicalMPS`
 function simple_update!(tn::MixedCanonicalMPS, operator::Tensor; kwargs...)
-    op_site = unique(site.(plugs(operator)))
-    @assert length(op_site) == 2 "Operator must have exactly two sites"
-
     # move orthogonality center to operator sites
     canonize!(tn, MixedCanonical(op_site))
 
@@ -70,12 +73,22 @@ function simple_update!(tn::MixedCanonicalMPS, operator::Tensor; kwargs...)
     return tn
 end
 
-## `MatrixProductState` / `MatrixProductOperator`
-simple_update!(tn::MPS, operator::Tensor; kwargs...) = simple_update!(tn, operator, form(tn); kwargs...)
-simple_update!(tn::MPS, operator::Tensor, ::NonCanonical; kwargs...) = generic_simple_update!(tn, operator; kwargs...)
+## TODO `VidalMPS`
+# function simple_update!(tn::VidalMPS, operator::Tensor; kwargs...)
 
-function simple_update!(tn::MPS, operator::Tensor, orthog_form::MixedCanonical; kwargs...) end
+#     # TODO
+#     Λc = ...
+#     Λl = ...
+#     Λr = ...
+#     Γl = ...
+#     Γr = ...
 
-# TODO
-# function simple_update!(tn::MPS, operator, orthog_form::MixedCanonical) end
-# function simple_update!(tn::MPS, operator, ::VidalGauge) end
+#     # prepare orthogonality center around target sites
+#     a = binary_einsum(binary_einsum(Λl, Γl), Λc)
+#     b = binary_einsum(Γr, Λr)
+
+#     # perform simple update routine
+#     new_a, new_Λc, new_b = Muscle.simple_update(a, b, ...; absorb=Muscle.DontAbsorb())
+
+#     # recover gamma, lambda from updated tensors
+# end
