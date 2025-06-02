@@ -10,9 +10,8 @@ defaultorder(::Type{<:AbstractMPS}) = (:o, :l, :r)
 
 A Matrix Product State Tensor Network.
 """
-mutable struct MatrixProductState <: AbstractMPS
-    const tn::GenericTensorNetwork
-    form::CanonicalFormTrait
+struct MatrixProductState <: AbstractMPS
+    tn::GenericTensorNetwork
 end
 
 const MPS = MatrixProductState
@@ -26,12 +25,7 @@ function DelegatorTrait(interface, tn::MPS)
     end
 end
 
-form(tn::MPS) = tn.form
-
-Base.copy(tn::MPS) = MPS(copy(tn.tn), tn.form)
-
-MPS(arrays; form::CanonicalFormTrait=NonCanonical(), kwargs...) = MPS(form, arrays; kwargs...)
-MPS(arrays::Vector{<:AbstractArray}, λ; kwargs...) = MPS(VidalGauge(), arrays, λ; kwargs...)
+Base.copy(tn::MPS) = MPS(copy(tn.tn))
 
 """
     MPS(arrays::Vector{<:AbstractArray}; order=defaultorder(MPS))
@@ -42,7 +36,7 @@ Create a [`NonCanonical`](@ref) or [`MixedCanonical`](@ref) [`MPS`](@ref) from a
 
   - `order` The order of the indices in the arrays. Defaults to `(:o, :l, :r)`.
 """
-function MPS(::NonCanonical, arrays; order=defaultorder(MPS)) # , check=true)
+function MPS(arrays::AbstractVector{<:AbstractArray}; order=defaultorder(MPS)) # , check=true)
     @assert ndims(arrays[1]) == 2 "First array must have 2 dimensions"
     @assert all(==(3) ∘ ndims, arrays[2:(end - 1)]) "All arrays must have 3 dimensions"
     @assert ndims(arrays[end]) == 2 "Last array must have 2 dimensions"
@@ -77,52 +71,17 @@ function MPS(::NonCanonical, arrays; order=defaultorder(MPS)) # , check=true)
 
         _tensor = Tensor(array, inds)
         addtensor!(tn, _tensor)
-        tag!(tn, _tensor, site"i")
-        tag!(tn, Index(plug"i"), plug"i")
-        haslink(tn, bond"i-isup") || hasind(tn, Index(bond"i-isup")) && tag!(tn, Index(bond"i-isup"), bond"i-isup")
-        haslink(tn, bond"isub-i") || hasind(tn, Index(bond"isub-i")) && tag!(tn, Index(bond"isub-i"), bond"isub-i")
+        setsite!(tn, _tensor, site"i")
+        setplut!(tn, Index(plug"i"), plug"i")
+        hasbond(tn, bond"i-isup") || hasind(tn, Index(bond"i-isup")) && setbond!(tn, Index(bond"i-isup"), bond"i-isup")
+        hasbond(tn, bond"isub-i") || hasind(tn, Index(bond"isub-i")) && setbond!(tn, Index(bond"isub-i"), bond"isub-i")
     end
 
-    return MPS(tn, NonCanonical())
+    return MPS(tn)
 end
 
-function MPS(form::MixedCanonical, arrays; order=defaultorder(MPS)) # , check=true)
-    mps = MPS(arrays; form=NonCanonical(), order) #, check)
-    mps.form = form
-    # check && checkform(mps)
-    return mps
-end
-
-"""
-    MPS(VidalGauge(), Γ, λ; order=defaultorder(MPS), check=true)
-
-Create a [`VidalGauge`](@ref) [`MPS`](@ref) from a vector of arrays.
-
-# Keyword Arguments
-
-  - `order` The order of the indices in the arrays. Defaults to `(:o, :l, :r)`.
-  - `check` Whether to check the canonical form of the MPS.
-"""
-function MPS(::VidalGauge, Γ, λ; order=defaultorder(MPS)) # , check=true)
-    @assert length(λ) == length(Γ) - 1 "Number of λ tensors must be one less than the number of Γ tensors"
-    @assert all(==(1) ∘ ndims, λ) "All λ tensors must be 1-dimensional"
-
-    tn = MPS(Γ; form=NonCanonical(), order, check)
-    tn.form = VidalGauge()
-
-    # create tensors from 'λ'
-    map(enumerate(λ)) do (i, array)
-        isup = i + 1
-        bondind = ind(tn; at=bond"i-isup")
-        _tensor = Tensor(array, [bondind])
-        addtensor!(tn, _tensor)
-    end
-
-    # check canonical form by contracting Γ and λ tensors and checking their orthogonality
-    # check && checkform(tn)
-
-    return mps
-end
+# CanonicalForm trait
+CanonicalForm(tn::MPS) = NonCanonical()
 
 # TODO normalize as we canonize for numerical stability
 # TODO different input/output physical dims
@@ -165,5 +124,5 @@ function Base.rand(rng::Random.AbstractRNG, ::Type{MPS}; n, maxdim=nothing, elty
     arrays[1] = reshape(arrays[1], p, p)
     arrays[n] = reshape(arrays[n], p, p)
 
-    return MPS(arrays; order=(:l, :o, :r), form=MixedCanonical(site"1"))
+    return MPS(arrays; order=(:l, :o, :r))
 end
