@@ -186,8 +186,8 @@ TenetCore.unsetbond!(::VidalMPS, bond) = error("VidalMPS doesn't allow `unsetbon
 # Pluggable interface
 ImplementorTrait(::TenetCore.Pluggable, ::VidalMPS) = Implements()
 
-TenetCore.all_plugs(tn::VidalMPS) = collect(tn.plugs)
-TenetCore.all_plugs_iter(tn::VidalMPS) = values(tn.plugs)
+TenetCore.all_plugs(tn::VidalMPS) = collect(keys(tn.plugs))
+TenetCore.all_plugs_iter(tn::VidalMPS) = keys(tn.plugs)
 TenetCore.hasplug(tn::VidalMPS, plug) = haskey(tn.plugs, plug)
 TenetCore.nplugs(tn::VidalMPS) = length(tn.plugs)
 

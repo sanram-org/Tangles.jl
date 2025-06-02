@@ -141,8 +141,8 @@ TenetCore.unsetbond!(::MixedCanonicalMPS, bond) = error("MixedCanonicalMPS doesn
 # Pluggable interface
 ImplementorTrait(::TenetCore.Pluggable, ::MixedCanonicalMPS) = Implements()
 
-TenetCore.all_plugs(tn::MixedCanonicalMPS) = collect(tn.plugs)
-TenetCore.all_plugs_iter(tn::MixedCanonicalMPS) = values(tn.plugs)
+TenetCore.all_plugs(tn::MixedCanonicalMPS) = collect(keys(tn.plugs))
+TenetCore.all_plugs_iter(tn::MixedCanonicalMPS) = keys(tn.plugs)
 TenetCore.hasplug(tn::MixedCanonicalMPS, plug) = haskey(tn.plugs, plug)
 TenetCore.nplugs(tn::MixedCanonicalMPS) = length(tn.plugs)
 
