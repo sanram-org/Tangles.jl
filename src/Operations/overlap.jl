@@ -20,8 +20,15 @@ function overlap(a::ProductState, b::ProductState)
 end
 
 function overlap(a::ProductState, b::AbstractMPS)
+    issetequal(sites(a), sites(b)) || throw(ArgumentError("Both `ProductStates` must have the same sites"))
     align!(a, :outputs, b, :outputs)
-    error("Not implemented for `ProductState` and `AbstractMPS`")
+
+    _tensor = binary_einsum(tensor_at(a, site"1"), tensor_at(b, site"1"))
+    for i in 2:nsites(a)
+        _tensor = binary_einsum(_tensor, binary_einsum(tensor_at(a, site"i"), tensor_at(b, site"i")))
+    end
+
+    return _tensor
 end
 
 overlap(a::AbstractMPS, b::ProductState) = overlap(b, a)
