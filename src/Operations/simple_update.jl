@@ -5,21 +5,24 @@ using QuantumTags
 function simple_update! end
 
 # auxiliar functions
-function generic_simple_update!(tn, operator; maxdim=nothing)
-    @argcheck ndims(operator) == 4 "Operator must have 4 dimensions (2-site operator)"
+function acting_sites(operator::Tensor)
     @argcheck all(isplug, inds(operator)) "Operator indices must be plugs to be treated as an operator"
-
-    op_site = unique(site.(plugs(operator)))
-    @assert length(op_site) == 2 "Operator must have exactly two sites"
 
     target_plugs = plugs(operator)
     target_plugs_dual = filter(isdual, target_plugs)
     target_plugs_normal = filter(!isdual, target_plugs)
+
     @argcheck issetequal(target_plugs_normal, adjoint.(target_plugs_dual)) "Operator must have same input and output plugs"
 
-    @argcheck all(Base.Fix1(hasplug, tn), target_plugs_normal) "Operator plugs must be present in the MPS"
+    return unique(site.(target_plugs_dual))
+end
 
-    site_a, site_b = minmax(site.(target_plugs_dual)...)
+function generic_simple_update!(tn, operator; maxdim=nothing)
+    op_sites = acting_sites(operator)
+    @assert length(op_sites) == 2 "Operator must have exactly two sites"
+    @argcheck all(Base.Fix1(hasplug, tn), Plug.(op_sites; isdual=true)) "Operator plugs must be present in the MPS"
+
+    site_a, site_b = minmax(op_sites...)
     old_tensor_a = tensor_at(tn, site_a)
     old_tensor_b = tensor_at(tn, site_b)
 
@@ -64,8 +67,10 @@ simple_update!(tn::MPS, operator::Tensor; kwargs...) = generic_simple_update!(tn
 
 ## `MixedCanonicalMPS`
 function simple_update!(tn::MixedCanonicalMPS, operator::Tensor; kwargs...)
+    op_sites = acting_sites(operator)
+
     # move orthogonality center to operator sites
-    canonize!(tn, MixedCanonical(op_site))
+    canonize!(tn, MixedCanonical(op_sites))
 
     # perform the simple update routine
     generic_simple_update!(tn, operator; kwargs...)
