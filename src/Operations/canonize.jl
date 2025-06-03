@@ -27,6 +27,9 @@ function generic_canonize_site!(tn, _site::Site, _bond::Bond; method=:qr)
     inds_b_only = Index[ind_iso_dir]
     ind_virtual = Index(gensym(:tmp))
 
+    # cuTensorNet runs into an error when the size of the virtual index is 1
+    size(tn, ind_iso_dir) == 1 && return tn
+
     if method === :svd
         U, s, V = tensor_svd_thin(A; inds_u=inds_a_only, inds_v=inds_b_only, ind_s=ind_virtual)
 
