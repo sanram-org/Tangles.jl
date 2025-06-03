@@ -20,7 +20,7 @@ end
 function generic_simple_update!(tn, operator; maxdim=nothing)
     op_sites = acting_sites(operator)
     @assert length(op_sites) == 2 "Operator must have exactly two sites"
-    @argcheck all(Base.Fix1(hasplug, tn), Plug.(op_sites; isdual=true)) "Operator plugs must be present in the MPS"
+    @argcheck all(Base.Fix1(hasplug, tn), Plug.(op_sites; isdual=false)) "Operator plugs must be present in the MPS"
 
     site_a, site_b = minmax(op_sites...)
     old_tensor_a = tensor_at(tn, site_a)
