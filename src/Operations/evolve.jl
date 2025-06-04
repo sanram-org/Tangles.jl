@@ -14,7 +14,7 @@ evolve!(tn, op, ::DelegateToField; kwargs...) = evolve!(delegator(Evolvable(), t
 evolve!(tn, op, ::DontDelegate; algorithm=UnknownAlgorithm(), kwargs...) = evolve!(algorithm, tn, op; kwargs...)
 
 # TODO use an `Algorithm` trait to dispatch on the algorithm
-function evolve!(mps::MPS, op::MPO; kwargs...)
+function generic_evolve_mps_mpo!(mps, op)
     @argcheck nsites(mps) == nsites(op) "MPS and MPO must have the same number of sites"
 
     # align MPS and MPO
@@ -40,6 +40,17 @@ function evolve!(mps::MPS, op::MPO; kwargs...)
 
         replace_tensor!(mps, tensor_mps, c)
     end
+
+    return mps
+end
+
+evolve!(mps::MPS, op::AbstractMPO) = generic_evolve_mps_mpo!(mps, op)
+
+function evolve!(mps::MixedCanonicalMPS, op::AbstractMPO)
+    generic_evolve_mps_mpo!(mps, mpo)
+
+    # direct method loses canonicity
+    canonize!(mps, MixedCanonical(sites(mps)))
 
     return mps
 end
