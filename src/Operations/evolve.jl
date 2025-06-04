@@ -47,7 +47,7 @@ end
 evolve!(mps::MPS, op::AbstractMPO) = generic_evolve_mps_mpo!(mps, op)
 
 function evolve!(mps::MixedCanonicalMPS, op::AbstractMPO)
-    generic_evolve_mps_mpo!(mps, mpo)
+    generic_evolve_mps_mpo!(mps, op)
 
     # direct method loses canonicity
     canonize!(mps, MixedCanonical(sites(mps)))
