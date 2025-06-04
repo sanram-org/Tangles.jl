@@ -21,8 +21,7 @@ function generic_evolve_mps_mpo!(mps, op)
     op = resetinds!(copy(op))
     align!(mps, :outputs, op, :inputs)
 
-    # TODO do we need @unsafe_region here?
-    for i in 1:nsites(mps)
+    @unsafe_region mps for i in 1:nsites(mps)
         tensor_mps = tensor_at(mps, site"i")
         tensor_op = tensor_at(op, site"i")
         c = binary_einsum(tensor_mps, tensor_op)
