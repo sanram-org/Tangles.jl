@@ -117,9 +117,6 @@ function generic_evolve_mps_mpo_zipup!(mps, op; maxdim=nothing, threhold=nothing
 
         # last site
         i = nsites(mps)
-        @show size(R) inds(R) size(tensor_at(mps, site"i")) inds(tensor_at(mps, site"i")) size(tensor_at(op, site"i")) inds(
-            tensor_at(op, site"i")
-        )
         R = binary_einsum(R, tensor_at(mps, site"i"))
         R = binary_einsum(R, tensor_at(op, site"i"))
         R = replace(R, ind_at(op, plug"i") => ind_at(mps, plug"i"))
