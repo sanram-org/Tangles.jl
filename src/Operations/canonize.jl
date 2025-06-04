@@ -69,6 +69,8 @@ function generic_canonize_site!(tn, _site::Site, _bond::Bond; method=:qr)
     return tn
 end
 
+canonize!(tn::AbstractMPS, i::Integer; kwargs...) = canonize!(tn, MixedCanonical(CartesianSite(i)))
+
 ## `MixedCanonicalMPS`
 function canonize!(tn::MixedCanonicalMPS, new_form::MixedCanonical)
     old_form = form(tn)
