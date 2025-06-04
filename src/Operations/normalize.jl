@@ -12,5 +12,9 @@ function normalize!(tn::AbstractProduct, p::Real=2)
 end
 
 # `MixedCanonicalMPS`
-# TODO what if `orthog_center` is not a single site?
-normalize!(tn::MixedCanonicalMPS, p::Real=2) = normalize!(tensor_at(tn, tn.orthog_center.orthog_center), p)
+function normalize!(tn::MixedCanonicalMPS, p::Real=2)
+    _min_orthog_center = min_orthog_center(form(tn))
+    canonize!(tn, MixedCanonical(_min_orthog_center))
+    normalize!(tensor_at(tn, _min_orthog_center), p)
+    return tn
+end
