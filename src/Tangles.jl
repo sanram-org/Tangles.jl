@@ -59,4 +59,7 @@ export norm
 include("Operations/normalize.jl")
 export normalize!
 
+include("Operations/compress.jl")
+export compress!
+
 end
