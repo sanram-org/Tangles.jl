@@ -21,6 +21,16 @@ function Base.copy(tn::MixedCanonicalMPS)
     return new_tn
 end
 
+function Base.zero(tn::MixedCanonicalMPS)
+    tn = copy(tn)
+
+    for tensor in tensors(tn)
+        replace_tensor!(tn, tensor, zero(tensor))
+    end
+
+    return tn
+end
+
 function MixedCanonicalMPS(arrays; form=MixedCanonical(CartesianSite.(1:length(arrays))), kwargs...)
     MixedCanonicalMPS(form, arrays; kwargs...)
 end
