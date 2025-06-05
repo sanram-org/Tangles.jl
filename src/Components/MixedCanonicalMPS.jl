@@ -47,7 +47,7 @@ function MixedCanonicalMPS(_form::MixedCanonical, arrays; order=defaultorder(Mix
             order
         end
 
-        inds = map(local_order) do dir
+        _inds = map(local_order) do dir
             if dir == :o
                 Index(plug"i")
             elseif dir == :r
@@ -59,7 +59,7 @@ function MixedCanonicalMPS(_form::MixedCanonical, arrays; order=defaultorder(Mix
             end
         end |> collect
 
-        _tensor = Tensor(array, inds)
+        _tensor = Tensor(array, _inds)
         push!(_tensors, _tensor)
         _plugs[plug"i"] = Index(plug"i")
     end
@@ -120,6 +120,24 @@ function TenetCore.replace_ind!(tn::MixedCanonicalMPS, old, new)
     if hasvalue(tn.plugs, old)
         _plug = inv(tn.plugs)[old]
         tn.plugs[_plug] = new
+    end
+
+    return tn
+end
+
+function TenetCore.replace_ind!(tn::MixedCanonicalMPS, old_new::AbstractDict)
+    # replace tensors
+    for (i, tensor) in enumerate(tn.tensors)
+        if !isdisjoint(inds(tensor), keys(old_new))
+            tn.tensors[i] = Tensor(parent(tensor), [get(old_new, ind, ind) for ind in inds(tensor)])
+        end
+    end
+
+    # update plugs
+    for (old_ind, new_ind) in old_new
+        if hasvalue(tn.plugs, old_ind)
+            tn.plugs[tn.plugs(old_ind)] = new_ind
+        end
     end
 
     return tn
