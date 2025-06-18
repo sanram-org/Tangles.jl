@@ -2,64 +2,80 @@ module Tangles
 
 using Reexport
 
+import EinExprs: inds
+
+# reexports
+@reexport import QuantumTags: Tag, Site, Link
+@reexport import QuantumTags: CartesianSite, @site_str, issite, site, sites, is_site_equal
+@reexport import QuantumTags: Bond, @bond_str, bond, isbond, hassite
+@reexport import QuantumTags: Plug, @plug_str, isplug, plug, is_plug_equal, isdual
+
+@reexport import Muscle: Tensor, Index
+
+include("Utils.jl")
+
 using DelegatorTraits
-import DelegatorTraits: ImplementorTrait, DelegatorTrait, Implements, NotImplements
-using DelegatorTraits: Interface, fallback
+import DelegatorTraits: DelegatorTrait, ImplementorTrait, Implements, NotImplements
+using DelegatorTraits: @public
 
-@reexport using QuantumTags
-@reexport using Muscle
-using Networks
-@reexport using TenetCore
+# NOTE for developers
+# try using functions owned by us (e.g. `mysize` instead of `Base.size`)
+include("Interfaces/UnsafeScope.jl")
+@public UnsafeScopeable
+export @unsafe_region
 
-abstract type AbstractTangle <: TenetCore.AbstractTensorNetwork end
-struct Tangle <: Interface end
+include("Interfaces/TensorNetwork.jl")
+export TensorNetwork
+export tensors,
+    tensor, tensor_at, hastensor, ntensors, all_tensors, all_tensors_iter, addtensor!, rmtensor!, replace_tensor!
+export inds, ind, ind_at, hasind, ninds, all_inds, all_inds_iter, replace_ind!
+export tensors_with_inds, tensors_contain_inds, tensors_intersect_inds
+export inds_set, inds_parallel_to
+export size_inds, size_ind
 
-# traits
-include("CanonicalForm.jl")
-export CanonicalForm, form, NonCanonical, MixedCanonical, BondCanonical, VidalGauge
+include("Interfaces/Lattice.jl")
+@public Lattice
+export sites, site, site_at, hassite, nsites, all_sites, sites_like, site_like
+export bonds, bond, bond_at, hasbond, nbonds, all_bonds, bonds_like, bond_like
+export setsite!, setbond!, unsetsite!, unsetbond!
 
-# components
-include("Components/ProductState.jl")
-export ProductState, ProductOperator
+include("Interfaces/Pluggable.jl")
+@public Pluggable
+export plugs,
+    plug,
+    plug_at,
+    all_plugs,
+    all_plugs_iter,
+    nplugs,
+    hasplug,
+    plugs_like,
+    plug_like,
+    plugs_set_outputs,
+    plugs_set_inputs,
+    inds_set_physical,
+    inds_set_virtual,
+    inds_set_inputs,
+    inds_set_outputs,
+    setplug!,
+    unsetplug!
 
-include("Components/MPO.jl")
-export MatrixProductOperator, MPO
+# aliases to `Base` are in "src/Operations/AbstractTensorNetwork.jl"
+include("Operations/TensorNetwork.jl")
+export arrays, contract, resetinds!
 
-include("Components/MPS.jl")
-export MatrixProductState, MPS
+include("Operations/Pluggable.jl")
+export adjoint_plugs!, align!, @align!
 
-include("Components/MixedCanonicalMPS.jl")
-export MixedCanonicalMatrixProductState, MixedCanonicalMPS
+include("Operations/AbstractTensorNetwork.jl")
 
-include("Components/VidalMPS.jl")
-export VidalMatrixProductState, VidalMPS
+# implementations
+include("Components/SimpleTensorNetwork.jl")
+export SimpleTensorNetwork
 
-include("Components/PEPS.jl")
-export ProjectedEntangledPairState, PEPS
+include("Components/GenericTensorNetwork.jl")
+export GenericTensorNetwork
 
-# operations
-include("Operations/canonize.jl")
-export canonize, canonize!
-
-include("Operations/absorb.jl")
-export absorb, absorb!
-
-include("Operations/evolve.jl")
-export evolve, evolve!
-
-include("Operations/simple_update.jl")
-export simple_update, simple_update!
-
-include("Operations/overlap.jl")
-export overlap
-
-include("Operations/norm.jl")
-export norm
-
-include("Operations/normalize.jl")
-export normalize!
-
-include("Operations/compress.jl")
-export compress!
+# extra
+include("Operations/TensorExtra.jl")
 
 end

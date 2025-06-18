@@ -1,29 +1,55 @@
 name = "Tangles"
 uuid = "d2150e0e-da4c-4196-bcf0-8e0aeaf6db16"
 authors = ["Sergio Sánchez Ramírez <sergio.sanchez.ramirez+git@bsc.es>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
 Bijections = "e2ed5e7c-b2de-5872-ae92-c73ca462fb04"
 DelegatorTraits = "d83dbd90-3e00-4b33-84f1-398adcf3b35e"
+EinExprs = "b1794770-133b-4de1-afb4-526377e9f4c5"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Muscle = "21fe5c4b-a943-414d-bf3e-516f24900631"
 Networks = "634dcf3f-6aa7-47ba-9e85-1fb329c9ebfe"
 QuantumTags = "2406e0f5-9e5e-4424-966e-8bc9c78b228f"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
-TenetCore = "2cc23cfe-e55e-4940-9d06-ab16fa76dba6"
+Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+ValSplit = "0625e100-946b-11ec-09cd-6328dd093154"
+
+[weakdeps]
+Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
+GraphMakie = "1ecd5474-83a3-4783-bb4f-06765db800d2"
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+Reactant = "3c362404-f566-11ee-1572-e11a4b42c853"
+
+[extensions]
+TanglesAdaptExt = ["Adapt"]
+TanglesFiniteDifferencesExt = ["FiniteDifferences"]
+TanglesGraphMakieExt = ["Makie", "Graphs", "GraphMakie"]
+TanglesGraphsExt = ["Graphs"]
+TanglesReactantExt = ["Reactant"]
 
 [compat]
+Adapt = "4"
 ArgCheck = "2.5.0"
 Bijections = "0.2.1"
 DelegatorTraits = "0.1.2"
+EinExprs = "0.6.8"
+FiniteDifferences = "0.12"
+GraphMakie = "0.4, 0.5"
+Graphs = "1.12"
 LinearAlgebra = "1.10.0"
-Muscle = "0.3.6"
+Makie = "0.20, 0.21, 0.22, 0.23"
+Muscle = "0.3.4"
 Networks = "0.2.3"
-QuantumTags = "0.1.5"
+QuantumTags = "0.1.2"
 Random = "1.10.0"
+Reactant = "0.2.118"
 Reexport = "1.2.2"
-TenetCore = "0.4.5"
-julia = "1.10"
+Serialization = "1.10.0"
+UUIDs = "1.10.0"
+ValSplit = "0.1.1"
