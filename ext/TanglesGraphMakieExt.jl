@@ -79,7 +79,7 @@ function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::SimpleTensorNetwork; l
         node = Graphs.nv(graph)
 
         # connect ghost node
-        tensor = only(tn.indexmap[index])
+        tensor = only(tn.indmap[index])
         Graphs.add_edge!(graph, node, tensormap[tensor])
 
         return node
