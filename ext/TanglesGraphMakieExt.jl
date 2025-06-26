@@ -76,13 +76,14 @@ function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::SimpleTensorNetwork; l
     ghostnodes = map(inds(tn; set=:open)) do index
         # create new ghost node
         Graphs.add_vertex!(graph)
-        node = Graphs.nv(graph)
+        ghost_node = Graphs.nv(graph)
 
         # connect ghost node
-        tensor = only(tn.indmap[index])
-        Graphs.add_edge!(graph, node, tensormap[tensor])
+        for _tensor in tensors(tn; intersect=index)
+            Graphs.add_edge!(graph, ghost_node, tensormap[_tensor])
+        end
 
-        return node
+        return ghost_node
     end
 
     # configure graphics
