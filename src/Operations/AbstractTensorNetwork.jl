@@ -271,12 +271,33 @@ function EinExprs.einexpr(
     return EinExprs.einexpr(optimizer, path; kwargs...)
 end
 
-# Taggable interface
-# TODO Base.getindex
-# TODO Base.setindex!
+# Lattice interface
 # WARN the decoupling of `Site`/`Link` in `Taggable` can affect this
 
+Base.getindex(tn::AbstractTensorNetwork, site::Site) = tensor_at(tn, site)
+Base.getindex(tn::AbstractTensorNetwork, coord::Integer...) = getindex(tn, CartesianSite(coord))
+Base.getindex(tn::AbstractTensorNetwork, bond::Bond) = ind_at(tn, bond)
+
+function Base.setindex!(tn::AbstractTensorNetwork, tensor::Tensor, site::Site)
+    if hassite(tn, site)
+        replace_tensor!(tn, tensor_at(tn, site), tensor)
+    else
+        addtensor!(tn, tensor, site)
+        setsite!(tn, tensor, site)
+    end
+    return tn
+end
+
+function Base.setindex!(tn::AbstractTensorNetwork, tensor::Tensor, coord::Integer...)
+    setindex!(tn, tensor, CartesianSite(coord))
+end
+
+Base.setindex!(tn::AbstractTensorNetwork, ind::Index, bond::Bond) = replace_ind!(tn, ind_at(tn, bond), ind)
+
 # Pluggable interface
+Base.getindex(tn::AbstractTensorNetwork, plug::Plug) = ind_at(tn, plug)
+Base.setindex!(tn::AbstractTensorNetwork, ind::Index, plug::Plug) = replace_ind!(tn, ind_at(tn, plug), ind)
+
 """
     Base.adjoint(::AbstractTensorNetwork)
 
