@@ -113,7 +113,7 @@ nbonds(lattice) = nbonds(lattice, DelegatorTrait(Lattice(), lattice))
 nbonds(lattice, ::DelegateToField) = nbonds(delegator(Lattice(), lattice))
 function nbonds(lattice, ::DontDelegate)
     fallback(nbonds)
-    all_bond(lattice) |> length
+    all_bonds(lattice) |> length
 end
 
 ## `site_at`
