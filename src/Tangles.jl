@@ -5,10 +5,10 @@ using Reexport
 import EinExprs: inds
 
 # reexports
-@reexport import QuantumTags: Tag, Site, Link
-@reexport import QuantumTags: CartesianSite, @site_str, issite, site, sites, is_site_equal
-@reexport import QuantumTags: Bond, @bond_str, bond, isbond, hassite
-@reexport import QuantumTags: Plug, @plug_str, isplug, plug, is_plug_equal, isdual
+# TODO decouple `QuantumTags.site`, `QuantumTags.sites`, `QuantumTags.hassite` from same name functions of Tangles
+@reexport import QuantumTags: CartesianSite, NamedSite, @site_str, site, sites
+@reexport import QuantumTags: Bond, @bond_str, bond, hassite
+@reexport import QuantumTags: Plug, @plug_str, plug, is_plug_equal, isdual
 
 @reexport import Muscle: Tensor, Index
 
