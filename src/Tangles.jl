@@ -6,7 +6,7 @@ import EinExprs: inds
 
 # reexports
 # TODO decouple `QuantumTags.site`, `QuantumTags.sites`, `QuantumTags.hassite` from same name functions of Tangles
-@reexport import QuantumTags: CartesianSite, NamedSite, @site_str, site, sites
+@reexport import QuantumTags: CartesianSite, NamedSite, @site_str, @site, site, sites
 @reexport import QuantumTags: Bond, @bond_str, bond, hassite
 @reexport import QuantumTags: Plug, @plug_str, plug, is_plug_equal, isdual
 

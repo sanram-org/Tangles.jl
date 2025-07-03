@@ -4,6 +4,7 @@ using Tangles: LinkBijection, SiteBijection
 using DelegatorTraits
 using Networks
 using QuantumTags
+using QuantumTags: Link
 using Networks: vertex, edge
 
 struct MockSite{S} <: Site
