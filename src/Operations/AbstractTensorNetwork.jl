@@ -1,7 +1,5 @@
 using EinExprs
 
-abstract type AbstractTensorNetwork end
-
 # TensorNetwork interface
 Base.summary(io::IO, tn::T) where {T<:AbstractTensorNetwork} = print(io, "$(ntensors(tn))-tensors $T")
 

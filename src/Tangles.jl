@@ -18,6 +18,8 @@ using DelegatorTraits
 import DelegatorTraits: DelegatorTrait, ImplementorTrait, Implements, NotImplements
 using DelegatorTraits: @public
 
+abstract type AbstractTensorNetwork end
+
 # NOTE for developers
 # try using functions owned by us (e.g. `mysize` instead of `Base.size`)
 include("Interfaces/UnsafeScope.jl")
