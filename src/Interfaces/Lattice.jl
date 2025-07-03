@@ -37,8 +37,10 @@ function unsetsite! end
 function unsetbond! end
 
 # implementation
-# TODO doesn't this clash with `QuantumTags.sites`?
-sites(tn; kwargs...) = sites(sort_nt(values(kwargs)), tn)
+## `sites`
+# generic implementation for `sites` is type-piracy against QuantumTags
+# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
+sites(tn::AbstractTensorNetwork; kwargs...) = sites(sort_nt(values(kwargs)), tn)
 sites(::@NamedTuple{}, tn) = all_sites(tn)
 
 # TODO maybe is good idea to have a function that returns the default comparer method
@@ -55,6 +57,24 @@ sites(::@NamedTuple{}, tn) = all_sites(tn)
 # TODO important: if we do that, `is_like_f` should be able to compose with parametric types of `Plug` and such
 # site(kwargs::NamedTuple{(:like)}, tn) = site(tn; by=isequal, kwargs...)
 # site(kwargs::NamedTuple{(:by, :like)}, tn) = site_like(kwargs.by, tn, kwargs.like)
+
+## `bonds`
+bonds(tn; kwargs...) = bonds(sort_nt(values(kwargs)), tn)
+bonds(::@NamedTuple{}, tn) = all_bonds(tn)
+
+## `site`
+# generic implementation for `sites` is type-piracy against QuantumTags
+# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
+site(tn::AbstractTensorNetwork; kwargs...) = site(sort_nt(values(kwargs)), tn)
+site(kwargs::NamedTuple, tn::AbstractTensorNetwork) = only(sites(tn; kwargs...))
+site(kwargs::NamedTuple{(:at,)}, tn::AbstractTensorNetwork) = site_at(tn, kwargs.at)
+
+## `bond`
+# generic implementation for `sites` is type-piracy against QuantumTags
+# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
+bond(tn::AbstractTensorNetwork; kwargs...) = bond(sort_nt(values(kwargs)), tn)
+bond(kwargs::NamedTuple, tn::AbstractTensorNetwork) = only(bonds(tn; kwargs...))
+bond(kwargs::NamedTuple{(:at,)}, tn::AbstractTensorNetwork) = bond_at(tn, kwargs.at)
 
 ## `all_sites`
 all_sites(lattice) = all_sites(lattice, DelegatorTrait(Lattice(), lattice))
@@ -83,9 +103,11 @@ function all_bonds_iter(lattice, ::DontDelegate)
 end
 
 ## `hassite`
-hassite(lattice, site) = hassite(lattice, site, DelegatorTrait(Lattice(), lattice))
-hassite(lattice, site, ::DelegateToField) = hassite(delegator(Lattice(), lattice), site)
-function hassite(lattice, site, ::DontDelegate)
+# generic implementation for `sites` is type-piracy against QuantumTags
+# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
+hassite(lattice::AbstractTensorNetwork, site) = hassite(lattice, site, DelegatorTrait(Lattice(), lattice))
+hassite(lattice::AbstractTensorNetwork, site, ::DelegateToField) = hassite(delegator(Lattice(), lattice), site)
+function hassite(lattice::AbstractTensorNetwork, site, ::DontDelegate)
     fallback(hassite)
     any(Base.Fix1(is_site_equal, site), all_sites_iter(lattice))
 end

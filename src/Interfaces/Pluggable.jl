@@ -7,8 +7,7 @@ struct Pluggable <: Interface end
 
 # keyword-dispatching methods
 function plugs end
-# function plug end
-:(QuantumTags.plug)
+function plug end
 
 # query methods
 function all_plugs end
@@ -43,8 +42,11 @@ plugs(::@NamedTuple{}, tn) = all_plugs(tn)
 plugs(kwargs::NamedTuple{(:set,)}, tn) = plugs_set(tn, kwargs.set)
 
 ## `plug`
-### NOTE in `Operations/AbstractTensorNetwork.jl` because `plug` belongs to `QuantumTags` and thus,
-### it needs to use `AbstractTensorNetwork` to avoid piracy
+# generic implementation for `sites` is type-piracy against QuantumTags
+# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
+plug(tn::AbstractTensorNetwork; kwargs...) = plug(sort_nt(values(kwargs)), tn)
+plug(kwargs::NamedTuple, tn::AbstractTensorNetwork) = only(plugs(tn, kwargs))
+plug(::@NamedTuple{(:at,)}, tn::AbstractTensorNetwork) = plug_at(tn, kwargs.at)
 
 ## `all_plugs`
 all_plugs(tn) = all_plugs(tn, DelegatorTrait(Pluggable(), tn))
