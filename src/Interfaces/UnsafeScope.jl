@@ -58,40 +58,38 @@ inscope(tn, ::Nothing) = false
 isscoped(tn) = !isnothing(get_unsafe_scope(tn))
 
 macro unsafe_region(tn, block)
-    return esc(
-        quote
-            local old = copy($tn)
+    return esc(quote
+        local old = copy($tn)
 
-            # Create a new UnsafeScope and set it to the current tn
-            local _uc = $UnsafeScope()
-            $set_unsafe_scope!($tn, _uc)
+        # Create a new UnsafeScope and set it to the current tn
+        local _uc = $UnsafeScope()
+        $set_unsafe_scope!($tn, _uc)
 
-            # Register the tensor network in the UnsafeScope
-            push!($get_unsafe_scope($tn).refs, WeakRef($tn))
+        # Register the tensor network in the UnsafeScope
+        push!($get_unsafe_scope($tn).refs, WeakRef($tn))
 
-            e = nothing
-            try
-                $block # Execute the user-provided block
-            catch e
-                $tn = old # Restore the original tensor network in case of an exception
-                rethrow(e)
-            finally
-                if isnothing(e)
-                    # Perform checks of registered tensor networks
-                    for ref in values($get_unsafe_scope($tn))
-                        if !isnothing(ref) && ref ∈ $get_unsafe_scope($tn).refs
-                            if !$checksizes(ref)
-                                $tn = old
+        e = nothing
+        try
+            $block # Execute the user-provided block
+        catch e
+            $tn = old # Restore the original tensor network in case of an exception
+            rethrow(e)
+        finally
+            if isnothing(e)
+                # Perform checks of registered tensor networks
+                for ref in values($get_unsafe_scope($tn))
+                    if !isnothing(ref) && ref ∈ $get_unsafe_scope($tn).refs
+                        if !$checksizes(ref)
+                            $tn = old
 
-                                # Set `unsafe` field to `nothing`
-                                $set_unsafe_scope!($tn, nothing)
+                            # Set `unsafe` field to `nothing`
+                            $set_unsafe_scope!($tn, nothing)
 
-                                throw(DimensionMismatch("Inconsistent size of indices"))
-                            end
+                            throw(DimensionMismatch("Inconsistent size of indices"))
                         end
                     end
                 end
             end
-        end,
-    )
+        end
+    end)
 end

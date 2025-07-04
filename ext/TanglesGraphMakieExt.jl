@@ -110,8 +110,8 @@ function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::SimpleTensorNetwork; l
         kwargs[:node_color] = vcat(kwargs[:node_color], fill(:black, length(ghostnodes)))
     else
         kwargs[:node_color] = map(1:Graphs.nv(graph)) do v
-            #! format: off
-            #= v ∈ copytensors =# false ? Makie.to_color(:black) : Makie.RGBf(240//256, 180//256, 100//256)
+            #= v ∈ copytensors =#            #! format: off
+            false ? Makie.to_color(:black) : Makie.RGBf(240//256, 180//256, 100//256)
             #! format: on
         end
     end

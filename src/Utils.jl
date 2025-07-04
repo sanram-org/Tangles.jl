@@ -53,7 +53,9 @@ julia> letter(20204)
 :櫛
 ```
 """
-letter(i) = Symbol(first(iterate(Iterators.drop(Iterators.filter(isletter, Iterators.map(Char, 1:(2^21 - 1))), i - 1))))
+function letter(i)
+    Symbol(first(iterate(Iterators.drop(Iterators.filter(isletter, Iterators.map(Char, 1:(2 ^ 21 - 1))), i - 1))))
+end
 
 # NOTE from https://stackoverflow.com/q/54652787
 function nonunique(x)
