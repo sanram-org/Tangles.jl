@@ -280,7 +280,7 @@ function Base.setindex!(tn::AbstractTensorNetwork, tensor::Tensor, site::Site)
     if hassite(tn, site)
         replace_tensor!(tn, tensor_at(tn, site), tensor)
     else
-        addtensor!(tn, tensor, site)
+        addtensor!(tn, tensor)
         setsite!(tn, tensor, site)
     end
     return tn

@@ -415,3 +415,22 @@ end
     tn = WrapperTensorNetwork(SimpleTensorNetwork(test_tensors))
     test_mock_tensor_network(tn)
 end
+
+@testset "setindex! - add tensor with site" begin
+    tn = GenericTensorNetwork()
+    tensor = Tensor(fill(0))
+    tn[site"1"] = tensor
+    @test hassite(tn, site"1")
+    @test hastensor(tn, tensor)
+    @test tn[site"1"] === tensor
+end
+
+@testset "setindex! - replace tensor referenced by site" begin
+    tn = GenericTensorNetwork()
+    tn[site"1"] = Tensor(fill(0))
+    tensor = Tensor(fill(1))
+    tn[site"1"] = tensor
+    @test hassite(tn, site"1")
+    @test hastensor(tn, tensor)
+    @test tn[site"1"] === tensor
+end
