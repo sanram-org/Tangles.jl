@@ -80,4 +80,20 @@ export GenericTensorNetwork
 # extra
 include("Operations/TensorExtra.jl")
 
+# precompilation
+using PrecompileTools
+
+@setup_workload begin
+    a = Tensor(ones(2, 2), [:i, :j])
+    b = Tensor(ones(2, 2), [:j, :k])
+    c = Tensor(ones(2, 2, 2), [:k, :l, :i])
+
+    @compile_workload begin
+        tn = GenericTensorNetwork([a, b, c])
+        setsite!(tn, c, site"1")
+        setplug!(tn, Index(:l), plug"1")
+        Tangles.contract(tn)
+    end
+end
+
 end
