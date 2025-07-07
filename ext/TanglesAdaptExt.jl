@@ -3,9 +3,6 @@ module TanglesAdaptExt
 using Tangles
 using Adapt
 
-# TODO move to Muscle
-# Adapt.adapt_structure(to, x::Tensor) = Tensor(adapt(to, parent(x)), inds(x))
-
 function Adapt.adapt_structure(to, x::Tangles.AbstractTensorNetwork)
     y = copy(x)
 
