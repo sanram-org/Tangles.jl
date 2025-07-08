@@ -229,6 +229,9 @@ function test_mock_tensor_network(tn)
             tensor_to_remove = test_tensors[1]
             rmtensor!(tn, tensor_to_remove)
             @test !hastensor(tn, tensor_to_remove)
+
+            # Check that the inds(tn) and inds.(tensors(tn)) are still the same
+            @test issetequal(inds(tn), collect(only(unique(inds.(test_tensors[2:3])))))
         end
     end
 

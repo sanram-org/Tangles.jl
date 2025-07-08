@@ -207,11 +207,14 @@ function rmtensor!(tn::SimpleTensorNetwork, tensor::Tensor)
     hastensor(tn, tensor) || throw(ArgumentError("Tensor not found"))
 
     target_vertex = vertex_at(tn, tensor)
-    edge_set = vertex_incidents(tn, target_vertex)
+    edge_set = vertex_incidents(tn, target_vertex) |> copy
 
     # remove tensor
     delete!(tn.tensormap, target_vertex)
     rmvertex!(tn.network, target_vertex)
+
+    # NOTE force edge pruning because as of Networks.jl 0.3.0, `EdgePersistence(::IncidentNetwork) = PersistEdges()`
+    Networks.prune_edges!(tn.network)
 
     # remove indices if they were removed
     # TODO maybe we should refactor `rmtensor!` to check if we use a `Network` underneath and then, use the `RemoveVertexEffect` and `RemoveEdgeEffect` effects?
