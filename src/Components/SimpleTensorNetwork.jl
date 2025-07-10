@@ -5,6 +5,7 @@ using QuantumTags
 using Muscle: ImmutableVector
 using Bijections
 using Serialization
+using Random
 
 const TensorBijection{V,T} = Bijection{V,T,Dict{V,T},IdDict{T,V}}
 const IndexBijection{E,I} = Bijection{E,I,Dict{E,I},Dict{I,E}}
@@ -313,3 +314,78 @@ function Serialization.deserialize(s::AbstractSerializer, ::Type{SimpleTensorNet
     # merge!(tn.linkmap, linkmap)
     return tn
 end
+
+"""
+    rand(TensorNetwork, n::Integer, regularity::Integer; out = 0, dim = 2:9, seed = nothing, globalind = false)
+
+Generate a random tensor network.
+
+# Arguments
+
+  - `n` Number of tensors.
+  - `regularity` Average number of indices per tensor.
+  - `out` Number of open indices.
+  - `dim` Range of dimension sizes.
+  - `seed` If not `nothing`, seed random generator with this value.
+  - `globalind` Add a global 'broadcast' dimension to every tensor.
+"""
+function Base.rand(
+    rng::Random.AbstractRNG,
+    ::Type{SimpleTensorNetwork},
+    n::Integer,
+    regularity::Integer;
+    out=0,
+    dim=2:9,
+    seed=nothing,
+    globalind=false,
+    eltype=Float64,
+)
+    !isnothing(seed) && Random.seed!(rng, seed)
+
+    inds = letter.(randperm(n * regularity ÷ 2 + out))
+    size_dict = Dict(ind => rand(dim) for ind in inds)
+
+    outer_inds = collect(Iterators.take(inds, out))
+    inner_inds = collect(Iterators.drop(inds, out))
+
+    candidate_inds = shuffle(
+        collect(Iterators.flatten([outer_inds, Iterators.flatten(Iterators.repeated(inner_inds, 2))]))
+    )
+
+    inputs = map(x -> [x], Iterators.take(candidate_inds, n))
+
+    for ind in Iterators.drop(candidate_inds, n)
+        i = rand(1:n)
+        while ind in inputs[i]
+            i = rand(1:n)
+        end
+
+        push!(inputs[i], ind)
+    end
+
+    if globalind
+        ninds = length(size_dict)
+        ind = letter(ninds + 1)
+        size_dict[ind] = rand(dim)
+        push!(outer_inds, ind)
+        push!.(inputs, (ind,))
+    end
+
+    tensors = Tensor[Tensor(rand(eltype, [size_dict[ind] for ind in input]...), tuple(input...)) for input in inputs]
+    return SimpleTensorNetwork(tensors)
+end
+
+function Base.rand(::Type{SimpleTensorNetwork}, n::Integer, regularity::Integer; kwargs...)
+    return rand(Random.default_rng(), SimpleTensorNetwork, n, regularity; kwargs...)
+end
+
+@deprecate(
+    Base.rand(rng::Random.AbstractRNG, ::Type{TensorNetwork}, n::Integer, regularity::Integer; kwargs...),
+    rand(rng, SimpleTensorNetwork, n, regularity; kwargs...),
+    false
+)
+@deprecate(
+    Base.rand(::Type{TensorNetwork}, n::Integer, regularity::Integer; kwargs...),
+    rand(SimpleTensorNetwork, n::Integer, regularity::Integer; kwargs...),
+    false
+)

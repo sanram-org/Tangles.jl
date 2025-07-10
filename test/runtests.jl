@@ -5,6 +5,7 @@ using SafeTestsets
     @safetestset "TensorNetwork" include("unit/tensor_network.jl")
     @safetestset "Taggable" include("unit/taggable.jl")
     @safetestset "Pluggable" include("unit/pluggable.jl")
+    @safetestset "GenericLattice" include("unit/generic_lattice.jl")
 end
 
 @testset "Integration" verbose = true begin

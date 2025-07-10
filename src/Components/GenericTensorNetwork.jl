@@ -2,7 +2,6 @@ using QuantumTags
 using QuantumTags: Site, Link
 using Bijections
 using Networks
-using Random
 
 # TODO use dictionary with parameterized types
 const SiteBijection = Bijection{Site,Vertex{UUID},Dict{Site,Vertex{UUID}},Dict{Vertex{UUID},Site}}
@@ -140,6 +139,14 @@ hasbond(tn::GenericTensorNetwork, link) = has_edge_tag(tn, link)
 nsites(::@NamedTuple{}, tn::GenericTensorNetwork) = length(tn.sitemap)
 nbonds(::@NamedTuple{}, tn::GenericTensorNetwork) = count(isbond, edge_tags(tn))
 
+# TODO change to `incident_edges` on next Networks.jl release
+function incident_bonds(tn::GenericTensorNetwork, _site)
+    filter!(x -> x isa Bond, bond_at.(Ref(tn), vertex_incidents(tn, vertex_at(tn, _site))))
+end
+
+# TODO change to `incident_vertices` on next Networks.jl release
+incident_sites(tn::GenericTensorNetwork, _bond) = site_at.(Ref(tn), edge_incidents(tn, edge_at(tn, _bond)))
+
 setsite!(tn::GenericTensorNetwork, vertex, site) = tag_vertex!(tn, vertex, site)
 setbond!(tn::GenericTensorNetwork, edge, bond) = tag_edge!(tn, edge, bond)
 
@@ -181,66 +188,36 @@ function Base.isapprox(a::GenericTensorNetwork, b::GenericTensorNetwork; kwargs.
     return all(((x, y),) -> isapprox(x, y; kwargs...), zip(tensors(a), tensors(b)))
 end
 
-"""
-    rand(TensorNetwork, n::Integer, regularity::Integer; out = 0, dim = 2:9, seed = nothing, globalind = false)
-
-Generate a random tensor network.
-
-# Arguments
-
-  - `n` Number of tensors.
-  - `regularity` Average number of indices per tensor.
-  - `out` Number of open indices.
-  - `dim` Range of dimension sizes.
-  - `seed` If not `nothing`, seed random generator with this value.
-  - `globalind` Add a global 'broadcast' dimension to every tensor.
-"""
-function Base.rand(
-    rng::Random.AbstractRNG,
-    ::Type{TensorNetwork},
-    n::Integer,
-    regularity::Integer;
-    out=0,
-    dim=2:9,
-    seed=nothing,
-    globalind=false,
-    eltype=Float64,
-)
-    !isnothing(seed) && Random.seed!(rng, seed)
-
-    inds = letter.(randperm(n * regularity ÷ 2 + out))
-    size_dict = Dict(ind => rand(dim) for ind in inds)
-
-    outer_inds = collect(Iterators.take(inds, out))
-    inner_inds = collect(Iterators.drop(inds, out))
-
-    candidate_inds = shuffle(
-        collect(Iterators.flatten([outer_inds, Iterators.flatten(Iterators.repeated(inner_inds, 2))]))
-    )
-
-    inputs = map(x -> [x], Iterators.take(candidate_inds, n))
-
-    for ind in Iterators.drop(candidate_inds, n)
-        i = rand(1:n)
-        while ind in inputs[i]
-            i = rand(1:n)
-        end
-
-        push!(inputs[i], ind)
-    end
-
-    if globalind
-        ninds = length(size_dict)
-        ind = letter(ninds + 1)
-        size_dict[ind] = rand(dim)
-        push!(outer_inds, ind)
-        push!.(inputs, (ind,))
-    end
-
-    tensors = Tensor[Tensor(rand(eltype, [size_dict[ind] for ind in input]...), tuple(input...)) for input in inputs]
-    return GenericTensorNetwork(tensors)
+function Base.rand(::Type{GenericTensorNetwork}, n::Integer, regularity::Integer; kwargs...)
+    GenericTensorNetwork(rand(SimpleTensorNetwork, n, regularity; kwargs...))
 end
 
-function Base.rand(::Type{TensorNetwork}, n::Integer, regularity::Integer; kwargs...)
-    return rand(Random.default_rng(), TensorNetwork, n, regularity; kwargs...)
+function Base.rand(rng::Random.AbstractRNG, ::Type{GenericTensorNetwork}, n::Integer, regularity::Integer; kwargs...)
+    GenericTensorNetwork(rand(rng, SimpleTensorNetwork, n, regularity; kwargs...))
+end
+
+function generic_rand_state(lattice::GenericLattice, d, χ; rng=Random.default_rng(), eltype=ComplexF64)
+    tn = GenericTensorNetwork()
+
+    for site in all_sites_iter(lattice)
+        _incident_bonds = incident_bonds(lattice, site)
+        _inds = [map(Index, _incident_bonds); [Index(plug"$site")]]
+
+        array = rand(rng, eltype, fill(χ, length(_incident_bonds))..., d)
+        tensor = Tensor(array, _inds)
+
+        addtensor!(tn, tensor)
+        setsite!(tn, tensor, site)
+        setplug!(tn, Index(plug"$site"), plug"$site")
+    end
+
+    for bond in all_bonds_iter(lattice)
+        setbond!(tn, Index(bond), bond)
+    end
+
+    return tn
+end
+
+function Base.rand(::Type{GenericTensorNetwork}, lattice::GenericLattice, d, χ; kwargs...)
+    generic_rand_state(lattice, d, χ; kwargs...)
 end
