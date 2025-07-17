@@ -290,11 +290,26 @@ function Base.setindex!(tn::AbstractTensorNetwork, tensor::Tensor, coord::Intege
     setindex!(tn, tensor, CartesianSite(coord))
 end
 
-Base.setindex!(tn::AbstractTensorNetwork, ind::Index, bond::Bond) = replace_ind!(tn, ind_at(tn, bond), ind)
+function Base.setindex!(tn::AbstractTensorNetwork, ind::Index, bond::Bond)
+    if hasbond(tn, bond)
+        replace_ind!(tn, ind_at(tn, bond), ind)
+    else
+        setbond!(tn, ind, bond)
+    end
+    return tn
+end
 
 # Pluggable interface
 Base.getindex(tn::AbstractTensorNetwork, plug::Plug) = ind_at(tn, plug)
-Base.setindex!(tn::AbstractTensorNetwork, ind::Index, plug::Plug) = replace_ind!(tn, ind_at(tn, plug), ind)
+
+function Base.setindex!(tn::AbstractTensorNetwork, ind::Index, plug::Plug)
+    if hasplug(tn, plug)
+        replace_ind!(tn, ind_at(tn, plug), ind)
+    else
+        setplug!(tn, ind, plug)
+    end
+    return tn
+end
 
 """
     Base.adjoint(::AbstractTensorNetwork)

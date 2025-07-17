@@ -437,3 +437,45 @@ end
     @test hastensor(tn, tensor)
     @test tn[site"1"] === tensor
 end
+
+@testset "setindex! - set bond" begin
+    tn = GenericTensorNetwork()
+    tensor = Tensor(zeros(2), [Index(:i)])
+    addtensor!(tn, tensor)
+    tn[bond"1-2"] = Index(:i)
+
+    @test ind_at(tn, bond"1-2") == tn[bond"1-2"] == Index(:i)
+end
+
+@testset "setindex! - replace index referenced by bond" begin
+    tn = GenericTensorNetwork()
+    tensor = Tensor(zeros(2), [Index(:i)])
+    addtensor!(tn, tensor)
+    tn[bond"1-2"] = Index(:i)
+
+    # replace index
+    tn[bond"1-2"] = Index(:j)
+
+    @test ind_at(tn, bond"1-2") == tn[bond"1-2"] == Index(:j)
+end
+
+@testset "setindex! - set plug" begin
+    tn = GenericTensorNetwork()
+    tensor = Tensor(zeros(2), [Index(:i)])
+    addtensor!(tn, tensor)
+    tn[plug"1"] = Index(:i)
+
+    @test ind_at(tn, plug"1") == tn[plug"1"] == Index(:i)
+end
+
+@testset "setindex! - replace index referenced by bond" begin
+    tn = GenericTensorNetwork()
+    tensor = Tensor(zeros(2), [Index(:i)])
+    addtensor!(tn, tensor)
+    tn[plug"1"] = Index(:i)
+
+    # replace index
+    tn[plug"1"] = Index(:j)
+
+    @test ind_at(tn, plug"1") == tn[plug"1"] == Index(:j)
+end
