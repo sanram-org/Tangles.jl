@@ -419,7 +419,33 @@ end
     test_mock_tensor_network(tn)
 end
 
-@testset "setindex! - add tensor with site" begin
+@testset "setindex!: replace tensor" begin
+    tn = GenericTensorNetwork()
+    old_tensor = Tensor(fill(0))
+    addtensor!(tn, old_tensor)
+
+    new_tensor = Tensor(fill(1))
+    tn[old_tensor] = new_tensor
+
+    @test hastensor(tn, new_tensor)
+    @test !hastensor(tn, old_tensor)
+end
+
+@testset "setindex!: replace index" begin
+    tn = GenericTensorNetwork()
+    old_index = Index(:i)
+    new_index = Index(:j)
+
+    tensor = Tensor(zeros(2), [old_index])
+    addtensor!(tn, tensor)
+
+    tn[old_index] = new_index
+
+    @test hasind(tn, new_index)
+    @test !hasind(tn, old_index)
+end
+
+@testset "setindex!: add tensor with site" begin
     tn = GenericTensorNetwork()
     tensor = Tensor(fill(0))
     tn[site"1"] = tensor
@@ -428,7 +454,7 @@ end
     @test tn[site"1"] === tensor
 end
 
-@testset "setindex! - replace tensor referenced by site" begin
+@testset "setindex!: replace tensor referenced by site" begin
     tn = GenericTensorNetwork()
     tn[site"1"] = Tensor(fill(0))
     tensor = Tensor(fill(1))
@@ -438,7 +464,7 @@ end
     @test tn[site"1"] === tensor
 end
 
-@testset "setindex! - set bond" begin
+@testset "setindex!: set bond" begin
     tn = GenericTensorNetwork()
     tensor = Tensor(zeros(2), [Index(:i)])
     addtensor!(tn, tensor)
@@ -447,7 +473,7 @@ end
     @test ind_at(tn, bond"1-2") == tn[bond"1-2"] == Index(:i)
 end
 
-@testset "setindex! - replace index referenced by bond" begin
+@testset "setindex!: replace index referenced by bond" begin
     tn = GenericTensorNetwork()
     tensor = Tensor(zeros(2), [Index(:i)])
     addtensor!(tn, tensor)
@@ -459,7 +485,7 @@ end
     @test ind_at(tn, bond"1-2") == tn[bond"1-2"] == Index(:j)
 end
 
-@testset "setindex! - set plug" begin
+@testset "setindex!: set plug" begin
     tn = GenericTensorNetwork()
     tensor = Tensor(zeros(2), [Index(:i)])
     addtensor!(tn, tensor)
@@ -468,7 +494,7 @@ end
     @test ind_at(tn, plug"1") == tn[plug"1"] == Index(:i)
 end
 
-@testset "setindex! - replace index referenced by bond" begin
+@testset "setindex!: replace index referenced by bond" begin
     tn = GenericTensorNetwork()
     tensor = Tensor(zeros(2), [Index(:i)])
     addtensor!(tn, tensor)

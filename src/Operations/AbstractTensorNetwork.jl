@@ -276,6 +276,9 @@ Base.getindex(tn::AbstractTensorNetwork, site::Site) = tensor_at(tn, site)
 Base.getindex(tn::AbstractTensorNetwork, coord::Integer...) = getindex(tn, CartesianSite(coord))
 Base.getindex(tn::AbstractTensorNetwork, bond::Bond) = ind_at(tn, bond)
 
+Base.setindex!(tn::AbstractTensorNetwork, new::Tensor, old::Tensor) = replace_tensor!(tn, old, new)
+Base.setindex!(tn::AbstractTensorNetwork, new::Index, old::Index) = replace_ind!(tn, old, new)
+
 function Base.setindex!(tn::AbstractTensorNetwork, tensor::Tensor, site::Site)
     if hassite(tn, site)
         replace_tensor!(tn, tensor_at(tn, site), tensor)
