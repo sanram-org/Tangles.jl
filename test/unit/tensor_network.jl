@@ -505,3 +505,18 @@ end
 
     @test ind_at(tn, plug"1") == tn[plug"1"] == Index(:j)
 end
+
+@testset "canonicalize_inds!" begin
+    tn = GenericTensorNetwork()
+    tensor = Tensor(zeros(2, 2), [Index(:i), Index(:j)])
+    addtensor!(tn, tensor)
+    setbond!(tn, Index(:i), bond"1-2")
+    setplug!(tn, Index(:j), plug"1")
+
+    @test ind_at(tn, bond"1-2") == Index(:i)
+    @test ind_at(tn, plug"1") == Index(:j)
+
+    tn = Tangles.canonicalize_inds!(tn)
+    @test ind_at(tn, bond"1-2") == Index(bond"1-2")
+    @test ind_at(tn, plug"1") == Index(plug"1")
+end
