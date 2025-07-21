@@ -3,7 +3,6 @@ using Networks
 using UUIDs
 using QuantumTags
 using DelegatorTraits
-using ValSplit
 
 """
     GenericLattice
