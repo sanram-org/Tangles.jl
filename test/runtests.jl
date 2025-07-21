@@ -10,7 +10,7 @@ end
 
 # Reactant.jl doesn't support Julia 1.12 yet
 if VERSION < v"1.12"
-    ENV["TANGLES_TEST_REACTANT"]
+    ENV["TANGLES_TEST_REACTANT"] = "true"
 end
 
 @testset "Integration" verbose = true begin
