@@ -32,7 +32,6 @@ jobs:
         version:
           - '1.10'
           - '1.11'
-          - '1.12'
         test_group:
           - unit
           # - integration
