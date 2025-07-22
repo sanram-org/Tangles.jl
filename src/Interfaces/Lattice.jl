@@ -187,8 +187,7 @@ function neighbor_bonds(lattice, bond, ::DontDelegate)
     _neigh_bonds = Iterators.flatmap(_sites) do _site
         filter(s -> !is_bond_equal(s, bond), incident_bonds(lattice, _site))
     end |> collect
-    # TODO refactor this better when `Bond` is invariant on order
-    return unique(Base.Fix2(QuantumTags.bond_hash, UInt(0)), _neigh_bonds)
+    return unique(_neigh_bonds)
 end
 
 ## `addsite!`

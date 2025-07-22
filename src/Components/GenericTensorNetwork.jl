@@ -141,7 +141,7 @@ nbonds(::@NamedTuple{}, tn::GenericTensorNetwork) = count(isbond, edge_tags(tn))
 
 # TODO change to `incident_edges` on next Networks.jl release
 function incident_bonds(tn::GenericTensorNetwork, _site)
-    filter!(x -> x isa Bond, bond_at.(Ref(tn), vertex_incidents(tn, vertex_at(tn, _site))))
+    filter!(isbond, bond_at.(Ref(tn), vertex_incidents(tn, vertex_at(tn, _site))))
 end
 
 # TODO change to `incident_vertices` on next Networks.jl release
