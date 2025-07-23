@@ -7,7 +7,7 @@ import EinExprs: inds
 # reexports
 # TODO decouple `QuantumTags.site`, `QuantumTags.sites`, `QuantumTags.hassite` from same name functions of Tangles
 @reexport using QuantumTags
-@reexport import QuantumTags: site, sites, bond, hassite, plug
+@reexport import QuantumTags: site, sites, bond, hassite, plug, layers
 
 @reexport import Muscle: Tensor, Index
 
@@ -62,7 +62,7 @@ export plugs,
 
 # aliases to `Base` are in "src/Operations/AbstractTensorNetwork.jl"
 include("Operations/TensorNetwork.jl")
-export arrays, contract, resetinds!
+export arrays, contract, resetinds!, canonicalize_inds!, cart_sites
 
 include("Operations/Pluggable.jl")
 export adjoint_plugs!, align!, @align!
@@ -78,6 +78,9 @@ export SimpleTensorNetwork
 
 include("Components/GenericTensorNetwork.jl")
 export GenericTensorNetwork
+
+include("Components/LayeredTensorNetwork.jl")
+export LayeredTensorNetwork
 
 # extra
 include("Operations/TensorExtra.jl")

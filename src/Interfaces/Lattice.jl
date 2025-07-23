@@ -47,6 +47,16 @@ function setbond! end
 function unsetsite! end
 function unsetbond! end
 
+# optional extra methods
+"""
+    cart_sites(tn; lt, by, rev, order)
+
+Return a sorted list of `CartesianSite`s in the Tensor Network.
+
+See also: [`all_sites`](@ref)
+"""
+function cart_sites end
+
 # implementation
 ## `sites`
 # generic implementation for `sites` is type-piracy against QuantumTags
@@ -239,3 +249,10 @@ unsetsite!(lattice, site, ::DontDelegate) = throw(MethodError(unsetsite!, (latti
 unsetbond!(lattice, bond) = unsetbond!(lattice, bond, DelegatorTrait(Lattice(), lattice))
 unsetbond!(lattice, bond, ::DelegateToField) = unsetbond!(delegator(Lattice(), lattice), bond)
 unsetbond!(lattice, bond, ::DontDelegate) = throw(MethodError(unsetbond!, (lattice, bond)))
+
+## `cart_sites`
+cart_sites(tn; kwargs...) = cart_sites(tn, DelegatorTrait(Lattice(), tn); kwargs...)
+cart_sites(tn, ::DelegateToField; kwargs...) = cart_sites(delegator(Lattice(), tn); kwargs...)
+function cart_sites(tn, ::DontDelegate; by=site, kwargs...)
+    sort!(filter!(s -> site(s) isa CartesianSite, all_sites(tn)); by, kwargs...)
+end
