@@ -36,8 +36,8 @@ export size_inds, size_ind
 
 include("Interfaces/Lattice.jl")
 @public Lattice
-export sites, site, site_at, hassite, nsites, all_sites, sites_like, site_like
-export bonds, bond, bond_at, hasbond, nbonds, all_bonds, bonds_like, bond_like
+export sites, site, site_at, hassite, nsites, all_sites, all_sites_iter, sites_like, site_like
+export bonds, bond, bond_at, hasbond, nbonds, all_bonds, all_bonds_iter, bonds_like, bond_like
 export addsite!, addbond!, rmsite!, rmbond!, setsite!, setbond!, unsetsite!, unsetbond!
 
 include("Interfaces/Pluggable.jl")
