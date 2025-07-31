@@ -6,6 +6,7 @@ using Graphs: Graphs
 using Makie
 # using Combinatorics: combinations
 const NetworkLayout = GraphMakie.NetworkLayout
+using DeltaArrays
 
 """
     graphplot(tn::TensorNetwork; kwargs...)
@@ -49,14 +50,45 @@ function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::Tangles.AbstractTensor
     graphplot!(ax, SimpleTensorNetwork(tensors(tn)); kwargs...)
 end
 
-function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::SimpleTensorNetwork; labels=false, kwargs...)
-    # TODO fix hyperindex visualization
-    if !isempty(inds(tn; set=:hyper))
-        # tn = TensorNetwork(tensors(tn))
-        # hypermap = Tangles.hyperflatten(tn)
-        # tn = transform(tn, Tangles.HyperFlatten)
-        throw(ArgumentError("hyper indices not supported for visualization yet"))
+function hyperflatten_map(tn)
+    return Dict(
+        map(inds(tn; set=:hyper)) do hyperind
+            n = length(tensors(tn; intersects=hyperind))
+            map(1:n) do i
+                Index((; hyperind, mult=i))
+            end => hyperind
+        end,
+    )
+end
+
+function hyperflatten!(tn)
+    mapping = hyperflatten_map(tn)
+    for (flatindices, hyperindex) in mapping
+        # insert COPY tensor
+        array = DeltaArray{length(flatindices)}(ones(size(tn, hyperindex)))
+        tensor = Tensor(array, flatindices)
+        push!(tn, tensor)
+
+        # replace hyperindex for new flat Indices
+        # TODO move this part to `replace!`?
+        _tensors = let
+            ts = tensors(tn; intersects=hyperindex)
+            for t in ts
+                rmtensor!(tn, t)
+            end
+            ts
+        end
+        for (flatindex, tensor) in zip(flatindices, _tensors)
+            tensor = replace(tensor, hyperindex => flatindex)
+            addtensor!(tn, tensor)
+        end
     end
+    return mapping
+end
+
+function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::SimpleTensorNetwork; labels=false, kwargs...)
+    tn = SimpleTensorNetwork(tensors(tn))
+    hypermap = hyperflatten!(tn)
 
     tensormap = IdDict(tensor => i for (i, tensor) in enumerate(tensors(tn)))
 
@@ -71,8 +103,7 @@ function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::SimpleTensorNetwork; l
     end
 
     # TODO recognise `copytensors` by using `DeltaArray` or `Diagonal` representations
-    # TODO readd when hyperedges are supported
-    # copytensors = findall(tensor -> any(flatinds -> issetequal(inds(tensor), flatinds), keys(hypermap)), tensors(tn))
+    copytensors = findall(tensor -> any(flatinds -> issetequal(inds(tensor), flatinds), keys(hypermap)), tensors(tn))
     ghostnodes = map(inds(tn; set=:open)) do index
         # create new ghost node
         Graphs.add_vertex!(graph)
@@ -101,19 +132,14 @@ function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::SimpleTensorNetwork; l
     if haskey(kwargs, :node_marker)
         append!(kwargs[:node_marker], fill(:circle, length(ghostnodes)))
     else
-        #! format: off
-        kwargs[:node_marker] = map(i -> #= i ∈ copytensors =# false ? :diamond : :circle, 1:Graphs.nv(graph))
-        #! format: on
+        kwargs[:node_marker] = map(i -> i ∈ copytensors ? :diamond : :circle, 1:Graphs.nv(graph))
     end
 
     if haskey(kwargs, :node_color)
         kwargs[:node_color] = vcat(kwargs[:node_color], fill(:black, length(ghostnodes)))
     else
         kwargs[:node_color] = map(1:Graphs.nv(graph)) do v
-            #= v ∈ copytensors =#
-            #! format: off
-            false ? Makie.to_color(:black) : Makie.RGBf(240//256, 180//256, 100//256)
-            #! format: on
+            v ∈ copytensors ? Makie.to_color(:black) : Makie.RGBf(240//256, 180//256, 100//256)
         end
     end
 
@@ -133,14 +159,13 @@ function GraphMakie.graphplot!(ax::Union{Axis,Axis3}, tn::SimpleTensorNetwork; l
                 return string(inds[opencounter[notghost]])
             end
 
-            # TODO readd when hyperedges are supported
             # case: hyperedge
-            # if any(∈(copytensors), [Graphs.src(edge), Graphs.dst(edge)])
-            #     i = Graphs.src(edge) ∈ copytensors ? Graphs.src(edge) : Graphs.dst(edge)
-            #     # hyperindex = filter(p -> isdisjoint(inds(tensors)[i], p[2]), hypermap) |> only |> first
-            #     hyperindex = hypermap[Tangles.inds(tensors(tn)[i])]
-            #     return string(hyperindex)
-            # end
+            if any(∈(copytensors), [Graphs.src(edge), Graphs.dst(edge)])
+                i = Graphs.src(edge) ∈ copytensors ? Graphs.src(edge) : Graphs.dst(edge)
+                # hyperindex = filter(p -> isdisjoint(inds(tensors)[i], p[2]), hypermap) |> only |> first
+                hyperindex = hypermap[Tangles.inds(tensors(tn)[i])]
+                return string(hyperindex)
+            end
 
             return join(Tangles.inds(tensors(tn)[Graphs.src(edge)]) ∩ Tangles.inds(tensors(tn)[Graphs.dst(edge)]), ',')
         end
