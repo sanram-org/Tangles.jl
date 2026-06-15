@@ -78,7 +78,7 @@ nsites(tn::GenericTensorNetwork) = length(tn.sitemap)
 nlinks(tn::GenericTensorNetwork) = length(tn.linkmap)
 
 site_at(tn::GenericTensorNetwork, vertex::Vertex) = tn.sitemap(vertex)
-site_at(tn::GenericTensorNetwork, tensor::Tensor) = site_at(tn, vertex_at(tn, tensor))
+site_at(tn::GenericTensorNetwork, tensor::NamedTensor) = site_at(tn, vertex_at(tn, tensor))
 
 link_at(tn::GenericTensorNetwork, edge::Edge) = tn.linkmap(tn, edge)
 link_at(tn::GenericTensorNetwork, ind::Index) = link_at(tn, edge_at(tn, ind))

@@ -6,11 +6,11 @@ using Reactant: Enzyme, @skip_rewrite_func, @skip_rewrite_type
 # using PrecompileTools
 
 # issue fix: strange behavior between `IdDict` and `Tensor` when using `TracedRArray`... can't figure out why or do a MWE
-function Tangles.hastensor(tn::SimpleTensorNetwork, tensor::Tensor{<:Reactant.TracedRNumber})
+function Tangles.hastensor(tn::SimpleTensorNetwork, tensor::NamedTensor{<:Reactant.TracedRNumber})
     any(t -> tensor === t, all_tensors_iter(tn))
 end
 
-function Tangles.vertex_at(tn::SimpleTensorNetwork, tensor::Tensor{<:Reactant.TracedRNumber})
+function Tangles.vertex_at(tn::SimpleTensorNetwork, tensor::NamedTensor{<:Reactant.TracedRNumber})
     for (vertex, mapped_tensor) in tn.tensormap
         if mapped_tensor === tensor
             return vertex

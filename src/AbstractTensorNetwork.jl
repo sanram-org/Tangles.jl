@@ -15,7 +15,7 @@ inds(kwargs::NamedTuple{(:parallel_to,)}, tn) = inds_parallel_to(tn, kwargs.para
 inds(kwargs::NamedTuple{(:parallelto,)}, tn) = inds_parallel_to(tn, kwargs.parallelto)
 
 Base.in(i::Index, tn::AbstractTensorNetwork) = hasind(tn, i)
-Base.in(tensor::Tensor, tn::AbstractTensorNetwork) = hastensor(tn, tensor)
+Base.in(tensor::NamedTensor, tn::AbstractTensorNetwork) = hastensor(tn, tensor)
 
 Base.size(tn::AbstractTensorNetwork) = size_inds(tn)
 Base.size(tn::AbstractTensorNetwork, i::Index) = size_ind(tn, i)
@@ -107,14 +107,14 @@ end
 """
     push!(tn::AbstractTensorNetwork, tensor)
 
-Add a [`Tensor`](@ref) to the Tensor Network.
+Add a [`NamedTensor`](@ref) to the Tensor Network.
 """
-Base.push!(tn::AbstractTensorNetwork, tensor::Tensor; kwargs...) = addtensor!(tn, tensor; kwargs...)
+Base.push!(tn::AbstractTensorNetwork, tensor::NamedTensor; kwargs...) = addtensor!(tn, tensor; kwargs...)
 
 """
     append!(tn::AbstractTensorNetwork, tensors)
 
-Add a tensors to a Tensor Network from a list of [`Tensor`](@ref)s or from another Tensor Network.
+Add a tensors to a Tensor Network from a list of [`NamedTensor`](@ref)s or from another Tensor Network.
 
 See also: [`push!`](@ref).
 """
@@ -127,14 +127,14 @@ Base.append!(tn::AbstractTensorNetwork, tensors) = (foreach(Base.Fix1(push!, tn)
 
 # TODO `pop!`
 # """
-#     pop!(tn::AbstractTensorNetwork, tensor::Tensor)
+#     pop!(tn::AbstractTensorNetwork, tensor::NamedTensor)
 #     pop!(tn::AbstractTensorNetwork, i::Union{Symbol,AbstractVecOrTuple{Symbol}})
 
 # Remove and return the first tensor in `tn`` that satisfies _egality_ (i.e. `≡`or`===`) with `tensor`.
 
 # See also: [`push!`](@ref), [`delete!`](@ref).
 # """
-# Base.pop!(tn::AbstractTensorNetwork, tensor::Tensor) = (delete!(tn, tensor); tensor)
+# Base.pop!(tn::AbstractTensorNetwork, tensor::NamedTensor) = (delete!(tn, tensor); tensor)
 
 """
     delete!(tn::AbstractTensorNetwork, tensor)
@@ -145,7 +145,7 @@ Remove a [`Tensor`](@ref) from the Tensor Network.
 
     [`Tensor`](@ref)s are identified in a Tensor Network by their `objectid`, so you must pass the same object and not a copy.
 """
-Base.delete!(tn::AbstractTensorNetwork, tensor::Tensor) = rmtensor!(tn, tensor)
+Base.delete!(tn::AbstractTensorNetwork, tensor::NamedTensor) = rmtensor!(tn, tensor)
 
 """
     replace!(tn::AbstractTensorNetwork, old => new...)
@@ -311,10 +311,10 @@ Base.getindex(tn::AbstractTensorNetwork, site::Site) = tensor_at(tn, site)
 Base.getindex(tn::AbstractTensorNetwork, coord::Integer...) = getindex(tn, CartesianSite(coord))
 Base.getindex(tn::AbstractTensorNetwork, bond::Bond) = ind_at(tn, bond)
 
-Base.setindex!(tn::AbstractTensorNetwork, new::Tensor, old::Tensor) = replace_tensor!(tn, old, new)
+Base.setindex!(tn::AbstractTensorNetwork, new::NamedTensor, old::NamedTensor) = replace_tensor!(tn, old, new)
 Base.setindex!(tn::AbstractTensorNetwork, new::Index, old::Index) = replace_ind!(tn, old, new)
 
-function Base.setindex!(tn::AbstractTensorNetwork, tensor::Tensor, site::Site)
+function Base.setindex!(tn::AbstractTensorNetwork, tensor::NamedTensor, site::Site)
     if hassite(tn, site)
         replace_tensor!(tn, tensor_at(tn, site), tensor)
     else
@@ -324,7 +324,7 @@ function Base.setindex!(tn::AbstractTensorNetwork, tensor::Tensor, site::Site)
     return tn
 end
 
-function Base.setindex!(tn::AbstractTensorNetwork, tensor::Tensor, coord::Integer...)
+function Base.setindex!(tn::AbstractTensorNetwork, tensor::NamedTensor, coord::Integer...)
     setindex!(tn, tensor, CartesianSite(coord))
 end
 

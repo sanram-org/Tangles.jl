@@ -29,13 +29,13 @@ end
 
 Tangles.all_tensors(tn::MockTensorNetwork) = collect(tn.tensors)
 
-function Tangles.addtensor!(tn::MockTensorNetwork, tensor::Tensor)
+function Tangles.addtensor!(tn::MockTensorNetwork, tensor::NamedTensor)
     hastensor(tn, tensor) && throw(ArgumentError("tensor already exists in the network"))
     push!(tn.tensors, tensor)
     return tn
 end
 
-function Tangles.rmtensor!(tn::MockTensorNetwork, tensor::Tensor)
+function Tangles.rmtensor!(tn::MockTensorNetwork, tensor::NamedTensor)
     !hastensor(tn, tensor) && throw(ArgumentError("tensor not found in the network"))
     deleteat!(tn.tensors, findfirst(x -> x === tensor, tn.tensors))
     return tn
