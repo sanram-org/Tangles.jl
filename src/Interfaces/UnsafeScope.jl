@@ -1,36 +1,20 @@
 using DelegatorTraits
 
-# TODO document that a `TensorNetwork` implementor must implement these methods
+# TODO document that a `TensorNetwork` implementor should implement these methods
 struct UnsafeScopeable <: Interface end
 
 # interface
 function is_scopeable end
+is_scopeable(tn::T) where {T} = DelegatorTrait(UnsafeScopeable(), tn) isa DelegateToField
+
 function get_unsafe_scope end
+@delegated interface=UnsafeScopeable() get_unsafe_scope(tn) = nothing
+
 function set_unsafe_scope! end
+@delegated interface=UnsafeScopeable() set_unsafe_scope!(tn, uc)
+
 function checksizes end
-function inscope end
-
-function is_scopeable(tn::T) where {T}
-    if DelegatorTrait(UnsafeScopeable(), tn) isa DelegateToField
-        true
-        # elseif hasmethod(get_unsafe_scope, Tuple{T}) && hasmethod(set_unsafe_scope!, Tuple{T,UnsafeScope})
-        #     true
-    else
-        false
-    end
-end
-
-get_unsafe_scope(tn) = get_unsafe_scope(tn, DelegatorTrait(UnsafeScopeable(), tn))
-get_unsafe_scope(tn, ::DelegateToField) = get_unsafe_scope(delegator(UnsafeScopeable(), tn))
-get_unsafe_scope(_, ::DontDelegate) = nothing
-
-set_unsafe_scope!(tn, uc) = set_unsafe_scope!(tn, uc, DelegatorTrait(UnsafeScopeable(), tn))
-set_unsafe_scope!(tn, uc, ::DelegateToField) = set_unsafe_scope!(delegator(UnsafeScopeable(), tn), uc)
-set_unsafe_scope!(tn, uc, ::DontDelegate) = throw(MethodError(set_unsafe_scope!, (tn, uc)))
-
-checksizes(tn) = checksizes(tn, DelegatorTrait(UnsafeScopeable(), tn))
-checksizes(tn, ::DelegateToField) = checksizes(delegator(UnsafeScopeable(), tn))
-function checksizes(tn, ::DontDelegate)
+@delegated interface=UnsafeScopeable() function checksizes(tn)
     fallback(checksizes)
     sizedict = size(tn)
     return all(tensors(tn)) do tensor

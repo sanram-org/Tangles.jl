@@ -39,7 +39,7 @@ TanglesReactantExt = ["Reactant"]
 [compat]
 Adapt = "4"
 Bijections = "0.2.1"
-DelegatorTraits = "0.1.2"
+DelegatorTraits = "0.2.1"
 DeltaArrays = "0.1.1"
 EinExprs = "0.6.8, 0.7"
 FiniteDifferences = "0.12"
