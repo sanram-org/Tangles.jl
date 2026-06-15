@@ -1,6 +1,15 @@
 using Test
 using Tangles
-using Tangles: arrays, tensor_set_equal, tensors_set_equal, tensors_set_contain, tensors_set_intersect, inds_set, inds_parallel_to, size_inds, size_ind
+using Tangles:
+    arrays,
+    tensor_set_equal,
+    tensors_set_equal,
+    tensors_set_contain,
+    tensors_set_intersect,
+    inds_set,
+    inds_parallel_to,
+    size_inds,
+    size_ind
 using DelegatorTraits
 using Serialization
 

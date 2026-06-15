@@ -1,6 +1,15 @@
 using Test
 using Tangles
-using Tangles: plugs_set_in, plugs_set_out, inds_set_physical, inds_set_virtual, inds_set_in, inds_set_out, adjoint_plugs!, resetinds!, align!
+using Tangles:
+    plugs_set_in,
+    plugs_set_out,
+    inds_set_physical,
+    inds_set_virtual,
+    inds_set_in,
+    inds_set_out,
+    adjoint_plugs!,
+    resetinds!,
+    align!
 using Networks
 
 # 2-site state
