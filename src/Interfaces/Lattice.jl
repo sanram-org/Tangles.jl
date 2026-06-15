@@ -59,8 +59,6 @@ function cart_sites end
 
 # implementation
 ## `sites`
-# generic implementation for `sites` is type-piracy against QuantumTags
-# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
 sites(tn::AbstractTensorNetwork; kwargs...) = sites(sort_nt(values(kwargs)), tn)
 sites(::@NamedTuple{}, tn) = all_sites(tn)
 
@@ -84,15 +82,11 @@ bonds(tn; kwargs...) = bonds(sort_nt(values(kwargs)), tn)
 bonds(::@NamedTuple{}, tn) = all_bonds(tn)
 
 ## `site`
-# generic implementation for `sites` is type-piracy against QuantumTags
-# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
 site(tn::AbstractTensorNetwork; kwargs...) = site(sort_nt(values(kwargs)), tn)
 site(kwargs::NamedTuple, tn::AbstractTensorNetwork) = only(sites(tn; kwargs...))
 site(kwargs::NamedTuple{(:at,)}, tn::AbstractTensorNetwork) = site_at(tn, kwargs.at)
 
 ## `bond`
-# generic implementation for `sites` is type-piracy against QuantumTags
-# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
 bond(tn::AbstractTensorNetwork; kwargs...) = bond(sort_nt(values(kwargs)), tn)
 bond(kwargs::NamedTuple, tn::AbstractTensorNetwork) = only(bonds(tn; kwargs...))
 bond(kwargs::NamedTuple{(:at,)}, tn::AbstractTensorNetwork) = bond_at(tn, kwargs.at)
@@ -124,8 +118,6 @@ function all_bonds_iter(lattice, ::DontDelegate)
 end
 
 ## `hassite`
-# generic implementation for `sites` is type-piracy against QuantumTags
-# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
 hassite(lattice::AbstractTensorNetwork, site) = hassite(lattice, site, DelegatorTrait(Lattice(), lattice))
 hassite(lattice::AbstractTensorNetwork, site, ::DelegateToField) = hassite(delegator(Lattice(), lattice), site)
 function hassite(lattice::AbstractTensorNetwork, site, ::DontDelegate)

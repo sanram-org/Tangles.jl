@@ -1,5 +1,3 @@
-using QuantumTags
-import QuantumTags: layers
 using DelegatorTraits
 
 struct LayeredTensorNetwork <: AbstractTensorNetwork

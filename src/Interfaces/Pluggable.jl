@@ -1,5 +1,4 @@
 using LinearAlgebra: LinearAlgebra
-using QuantumTags: isdual, is_plug_equal
 
 # interface object
 struct Pluggable <: Interface end
@@ -41,8 +40,6 @@ plugs(::@NamedTuple{}, tn) = all_plugs(tn)
 plugs(kwargs::NamedTuple{(:set,)}, tn) = plugs_set(tn, kwargs.set)
 
 ## `plug`
-# generic implementation for `sites` is type-piracy against QuantumTags
-# TODO move `Lattice` interface to its own package and import it both here and in `QuantumTags`
 plug(tn::AbstractTensorNetwork; kwargs...) = plug(sort_nt(values(kwargs)), tn)
 plug(kwargs::NamedTuple, tn::AbstractTensorNetwork) = only(plugs(tn, kwargs))
 plug(kwargs::NamedTuple{(:at,)}, tn::AbstractTensorNetwork) = plug_at(tn, kwargs.at)

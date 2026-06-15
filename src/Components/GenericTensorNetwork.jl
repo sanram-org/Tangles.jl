@@ -1,5 +1,3 @@
-using QuantumTags
-using QuantumTags: Site, Link
 using Bijections
 using Networks
 

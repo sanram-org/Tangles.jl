@@ -3,23 +3,19 @@ using Tangles
 using Tangles: LinkBijection, SiteBijection
 using DelegatorTraits
 using Networks
-using QuantumTags
-using QuantumTags: Link
 using Networks: vertex, edge
 
 struct MockSite{S} <: Site
     tag::S
 end
 
-QuantumTags.issite(x::MockSite) = issite(x.tag)
-QuantumTags.site(x::MockSite) = site(x.tag)
+Tangles.site(x::MockSite) = site(x.tag)
 
 struct MockLink{L} <: Link
     tag::L
 end
 
-QuantumTags.isplug(x::MockLink) = isplug(x.tag)
-QuantumTags.plug(x::MockLink) = plug(x.tag)
+Tangles.plug(x::MockLink) = plug(x.tag)
 
 struct WrapperTaggableTensorNetwork{T} <: Tangles.AbstractTensorNetwork
     tn::T

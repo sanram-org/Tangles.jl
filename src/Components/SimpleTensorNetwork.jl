@@ -1,7 +1,6 @@
 using UUIDs
 using Networks
 using Networks: Vertex, Edge, vertex, edge
-using QuantumTags
 using Muscle: ImmutableVector
 using Bijections
 using Serialization

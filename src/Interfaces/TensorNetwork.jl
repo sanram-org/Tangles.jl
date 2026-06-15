@@ -1,7 +1,6 @@
 using DelegatorTraits
 using Base: AbstractVecOrTuple
 using Networks
-using QuantumTags
 using Muscle: Muscle
 
 # interface object
