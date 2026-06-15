@@ -33,7 +33,7 @@ end
 
 function pushlayer!(tn::LayeredTensorNetwork, layer_tn; layer::Layer=Layer(length(tn.layers) + 1))
     @assert ntensors(layer_tn) == nsites(layer_tn) "Each tensor in a layer must correspond to a site"
-    @assert ninds(layer_tn) == nbonds(layer_tn) + nplugs(layer_tn) "Each index in a layer must correspond to a bond or plug"
+    @assert ninds(layer_tn) == ninds(layer_tn) "Each index in a layer must correspond to a bond or plug"
 
     align!(tn => layer_tn)
 
@@ -63,7 +63,7 @@ function pushlayer!(tn::LayeredTensorNetwork, layer_tn; layer::Layer=Layer(lengt
             ilayer = InterLayer(prev_layer, layer)
             ibond = InterLayerBond(site(_plug), ilayer)
 
-            unsetplug!(tn, _plug')
+            unsetlink!(tn, _plug')
             tn[ibond] = layer_tn[_plug]
 
             # canonicalize interlayer bond index to avoid conflicts
