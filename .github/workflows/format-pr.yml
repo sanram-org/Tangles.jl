@@ -18,7 +18,7 @@ jobs:
           ref: main
       - uses: julia-actions/julia-format@v4
         with:
-          version: '1'
+          version: '2'
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v7

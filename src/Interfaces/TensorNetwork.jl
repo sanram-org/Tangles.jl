@@ -65,10 +65,10 @@ ninds(::@NamedTuple{}, tn) = ninds_all(tn)
 
 # interface methods
 function all_tensors end
-@delegated interface=TensorNetwork() all_tensors(tn)
+@delegated interface = TensorNetwork() all_tensors(tn)
 
 function all_inds end
-@delegated interface=TensorNetwork() all_inds(tn)
+@delegated interface = TensorNetwork() all_inds(tn)
 
 # function all_inds(tn, ::DontDelegate)
 #     fallback(all_inds)
@@ -82,63 +82,63 @@ function all_inds end
 # end
 
 function all_tensors_iter end
-@delegated interface=TensorNetwork() function all_tensors_iter(tn)
+@delegated interface = TensorNetwork() function all_tensors_iter(tn)
     fallback(all_tensors_iter)
     return all_tensors(tn)
 end
 
 function all_inds_iter end
-@delegated interface=TensorNetwork() function all_inds_iter(tn)
+@delegated interface = TensorNetwork() function all_inds_iter(tn)
     fallback(all_inds_iter)
     return all_inds(tn)
 end
 
 function hastensor end
-@delegated interface=TensorNetwork() function hastensor(tn, tensor)
+@delegated interface = TensorNetwork() function hastensor(tn, tensor)
     fallback(hastensor)
     any(Base.Fix1(===, tensor), all_tensors_iter(tn))
 end
 
 function hasind end
-@delegated interface=TensorNetwork() function hasind(tn, ind)
+@delegated interface = TensorNetwork() function hasind(tn, ind)
     fallback(hasind)
     i ∈ all_inds_iter(tn)
 end
 
 function ntensors_all end
-@delegated interface=TensorNetwork() function ntensors_all(tn)
+@delegated interface = TensorNetwork() function ntensors_all(tn)
     fallback(ntensors_all)
     return length(all_tensors(tn))
 end
 
 function ninds_all end
-@delegated interface=TensorNetwork() function ninds_all(tn)
+@delegated interface = TensorNetwork() function ninds_all(tn)
     fallback(ninds_all)
     return length(all_inds(tn))
 end
 
 function tensors_set_equal end
-@delegated interface=TensorNetwork() function tensors_set_equal(tn, _inds)
+@delegated interface = TensorNetwork() function tensors_set_equal(tn, _inds)
     fallback(tensors_set_equal)
     return filter(t -> issetequal(inds(t), _inds), tensors_set_contain(tn, _inds))
 end
 
 function tensors_set_contain end
-@delegated interface=TensorNetwork() function tensors_set_contain(tn, _target)
+@delegated interface = TensorNetwork() function tensors_set_contain(tn, _target)
     fallback(tensors_set_contain)
     target = _target isa Index ? [_target] : _target
     return filter(Base.Fix2(⊇, target) ∘ inds, all_tensors_iter(tn))
 end
 
 function tensors_set_intersect end
-@delegated interface=TensorNetwork() function tensors_set_intersect(tn, _target)
+@delegated interface = TensorNetwork() function tensors_set_intersect(tn, _target)
     fallback(tensors_set_intersect)
     target = _target isa Index ? [_target] : _target
     return collect(Iterators.filter(t -> !isdisjoint(inds(t), target), all_tensors_iter(tn)))
 end
 
 function inds_set_open end
-@delegated interface=TensorNetwork() function inds_set_open(tn)
+@delegated interface = TensorNetwork() function inds_set_open(tn)
     fallback(inds_set_open)
     selected = Index[]
     histogram = hist(Iterators.flatten(Iterators.map(inds, all_tensors_iter(tn))); init=Dict{Index,Int}())
@@ -147,7 +147,7 @@ function inds_set_open end
 end
 
 function inds_set_inner end
-@delegated interface=TensorNetwork() function inds_set_inner(tn)
+@delegated interface = TensorNetwork() function inds_set_inner(tn)
     fallback(inds_set_inner)
     selected = Index[]
     histogram = hist(Iterators.flatten(Iterators.map(inds, all_tensors_iter(tn))); init=Dict{Index,Int}())
@@ -156,7 +156,7 @@ function inds_set_inner end
 end
 
 function inds_set_hyper end
-@delegated interface=TensorNetwork() function inds_set_hyper(tn)
+@delegated interface = TensorNetwork() function inds_set_hyper(tn)
     fallback(inds_set_hyper)
     selected = Index[]
     histogram = hist(Iterators.flatten(Iterators.map(inds, all_tensors_iter(tn))); init=Dict{Index,Int}())
@@ -165,7 +165,7 @@ function inds_set_hyper end
 end
 
 function inds_parallel_to end
-@delegated interface=TensorNetwork() function inds_parallel_to(tn, parallel_to)
+@delegated interface = TensorNetwork() function inds_parallel_to(tn, parallel_to)
     candidates = filter!(!=(parallel_to), collect(mapreduce(inds, ∩, tensors(tn; contain=parallel_to))))
     return filter(candidates) do i
         length(tensors(tn; contain=i)) == length(tensors(tn; contain=parallel_to))
@@ -173,7 +173,7 @@ function inds_parallel_to end
 end
 
 function size_inds end
-@delegated interface=TensorNetwork() function size_inds(tn)
+@delegated interface = TensorNetwork() function size_inds(tn)
     fallback(size_inds)
     sizes = Dict{Index,Int}()
     for ind in all_inds_iter(tn)
@@ -183,7 +183,7 @@ function size_inds end
 end
 
 function size_ind end
-@delegated interface=TensorNetwork() function size_ind(tn, i)
+@delegated interface = TensorNetwork() function size_ind(tn, i)
     fallback(size_ind)
     _tensors = tensors_set_contain(tn, i)
     @assert !isempty(_tensors) "Index $i not found in the Tensor Network"
@@ -191,23 +191,23 @@ function size_ind end
 end
 
 function tensor_at end
-@delegated interface=TensorNetwork() tensor_at(tn, vertex)
+@delegated interface = TensorNetwork() tensor_at(tn, vertex)
 
 function ind_at end
-@delegated interface=TensorNetwork() ind_at(tn, edge)
+@delegated interface = TensorNetwork() ind_at(tn, edge)
 
 ## mutating methods
 function addtensor! end
-@delegated interface=TensorNetwork() addtensor!(tn, tensor)
+@delegated interface = TensorNetwork() addtensor!(tn, tensor)
 
 function rmtensor! end
-@delegated interface=TensorNetwork() rmtensor!(tn, tensor)
+@delegated interface = TensorNetwork() rmtensor!(tn, tensor)
 
 function replace_tensor! end
-@delegated interface=TensorNetwork() replace_tensor!(tn, old, new)
+@delegated interface = TensorNetwork() replace_tensor!(tn, old, new)
 
 function replace_ind! end
-@delegated interface=TensorNetwork() replace_ind!(tn, old, new)
+@delegated interface = TensorNetwork() replace_ind!(tn, old, new)
 
 """
     slice!(tn, index::Symbol, i)
@@ -219,7 +219,7 @@ See also: [`selectdim`](@ref), [`view`](@ref).
 function slice! end
 
 # TODO move to SimpleNetwork
-@delegated interface=TensorNetwork() function slice!(tn, ind, i)
+@delegated interface = TensorNetwork() function slice!(tn, ind, i)
     fallback(slice!)
     hasind(tn, ind) || throw(ArgumentError("Index $ind not found in tensor network"))
     target_edge = edge_at(tn, ind)
@@ -249,7 +249,7 @@ function fuse! end
 # TODO move implementation to SimpleTensorNetwork?
 # TODO replace ind for `Index(Fused(parinds))`?
 # TODO should this be run on the lowest or the highest level of the delegation hierarchy?
-@delegated interface=TensorNetwork() function fuse!(tn, i)
+@delegated interface = TensorNetwork() function fuse!(tn, i)
     fallback(fuse!)
     @assert hasind(tn, i) "Index $i not found in the Tensor Network"
 

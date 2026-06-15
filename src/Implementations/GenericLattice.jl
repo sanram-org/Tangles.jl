@@ -17,9 +17,7 @@ end
 
 function GenericLattice()
     GenericLattice(
-        IncidentNetwork{Vertex{UUID},Edge{UUID}}(),
-        Bijection{Vertex{UUID},Site}(),
-        Bijection{Edge{UUID},Bond}(),
+        IncidentNetwork{Vertex{UUID},Edge{UUID}}(), Bijection{Vertex{UUID},Site}(), Bijection{Edge{UUID},Bond}()
     )
 end
 

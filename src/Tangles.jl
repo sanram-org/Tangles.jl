@@ -9,7 +9,8 @@ include("Utils.jl")
 include("Index.jl")
 export Index
 
-@reexport import Muscle: Tensor, variance, extend, expand, fuse, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
+@reexport import Muscle:
+    Tensor, variance, extend, expand, fuse, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
 include("NamedTensor.jl")
 export NamedTensor
 
@@ -37,7 +38,8 @@ export contract
 public arrays, resetinds!, cart_sites
 
 include("Tags.jl")
-export @site_str, @bond_str, @plug_str, CartesianSite, Bond, Plug, Layer, InterLayer, LayerBond, InterLayerBond, LayerPlug
+export @site_str,
+    @bond_str, @plug_str, CartesianSite, Bond, Plug, Layer, InterLayer, LayerBond, InterLayerBond, LayerPlug
 
 # helper method
 plugs(tensor::NamedTensor) = filter!(isplug, map(x -> x.label, inds(tensor)))

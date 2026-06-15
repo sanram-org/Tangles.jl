@@ -108,7 +108,9 @@ end
 function Base.similar(t::NamedTensor, ::Type, dims::Base.Dims{N}; kwargs...) where {N}
     throw(DimensionMismatch("`dims` needs to be of length $(ndims(t))"))
 end
-Base.similar(t::NamedTensor{T,N}, dims::Base.Dims{N}; inds=inds(t)) where {T,N} = NamedTensor(similar(parent(t), dims), inds)
+function Base.similar(t::NamedTensor{T,N}, dims::Base.Dims{N}; inds=inds(t)) where {T,N}
+    NamedTensor(similar(parent(t), dims), inds)
+end
 function Base.similar(t::NamedTensor, dims::Base.Dims{N}; kwargs...) where {N}
     throw(DimensionMismatch("`dims` needs to be of length $(ndims(t))"))
 end
@@ -367,7 +369,9 @@ Base.adjoint(t::NamedTensor) = NamedTensor(adjoint(parent(t)), copy(inds(t)))
 
 # NOTE: Maybe use transpose for lazy transposition ?
 Base.transpose(t::NamedTensor{T,1,A}) where {T,A<:AbstractArray{T,1}} = copy(t)
-Base.transpose(t::NamedTensor{T,2,A}) where {T,A<:AbstractArray{T,2}} = NamedTensor(transpose(parent(t)), reverse(inds(t)))
+function Base.transpose(t::NamedTensor{T,2,A}) where {T,A<:AbstractArray{T,2}}
+    NamedTensor(transpose(parent(t)), reverse(inds(t)))
+end
 
 """
     extend(tensor::NamedTensor, ind::Index; [axis=1, size=1, method=:zeros, variance=Invariant])
@@ -475,7 +479,7 @@ function einsum(a::NamedTensor, b::NamedTensor; dims=inds(a) ∩ inds(b))
     left, right = __einsum_inds_to_dims(a, b, dims)
     data = einsum(parent(a), parent(b); dims=(left, right))
     _inds = Index[
-        [inds(a)[d] for d in 1:ndims(a) if d ∉ left];
+        [inds(a)[d] for d in 1:ndims(a) if d ∉ left]
         [inds(b)[d] for d in 1:ndims(b) if d ∉ right]
     ]
     return NamedTensor(data, _inds)
@@ -585,9 +589,9 @@ function simple_update(
     a::NamedTensor,
     b::NamedTensor,
     g::NamedTensor;
-    physical_inds = (inds(a)[findfirst(==(inds(g)[1]), inds(a))], inds(b)[findfirst(==(inds(g)[2]), inds(b))]),
-    bond_ind = first(inds(a) ∩ inds(b)),
-    kwargs...
+    physical_inds=(inds(a)[findfirst(==(inds(g)[1]), inds(a))], inds(b)[findfirst(==(inds(g)[2]), inds(b))]),
+    bond_ind=first(inds(a) ∩ inds(b)),
+    kwargs...,
 )
     @assert bond_ind ∈ inds(a)
     @assert bond_ind ∈ inds(b)
@@ -597,12 +601,5 @@ function simple_update(
     bond_dims = (dim(a, bond_ind), dim(b, bond_ind))
     physical_dims = (dim(a, physical_inds[1]), dim(b, physical_inds[2]))
 
-    return simple_update(
-        parent(a),
-        parent(b),
-        parent(g);
-        physical_dims,
-        bond_dims,
-        kwargs...,
-    )
+    return simple_update(parent(a), parent(b), parent(g); physical_dims, bond_dims, kwargs...)
 end

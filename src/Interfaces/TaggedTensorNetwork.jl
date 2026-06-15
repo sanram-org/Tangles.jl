@@ -63,10 +63,10 @@ function all_links end
 @delegated interface = TaggedTensorNetwork() all_links(tn)
 
 function site_at end
-@delegated interface=TaggedTensorNetwork() site_at(tn, tensor)
+@delegated interface = TaggedTensorNetwork() site_at(tn, tensor)
 
 function link_at end
-@delegated interface=TaggedTensorNetwork() link_at(tn, ind)
+@delegated interface = TaggedTensorNetwork() link_at(tn, ind)
 
 function all_sites_iter end
 @delegated interface = TaggedTensorNetwork() function all_sites_iter(tn)

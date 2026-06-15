@@ -8,13 +8,13 @@ function is_scopeable end
 is_scopeable(tn::T) where {T} = DelegatorTrait(UnsafeScopeable(), tn) isa DelegateToField
 
 function get_unsafe_scope end
-@delegated interface=UnsafeScopeable() get_unsafe_scope(tn) = nothing
+@delegated interface = UnsafeScopeable() get_unsafe_scope(tn) = nothing
 
 function set_unsafe_scope! end
-@delegated interface=UnsafeScopeable() set_unsafe_scope!(tn, uc)
+@delegated interface = UnsafeScopeable() set_unsafe_scope!(tn, uc)
 
 function checksizes end
-@delegated interface=UnsafeScopeable() function checksizes(tn)
+@delegated interface = UnsafeScopeable() function checksizes(tn)
     fallback(checksizes)
     sizedict = size(tn)
     return all(tensors(tn)) do tensor

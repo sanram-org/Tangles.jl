@@ -366,4 +366,3 @@ function LinearAlgebra.adjoint!(tn::AbstractTensorNetwork)
     adjoint_plugs!(tn)
     return tn
 end
-

@@ -369,7 +369,9 @@ function Base.rand(
         push!.(inputs, (ind,))
     end
 
-    tensors = NamedTensor[NamedTensor(rand(eltype, [size_dict[ind] for ind in input]...), tuple(input...)) for input in inputs]
+    tensors = NamedTensor[
+        NamedTensor(rand(eltype, [size_dict[ind] for ind in input]...), tuple(input...)) for input in inputs
+    ]
     return SimpleTensorNetwork(tensors)
 end
 

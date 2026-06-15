@@ -86,10 +86,10 @@ link_at(tn::GenericTensorNetwork, ind::Index) = link_at(tn, edge_at(tn, ind))
 site_incidents(tn::GenericTensorNetwork, site) = link_at.(Ref(tn), vertex_incidents(tn, vertex_at(tn, site)))
 link_incidents(tn::GenericTensorNetwork, link) = site_at.(Ref(tn), edge_incidents(tn, edge_at(tn, link)))
 
-setsite!(tn::GenericTensorNetwork, vertex::Vertex, site) = (tn.sitemap[site] = vertex; tn)
+setsite!(tn::GenericTensorNetwork, vertex::Vertex, site) = (tn.sitemap[site]=vertex; tn)
 setsite!(tn::GenericTensorNetwork, tensor::NamedTensor, site) = setsite!(tn, vertex_at(tn, tensor), site)
 
-setlink!(tn::GenericTensorNetwork, edge::Edge, link) = (tn.linkmap[link] = edge; tn)
+setlink!(tn::GenericTensorNetwork, edge::Edge, link) = (tn.linkmap[link]=edge; tn)
 setlink!(tn::GenericTensorNetwork, ind::Index, link) = setlink!(tn, edge_at(tn, ind), link)
 
 unsetsite!(tn::GenericTensorNetwork, site) = (delete!(tn.sitemap, site); tn)

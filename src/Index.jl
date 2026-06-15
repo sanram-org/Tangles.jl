@@ -117,7 +117,9 @@ function findperm(from::AbstractIndexList, to::AbstractIndexList)
     return res
 end
 
-factor_inds(all_inds, left_inds, right_inds) = factorinds(IndexList(all_inds), IndexList(left_inds), IndexList(right_inds))
+function factor_inds(all_inds, left_inds, right_inds)
+    factorinds(IndexList(all_inds), IndexList(left_inds), IndexList(right_inds))
+end
 function factorinds(all_inds, left_inds, right_inds)
     if !isdisjoint(left_inds, right_inds)
         throw(ArgumentError("left ($left_inds) and right $(right_inds) indices must be disjoint"))
