@@ -1,5 +1,6 @@
 using Test
-using QuantumTags
+using Tangles
+using Tangles: LambdaSite
 
 s = LambdaSite(bond"1-2")
 @test s isa LambdaSite

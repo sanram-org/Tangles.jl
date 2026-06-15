@@ -18,6 +18,12 @@ if "core" in target_testsets
         @safetestset "Pluggable" include("core/pluggable.jl")
         @safetestset "GenericLattice" include("core/generic_lattice.jl")
         @safetestset "LayeredTensorNetwork" include("core/layered_tensor_network.jl")
+        @testset "Ansatzes" begin
+            @safetestset "ProductState" include("core/ansatzes/product_state.jl")
+            @safetestset "ProductOperator" include("core/ansatzes/product_operator.jl")
+            @safetestset "MPS" include("core/ansatzes/mps.jl")
+            @safetestset "MPO" include("core/ansatzes/mpo.jl")
+        end
     end
 end
 

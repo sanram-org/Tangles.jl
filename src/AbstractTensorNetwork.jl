@@ -269,6 +269,10 @@ function Base.rand(::Type{T}, args...; kwargs...) where {T<:AbstractTensorNetwor
     return rand(Random.default_rng(), T, args...; kwargs...)
 end
 
+function Base.rand(::Type{T}, args::Integer...; kwargs...) where {T<:AbstractTensorNetwork}
+    return rand(Random.default_rng(), T, args...; kwargs...)
+end
+
 """
     einexpr(tn::AbstractTensorNetwork; optimizer = EinExprs.Greedy, output = inds(tn, :open), kwargs...)
 

@@ -60,6 +60,8 @@ Return the underlying array of the tensor.
 """
 Base.parent(t::NamedTensor) = t.data
 
+array(t::NamedTensor) = parent(parent(t))
+
 """
     inds(::NamedTensor)
 
