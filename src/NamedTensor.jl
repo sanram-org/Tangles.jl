@@ -2,7 +2,7 @@ using Base: @propagate_inbounds, AbstractVecOrTuple
 using Base.Broadcast: Broadcasted, ArrayStyle
 using LinearAlgebra
 using Muscle
-import Muscle: Tensor, variance, platform, extend, expand, fuse, isisometry, einsum, einsum!, factordims, tensor_qr, tensor_svd, tensor_eigen, simple_update
+import Muscle: platform, isisometry, factordims
 
 """
     NamedTensor{T,N,A<:AbstractArray{T,N}} <: AbstractArray{T,N}

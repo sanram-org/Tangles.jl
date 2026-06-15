@@ -11,7 +11,7 @@ export Index
 
 include("NamedTensor.jl")
 export NamedTensor
-@reexport import Muscle: Tensor, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
+@reexport import Muscle: Tensor, variance, extend, expand, fuse, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
 
 include("Tags.jl")
 export @site_str, @bond_str, @plug_str, CartesianSite, Bond, Plug, Layer, InterLayer, LayerBond, InterLayerBond, LayerPlug
