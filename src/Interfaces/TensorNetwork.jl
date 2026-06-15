@@ -68,7 +68,16 @@ function all_tensors end
 @delegated interface = TensorNetwork() all_tensors(tn)
 
 function all_inds end
-@delegated interface = TensorNetwork() all_inds(tn)
+@delegated interface = TensorNetwork() function all_inds(tn)
+    fallback(all_inds)
+    _inds = Set{Index}()
+    for tensor in all_tensors_iter(tn)
+        for ind in inds(tensor)
+            push!(_inds, inds)
+        end
+    end
+    return collect(_inds)
+end
 
 # function all_inds(tn, ::DontDelegate)
 #     fallback(all_inds)
