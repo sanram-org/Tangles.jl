@@ -351,7 +351,7 @@ end
 """
     Base.adjoint(::AbstractTensorNetwork)
 
-Return the adjoint of a Pluggable Tensor Network; i.e. the conjugate Tensor Network with the inputs and outputs swapped.
+Return the adjoint of a [`TaggedTensorNetwork`](@ref); i.e. the conjugate Tensor Network with the inputs and outputs swapped.
 """
 Base.adjoint(tn::AbstractTensorNetwork) = adjoint_plugs!(conj(tn))
 

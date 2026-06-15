@@ -339,7 +339,7 @@ align!((a, b)::P) where {P<:Pair} = align!(a, :outputs, b, :inputs)
 """
     @align! a => b reset=true
 
-Rename in-place the indices of the input/output sites of two Pluggable Tensor Networks to be able to connect between them.
+Rename in-place the indices of the input/output sites of two [`TaggedTensorNetwork`](@ref)s to be able to connect between them.
 """
 macro align!(expr)
     @assert Meta.isexpr(expr, :call) && expr.args[1] == :(=>)
