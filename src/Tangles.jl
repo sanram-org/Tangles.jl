@@ -4,14 +4,12 @@ using Reexport
 
 import EinExprs: inds
 
-# reexports
-# TODO decouple `QuantumTags.site`, `QuantumTags.sites`, `QuantumTags.hassite` from same name functions of Tangles
-@reexport using QuantumTags
-@reexport import QuantumTags: site, sites, bond, hassite, plug, layers
+include("Utils.jl")
+
+include("Tags.jl")
+export @site_str, @bond_str, @plug_str, CartesianSite, Bond, Plug, Layer, InterLayer, LayerBond, InterLayerBond, LayerPlug
 
 @reexport import Muscle: Tensor, Index
-
-include("Utils.jl")
 
 using DelegatorTraits
 import DelegatorTraits: DelegatorTrait, ImplementorTrait, Implements, NotImplements
