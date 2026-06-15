@@ -61,16 +61,16 @@ public canonicalize_inds!, adjoint_plugs!, align!
 include("AbstractTensorNetwork.jl")
 
 # implementations
-include("Components/GenericLattice.jl")
+include("Implementations/GenericLattice.jl")
 export GenericLattice
 
-include("Components/SimpleTensorNetwork.jl")
+include("Implementations/SimpleTensorNetwork.jl")
 export SimpleTensorNetwork
 
-include("Components/GenericTensorNetwork.jl")
+include("Implementations/GenericTensorNetwork.jl")
 export GenericTensorNetwork
 
-include("Components/LayeredTensorNetwork.jl")
+include("Implementations/LayeredTensorNetwork.jl")
 export LayeredTensorNetwork
 
 # precompilation
