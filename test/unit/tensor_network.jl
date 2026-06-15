@@ -51,7 +51,7 @@ end
 function Tangles.replace_ind!(tn::MockTensorNetwork, old_ind, new_ind)
     old_ind == new_ind && return tn
 
-    for old_tensor in tensors_contain_inds(tn, old_ind)
+    for old_tensor in tensors_set_contain(tn, old_ind)
         new_tensor = replace(old_tensor, old_ind => new_ind)
         Tangles.replace_tensor!(tn, old_tensor, new_tensor)
     end
@@ -135,60 +135,60 @@ function test_mock_tensor_network(tn)
         end
     end
 
-    @testset "tensors_with_inds" begin
+    @testset "tensors_set_equal" begin
         # `with_inds` returns the tensors with the exact same indices
-        @test isempty(tensors_with_inds(tn, [Index(:i)]))
-        @test issetequal(tensors_with_inds(tn, [Index(:i), Index(:j)]), [test_tensors[1]])
+        @test isempty(tensors_set_equal(tn, [Index(:i)]))
+        @test issetequal(tensors_set_equal(tn, [Index(:i), Index(:j)]), [test_tensors[1]])
 
         # order doesn't matter
-        @test issetequal(tensors_with_inds(tn, [Index(:j), Index(:i)]), [test_tensors[1]])
+        @test issetequal(tensors_set_equal(tn, [Index(:j), Index(:i)]), [test_tensors[1]])
 
         # there can be more than one tensor with the same indices
-        @test issetequal(tensors_with_inds(tn, [Index(:j), Index(:k)]), [test_tensors[2], test_tensors[3]])
+        @test issetequal(tensors_set_equal(tn, [Index(:j), Index(:k)]), [test_tensors[2], test_tensors[3]])
 
         # and again, order doesn't matter
-        @test issetequal(tensors_with_inds(tn, [Index(:k), Index(:j)]), [test_tensors[2], test_tensors[3]])
+        @test issetequal(tensors_set_equal(tn, [Index(:k), Index(:j)]), [test_tensors[2], test_tensors[3]])
 
         # returning nothing should be type-stable
-        @test isempty(tensors_with_inds(tn, [Index(:not_index)])) broken =
+        @test isempty(tensors_set_equal(tn, [Index(:not_index)])) broken =
             tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
-        @test tensors_with_inds(tn, [Index(:not_index)]) isa Vector{<:Tensor} broken =
+        @test tensors_set_equal(tn, [Index(:not_index)]) isa Vector{<:Tensor} broken =
             tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
     end
 
-    @testset "tensors_contain_inds" begin
+    @testset "tensors_set_contain" begin
         # `contain_inds` returns the tensors for which the given indices are a subset
-        @test issetequal(tensors_contain_inds(tn, [Index(:i)]), [test_tensors[1]])
-        @test issetequal(tensors_contain_inds(tn, [Index(:j)]), test_tensors)
-        @test issetequal(tensors_contain_inds(tn, [Index(:k)]), [test_tensors[2], test_tensors[3]])
-        @test issetequal(tensors_contain_inds(tn, [Index(:i), Index(:j)]), [test_tensors[1]])
-        @test issetequal(tensors_contain_inds(tn, [Index(:j), Index(:k)]), [test_tensors[2], test_tensors[3]])
-        @test isempty(tensors_contain_inds(tn, [Index(:i), Index(:j), Index(:k)]))
+        @test issetequal(tensors_set_contain(tn, [Index(:i)]), [test_tensors[1]])
+        @test issetequal(tensors_set_contain(tn, [Index(:j)]), test_tensors)
+        @test issetequal(tensors_set_contain(tn, [Index(:k)]), [test_tensors[2], test_tensors[3]])
+        @test issetequal(tensors_set_contain(tn, [Index(:i), Index(:j)]), [test_tensors[1]])
+        @test issetequal(tensors_set_contain(tn, [Index(:j), Index(:k)]), [test_tensors[2], test_tensors[3]])
+        @test isempty(tensors_set_contain(tn, [Index(:i), Index(:j), Index(:k)]))
 
         # order doesn't matter
-        @test issetequal(tensors_contain_inds(tn, [Index(:j), Index(:i)]), [test_tensors[1]])
+        @test issetequal(tensors_set_contain(tn, [Index(:j), Index(:i)]), [test_tensors[1]])
 
         # returning nothing should be type-stable
-        @test isempty(tensors_contain_inds(tn, [Index(:not_index)])) broken =
+        @test isempty(tensors_set_contain(tn, [Index(:not_index)])) broken =
             tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
-        @test tensors_contain_inds(tn, [Index(:not_index)]) isa Vector{<:Tensor} broken =
+        @test tensors_set_contain(tn, [Index(:not_index)]) isa Vector{<:Tensor} broken =
             tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
     end
 
-    @testset "tensors_intersect_inds" begin
+    @testset "tensors_set_intersect" begin
         # `intersect_inds` returns the tensors for which the given indices intersect
-        @test issetequal(tensors_intersect_inds(tn, [Index(:i)]), [test_tensors[1]])
-        @test issetequal(tensors_intersect_inds(tn, [Index(:j)]), test_tensors)
-        @test issetequal(tensors_intersect_inds(tn, [Index(:j), Index(:i)]), test_tensors)
-        @test issetequal(tensors_intersect_inds(tn, [Index(:k)]), [test_tensors[2], test_tensors[3]])
-        @test issetequal(tensors_intersect_inds(tn, [Index(:i), Index(:j), Index(:k)]), test_tensors)
+        @test issetequal(tensors_set_intersect(tn, [Index(:i)]), [test_tensors[1]])
+        @test issetequal(tensors_set_intersect(tn, [Index(:j)]), test_tensors)
+        @test issetequal(tensors_set_intersect(tn, [Index(:j), Index(:i)]), test_tensors)
+        @test issetequal(tensors_set_intersect(tn, [Index(:k)]), [test_tensors[2], test_tensors[3]])
+        @test issetequal(tensors_set_intersect(tn, [Index(:i), Index(:j), Index(:k)]), test_tensors)
 
         # order doesn't matter
-        @test issetequal(tensors_intersect_inds(tn, [Index(:i), Index(:j)]), test_tensors)
+        @test issetequal(tensors_set_intersect(tn, [Index(:i), Index(:j)]), test_tensors)
 
         # returning nothing should be type-stable
-        @test isempty(tensors_intersect_inds(tn, [Index(:not_index)]))
-        @test tensors_intersect_inds(tn, [Index(:not_index)]) isa Vector{<:Tensor}
+        @test isempty(tensors_set_intersect(tn, [Index(:not_index)]))
+        @test tensors_set_intersect(tn, [Index(:not_index)]) isa Vector{<:Tensor}
     end
 
     @testset "inds_set" begin

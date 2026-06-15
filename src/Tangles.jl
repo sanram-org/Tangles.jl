@@ -28,13 +28,13 @@ public UnsafeScopeable
 export @unsafe_region
 
 include("Interfaces/TensorNetwork.jl")
-export TensorNetwork
+public TensorNetwork
 export tensors,
     tensor, tensor_at, hastensor, ntensors, all_tensors, all_tensors_iter, addtensor!, rmtensor!, replace_tensor!
 export inds, ind, ind_at, hasind, ninds, all_inds, all_inds_iter, replace_ind!
-export tensors_with_inds, tensors_contain_inds, tensors_intersect_inds
-export inds_set, inds_parallel_to
-export size_inds, size_ind
+public tensors_set_equal, tensors_set_contain, tensors_set_intersect
+public inds_set, inds_parallel_to
+public size_inds, size_ind
 
 include("Interfaces/Lattice.jl")
 public Lattice

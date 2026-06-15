@@ -148,7 +148,7 @@ function size_ind(tn::SimpleTensorNetwork, index::Index)
     return size(tensor(tn; at=first(vertex_set)), index)
 end
 
-function tensors_contain_inds(tn::SimpleTensorNetwork, index::Index)
+function tensors_set_contain(tn::SimpleTensorNetwork, index::Index)
     @assert hasind(tn, index) "index $index not found in tensor network"
     vertex_set = edge_incidents(tn, edge_at(tn, index))
     return collect(
@@ -158,7 +158,7 @@ function tensors_contain_inds(tn::SimpleTensorNetwork, index::Index)
     )
 end
 
-function tensors_contain_inds(tn::SimpleTensorNetwork, indices)
+function tensors_set_contain(tn::SimpleTensorNetwork, indices)
     target_tensors = tensors(tn; contain=first(indices))
     filter!(target_tensors) do tensor
         indices ⊆ inds(tensor)

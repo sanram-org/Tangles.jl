@@ -174,9 +174,9 @@ function tangles_skip_rewrites()
     @skip_rewrite_func Tangles.hasind
     @skip_rewrite_func Tangles.ntensors
     @skip_rewrite_func Tangles.ninds
-    @skip_rewrite_func Tangles.tensors_with_inds
-    @skip_rewrite_func Tangles.tensors_contain_inds
-    @skip_rewrite_func Tangles.tensors_intersect_inds
+    @skip_rewrite_func Tangles.tensors_set_equal
+    @skip_rewrite_func Tangles.tensors_set_contain
+    @skip_rewrite_func Tangles.tensors_set_intersect
     @skip_rewrite_func Tangles.inds_set
     @skip_rewrite_func Tangles.inds_parallel_to
     @skip_rewrite_func Tangles.size_inds
