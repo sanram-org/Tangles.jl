@@ -9,9 +9,9 @@ include("Utils.jl")
 include("Index.jl")
 export Index
 
+@reexport import Muscle: Tensor, variance, extend, expand, fuse, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
 include("NamedTensor.jl")
 export NamedTensor
-@reexport import Muscle: Tensor, variance, extend, expand, fuse, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
 
 using DelegatorTraits
 import DelegatorTraits: DelegatorTrait, ImplementorTrait, Implements, NotImplements
