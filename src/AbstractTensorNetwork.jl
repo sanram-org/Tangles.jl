@@ -1,4 +1,5 @@
 using EinExprs
+using LinearAlgebra: LinearAlgebra
 
 # TensorNetwork interface
 Base.summary(io::IO, tn::T) where {T<:AbstractTensorNetwork} = print(io, "$(ntensors(tn))-tensors $T")
@@ -353,11 +354,16 @@ end
 
 Return the adjoint of a [`TaggedTensorNetwork`](@ref); i.e. the conjugate Tensor Network with the inputs and outputs swapped.
 """
-Base.adjoint(tn::AbstractTensorNetwork) = adjoint_plugs!(conj(tn))
+Base.adjoint(tn::AbstractTensorNetwork) = LinearAlgebra.adjoint!(copy(tn))
 
 """
     LinearAlgebra.adjoint!(::AbstractTensorNetwork)
 
 Like [`adjoint`](@ref), but in-place.
 """
-LinearAlgebra.adjoint!(tn::AbstractTensorNetwork) = adjoint_plugs!(conj!(tn))
+function LinearAlgebra.adjoint!(tn::AbstractTensorNetwork)
+    foreach(LinearAlgebra.adjoint!, all_tensors_iter(tn))
+    adjoint_plugs!(tn)
+    return tn
+end
+
