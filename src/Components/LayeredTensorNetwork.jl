@@ -1,7 +1,6 @@
 using QuantumTags
 import QuantumTags: layers
 using DelegatorTraits
-using ArgCheck
 
 struct LayeredTensorNetwork <: AbstractTensorNetwork
     tn::GenericTensorNetwork
@@ -23,7 +22,7 @@ layers(tn::LayeredTensorNetwork) = tn.layers # unique(map(layer, all_sites_iter(
 haslayer(tn::LayeredTensorNetwork, _layer::Layer) = _layer in tn.layers
 
 function all_sites_at_layer(tn::LayeredTensorNetwork, _layer::Layer)
-    @argcheck _layer in layers(tn) "Layer $_layer not found in LayeredTensorNetwork"
+    @assert _layer in layers(tn) "Layer $_layer not found in LayeredTensorNetwork"
     return filter!(s -> layer(s) == _layer, all_sites(tn))
 end
 
@@ -35,8 +34,8 @@ function cart_sites(tn::LayeredTensorNetwork)
 end
 
 function pushlayer!(tn::LayeredTensorNetwork, layer_tn; layer::Layer=Layer(length(tn.layers) + 1))
-    @argcheck ntensors(layer_tn) == nsites(layer_tn) "Each tensor in a layer must correspond to a site"
-    @argcheck ninds(layer_tn) == nbonds(layer_tn) + nplugs(layer_tn) "Each index in a layer must correspond to a bond or plug"
+    @assert ntensors(layer_tn) == nsites(layer_tn) "Each tensor in a layer must correspond to a site"
+    @assert ninds(layer_tn) == nbonds(layer_tn) + nplugs(layer_tn) "Each index in a layer must correspond to a bond or plug"
 
     align!(tn => layer_tn)
 

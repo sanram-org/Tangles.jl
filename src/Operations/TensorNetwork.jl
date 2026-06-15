@@ -5,10 +5,10 @@ function replace_inds!(tn, old_new)
     allinds = inds(tn)
 
     # condition: from ⊆ allinds
-    @argcheck from ⊆ allinds "set of old indices must be a subset of current indices"
+    @assert from ⊆ allinds "set of old indices must be a subset of current indices"
 
     # condition: from \ to ∩ allinds = ∅
-    @argcheck isdisjoint(setdiff(to, from), allinds) """
+    @assert isdisjoint(setdiff(to, from), allinds) """
         new indices must be either a element of the old indices or not an element of the TensorNetwork's indices
         """
 

@@ -4,7 +4,6 @@ authors = ["Sergio Sánchez Ramírez"]
 version = "0.2.16"
 
 [deps]
-ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
 Bijections = "e2ed5e7c-b2de-5872-ae92-c73ca462fb04"
 DelegatorTraits = "d83dbd90-3e00-4b33-84f1-398adcf3b35e"
 DeltaArrays = "10b0fc19-5ccc-4427-889b-d75dd6306188"
@@ -39,7 +38,6 @@ TanglesReactantExt = ["Reactant"]
 
 [compat]
 Adapt = "4"
-ArgCheck = "2.5.0"
 Bijections = "0.2.1"
 DelegatorTraits = "0.1.2"
 DeltaArrays = "0.1.1"

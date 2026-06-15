@@ -182,8 +182,8 @@ function Base.replace!(tn::AbstractTensorNetwork, old_new::Pair{<:Tensor,<:Abstr
     checkeffect(tn, ReplaceEffect(old_new))
 
     old, new = old_new
-    @argcheck issetequal(inds(new; set=:open), inds(old)) "indices don't match"
-    @argcheck isdisjoint(inds(new; set=:inner), inds(tn)) "overlapping inner indices"
+    @assert issetequal(inds(new; set=:open), inds(old)) "indices don't match"
+    @assert isdisjoint(inds(new; set=:inner), inds(tn)) "overlapping inner indices"
 
     # manually perform `append!(tn, new)` to avoid calling `handle!` several times
     for tensor in tensors(new)
@@ -204,9 +204,9 @@ function Base.replace!(tn::AbstractTensorNetwork, @nospecialize(old_new::Pair{<:
     old, new = old_new
 
     checkeffect(tn, ReplaceEffect(old, new))
-    @argcheck all(∈(tn), old)
-    @argcheck new ∉ tn
-    @argcheck inds(new) ⊆ collect(Iterators.flatmap(inds, old))
+    @assert all(∈(tn), old)
+    @assert new ∉ tn
+    @assert inds(new) ⊆ collect(Iterators.flatmap(inds, old))
     # TODO check open and inner inds
 
     for tensor in old

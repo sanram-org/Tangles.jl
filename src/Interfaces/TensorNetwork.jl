@@ -1,6 +1,5 @@
 using DelegatorTraits
 using Base: AbstractVecOrTuple
-using ArgCheck
 using Networks
 using QuantumTags
 using Muscle: Muscle
@@ -267,7 +266,7 @@ size_ind(tn, i, ::DelegateToField) = size_ind(delegator(TensorNetwork(), tn), i)
 function size_ind(tn, i, ::DontDelegate)
     fallback(size_ind)
     _tensors = tensors(tn; contain=i)
-    @argcheck !isempty(_tensors) "Index $i not found in the Tensor Network"
+    @assert !isempty(_tensors) "Index $i not found in the Tensor Network"
     return size(first(_tensors), i)
 end
 
@@ -298,7 +297,7 @@ rmtensor!(tn, tensor, ::DontDelegate) = throw(MethodError(rmtensor!, (tn, tensor
 # TODO check that `old` is present, `new` is not present and that the indices match
 #    hastensor(tn, e.old) || throw(ArgumentError("old tensor not found"))
 #    hastensor(tn, e.new) && throw(ArgumentError("new tensor already exists"))
-#    !isscoped(tn) && @argcheck issetequal(inds(e.new), inds(e.old)) "replacing tensor indices don't match"
+#    !isscoped(tn) && @assert issetequal(inds(e.new), inds(e.old)) "replacing tensor indices don't match"
 replace_tensor!(tn, old, new) = replace_tensor!(tn, old, new, DelegatorTrait(TensorNetwork(), tn))
 replace_tensor!(tn, old, new, ::DelegateToField) = replace_tensor!(delegator(TensorNetwork(), tn), old, new)
 replace_tensor!(tn, old, new, ::DontDelegate) = throw(MethodError(replace_tensor!, (tn, old, new)))
@@ -346,7 +345,7 @@ fuse!(tn, i, ::DelegateToField) = fuse!(DelegatorTrait(TensorNetwork(), tn), i)
 # TODO should this be run on the lowest or the highest level of the delegation hierarchy?
 function fuse!(tn, i, ::DontDelegate)
     fallback(fuse!)
-    @argcheck hasind(tn, i) "Index $i not found in the Tensor Network"
+    @assert hasind(tn, i) "Index $i not found in the Tensor Network"
 
     parinds = inds(tn; parallelto=i)
     length(parinds) == 0 && return tn
