@@ -190,12 +190,6 @@ function size_ind end
     return size(first(_tensors), i)
 end
 
-function tensor_at end
-@delegated interface=TensorNetwork() tensor_at(tn, tag)
-
-function ind_at end
-@delegated interface=TensorNetwork() ind_at(tn, tag)
-
 ## mutating methods
 function addtensor! end
 @delegated interface=TensorNetwork() addtensor!(tn, tensor)

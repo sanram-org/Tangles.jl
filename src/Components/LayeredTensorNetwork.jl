@@ -55,7 +55,7 @@ function pushlayer!(tn::LayeredTensorNetwork, layer_tn; layer::Layer=Layer(lengt
     end
 
     # replace overlapping plugs with interlayer bonds
-    for _plug in plugs_set_inputs(layer_tn)
+    for _plug in plugs_set_in(layer_tn)
         if hasplug(tn, _plug')
             # TODO match last layer containing the plug
             prev_layer = last(tn.layers)
@@ -78,7 +78,7 @@ function pushlayer!(tn::LayeredTensorNetwork, layer_tn; layer::Layer=Layer(lengt
     end
 
     # add new output plugs
-    for _plug in plugs_set_outputs(layer_tn)
+    for _plug in plugs_set_out(layer_tn)
         if hasplug(tn, _plug')
             error("Output plug $_plug already exists in the LayeredTensorNetwork")
         end

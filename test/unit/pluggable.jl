@@ -100,31 +100,31 @@ end
     end
 end
 
-@testset "plugs_set_inputs" begin
+@testset "plugs_set_in" begin
     @testset let
         tn = fixture1.constructor()
-        @test isempty(plugs_set_inputs(tn))
+        @test isempty(plugs_set_in(tn))
         @test isempty(plugs(tn; set=:inputs))
     end
 
     @testset let
         tn = fixture2.constructor()
-        @test issetequal(plugs_set_inputs(tn), [plug"2'"])
-        @test plugs(tn; set=:inputs) == plugs_set_inputs(tn)
+        @test issetequal(plugs_set_in(tn), [plug"2'"])
+        @test plugs(tn; set=:inputs) == plugs_set_in(tn)
     end
 end
 
-@testset "plugs_set_outputs" begin
+@testset "plugs_set_out" begin
     @testset let
         tn = fixture1.constructor()
-        @test issetequal(plugs_set_outputs(tn), fixture1.all_plugs)
-        @test plugs(tn; set=:outputs) == plugs_set_outputs(tn)
+        @test issetequal(plugs_set_out(tn), fixture1.all_plugs)
+        @test plugs(tn; set=:outputs) == plugs_set_out(tn)
     end
 
     @testset let
         tn = fixture2.constructor()
-        @test issetequal(plugs_set_outputs(tn), [plug"1"])
-        @test plugs(tn; set=:outputs) == plugs_set_outputs(tn)
+        @test issetequal(plugs_set_out(tn), [plug"1"])
+        @test plugs(tn; set=:outputs) == plugs_set_out(tn)
     end
 end
 

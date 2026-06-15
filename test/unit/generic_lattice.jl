@@ -1,6 +1,6 @@
 using Test
 using Tangles
-using Tangles: neighbor_sites, neighbor_bonds, incident_bonds, incident_sites
+using Tangles: neighbor_sites, neighbor_bonds, site_incidents, link_incidents
 
 @testset let
     lattice = GenericLattice()
@@ -14,8 +14,8 @@ using Tangles: neighbor_sites, neighbor_bonds, incident_bonds, incident_sites
     @test isempty(all_bonds(lattice))
     @test isempty(neighbor_sites(lattice, site"1"))
     @test isempty(neighbor_sites(lattice, site"2"))
-    @test isempty(incident_bonds(lattice, site"1"))
-    @test isempty(incident_bonds(lattice, site"2"))
+    @test isempty(site_incidents(lattice, site"1"))
+    @test isempty(site_incidents(lattice, site"2"))
 
     # closed bond
     addbond!(lattice, bond"1-2")
@@ -24,9 +24,9 @@ using Tangles: neighbor_sites, neighbor_bonds, incident_bonds, incident_sites
     @test issetequal(neighbor_sites(lattice, site"1"), [site"2"])
     @test issetequal(neighbor_sites(lattice, site"2"), [site"1"])
     @test isempty(neighbor_bonds(lattice, bond"1-2"))
-    @test issetequal(incident_bonds(lattice, site"1"), [bond"1-2"])
-    @test issetequal(incident_bonds(lattice, site"2"), [bond"1-2"])
-    @test issetequal(incident_sites(lattice, bond"1-2"), [site"1", site"2"])
+    @test issetequal(site_incidents(lattice, site"1"), [bond"1-2"])
+    @test issetequal(site_incidents(lattice, site"2"), [bond"1-2"])
+    @test issetequal(link_incidents(lattice, bond"1-2"), [site"1", site"2"])
 
     # NOTE forbidden for the time being
     # open bond
@@ -36,10 +36,10 @@ using Tangles: neighbor_sites, neighbor_bonds, incident_bonds, incident_sites
     # @test issetequal(neighbor_sites(lattice, site"1"), [site"2"])
     # @test issetequal(neighbor_sites(lattice, site"2"), [site"1"])
     # @test issetequal(neighbor_bonds(lattice, bond"1-2"), [bond"2-3"])
-    # @test issetequal(incident_bonds(lattice, site"1"), [bond"1-2"])
-    # @test issetequal(incident_bonds(lattice, site"2"), [bond"1-2", bond"2-3"])
-    # @test issetequal(incident_sites(lattice, bond"1-2"), [site"1", site"2"])
-    # @test issetequal(incident_sites(lattice, bond"2-3"), [site"2"])
+    # @test issetequal(site_incidents(lattice, site"1"), [bond"1-2"])
+    # @test issetequal(site_incidents(lattice, site"2"), [bond"1-2", bond"2-3"])
+    # @test issetequal(link_incidents(lattice, bond"1-2"), [site"1", site"2"])
+    # @test issetequal(link_incidents(lattice, bond"2-3"), [site"2"])
 end
 
 @testset "constructor: chain - open" begin

@@ -1,4 +1,4 @@
-# Tensor Network
+# Tensor Network interface
 
 | Required method   | Description |
 | :---------------- | :---------- |
@@ -8,20 +8,18 @@
 
 ## Optional methods
 
-| Method                            | When should this method be defined | Default defintion | Brief description |
-| :-------------------------------- | :--------------------------------- | :---------------- | :---------------- |
-| `all_tensors_iter(tn)`            |                                    |                   |                   |
-| `all_inds_iter(tn)`               |                                    |                   |                   |
-| `hastensor(tn, tensor)`           |                                    |                   |                   |
-| `hasind(tn, ind)`                 |                                    |                   |                   |
-| `ntensors_all(tn)`                |                                    |                   |                   |
-| `tensors_set_equal(tn, inds)`     |                                    |                   |                   |
-| `tensors_set_contain(tn, inds)`   |                                    |                   |                   |
-| `tensors_set_intersect(tn, inds)` |                                    |                   |                   |
-| `size_inds`                       |                                    |                   |                   |
-| `size_ind`                        |                                    |                   |                   |
-| `tensor_at`                       |                                    |                   |                   |
-| `ind_at`                          |                                    |                   |                   |
+| Method                            | Default defintion | Brief description |
+| :-------------------------------- | :---------------- | :---------------- |
+| `all_tensors_iter(tn)`            |                   |                   |
+| `all_inds_iter(tn)`               |                   |                   |
+| `hastensor(tn, tensor)`           |                   |                   |
+| `hasind(tn, ind)`                 |                   |                   |
+| `ntensors_all(tn)`                |                   |                   |
+| `tensors_set_equal(tn, inds)`     |                   |                   |
+| `tensors_set_contain(tn, inds)`   |                   |                   |
+| `tensors_set_intersect(tn, inds)` |                   |                   |
+| `size_inds`                       |                   |                   |
+| `size_ind`                        |                   |                   |
 
 ## Mutating methods
 

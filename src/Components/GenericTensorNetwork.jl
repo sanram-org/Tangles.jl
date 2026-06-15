@@ -138,12 +138,12 @@ nsites(::@NamedTuple{}, tn::GenericTensorNetwork) = length(tn.sitemap)
 nbonds(::@NamedTuple{}, tn::GenericTensorNetwork) = count(isbond, edge_tags(tn))
 
 # TODO change to `incident_edges` on next Networks.jl release
-function incident_bonds(tn::GenericTensorNetwork, _site)
+function site_incidents(tn::GenericTensorNetwork, _site)
     filter!(isbond, bond_at.(Ref(tn), vertex_incidents(tn, vertex_at(tn, _site))))
 end
 
 # TODO change to `incident_vertices` on next Networks.jl release
-incident_sites(tn::GenericTensorNetwork, _bond) = site_at.(Ref(tn), edge_incidents(tn, edge_at(tn, _bond)))
+link_incidents(tn::GenericTensorNetwork, _bond) = site_at.(Ref(tn), edge_incidents(tn, edge_at(tn, _bond)))
 
 setsite!(tn::GenericTensorNetwork, vertex, site) = tag_vertex!(tn, vertex, site)
 setbond!(tn::GenericTensorNetwork, edge, bond) = tag_edge!(tn, edge, bond)
@@ -198,10 +198,10 @@ function generic_rand_state(lattice::GenericLattice, d, χ; rng=Random.default_r
     tn = GenericTensorNetwork()
 
     for site in all_sites_iter(lattice)
-        _incident_bonds = incident_bonds(lattice, site)
-        _inds = [map(Index, _incident_bonds); [Index(plug"$site")]]
+        _site_incidents = site_incidents(lattice, site)
+        _inds = [map(Index, _site_incidents); [Index(plug"$site")]]
 
-        array = rand(rng, eltype, fill(χ, length(_incident_bonds))..., d)
+        array = rand(rng, eltype, fill(χ, length(_site_incidents))..., d)
         tensor = Tensor(array, _inds)
 
         addtensor!(tn, tensor)

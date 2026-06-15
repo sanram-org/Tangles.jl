@@ -32,6 +32,9 @@ Any subtype must implement `sites` method.
 """
 abstract type AbstractBond <: Link end
 
+isbond(x) = false
+isbond(::AbstractBond) = true
+
 hassite(bond::AbstractBond, _site) = any(Base.Fix1(isequal, _site), sites(bond))
 Core.Tuple(bond::AbstractBond) = Tuple(sites(bond))
 
@@ -69,6 +72,9 @@ Base.iterate(bond::AbstractBond, state) = iterate(sites(bond), state)
 Represents a physical index related to a [`Site`](@ref) with a annotation of input or output.
 """
 abstract type AbstractPlug <: Link end
+
+isplug(x) = false
+isplug(::AbstractPlug) = true
 
 @enum PlugKind begin
     PLUG_IN

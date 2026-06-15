@@ -13,9 +13,6 @@ include("NamedTensor.jl")
 export NamedTensor
 @reexport import Muscle: Tensor, variance, extend, expand, fuse, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
 
-include("Tags.jl")
-export @site_str, @bond_str, @plug_str, CartesianSite, Bond, Plug, Layer, InterLayer, LayerBond, InterLayerBond, LayerPlug
-
 using DelegatorTraits
 import DelegatorTraits: DelegatorTrait, ImplementorTrait, Implements, NotImplements
 
@@ -29,40 +26,25 @@ export @unsafe_region
 
 include("Interfaces/TensorNetwork.jl")
 public TensorNetwork
-export tensors,
-    tensor, tensor_at, hastensor, ntensors, all_tensors, all_tensors_iter, addtensor!, rmtensor!, replace_tensor!
-export inds, ind, ind_at, hasind, ninds, all_inds, all_inds_iter, replace_ind!
+export tensors, tensor, hastensor, ntensors, all_tensors, all_tensors_iter, addtensor!, rmtensor!, replace_tensor!
+export inds, ind, hasind, ninds, all_inds, all_inds_iter, replace_ind!
 public tensors_set_equal, tensors_set_contain, tensors_set_intersect
 public inds_set, inds_parallel_to
 public size_inds, size_ind
 
-include("Interfaces/Lattice.jl")
-public Lattice
-export sites,
-    site, site_at, hassite, nsites, all_sites, all_sites_iter, sites_like, site_like, neighbor_sites, incident_sites
-export bonds,
-    bond, bond_at, hasbond, nbonds, all_bonds, all_bonds_iter, bonds_like, bond_like, neighbor_bonds, incident_bonds
-export addsite!, addbond!, rmsite!, rmbond!, setsite!, setbond!, unsetsite!, unsetbond!
+include("Tags.jl")
+export @site_str, @bond_str, @plug_str, CartesianSite, Bond, Plug, Layer, InterLayer, LayerBond, InterLayerBond, LayerPlug
 
-include("Interfaces/Pluggable.jl")
-public Pluggable
-export plugs,
-    plug,
-    plug_at,
-    all_plugs,
-    all_plugs_iter,
-    nplugs,
-    hasplug,
-    plugs_like,
-    plug_like,
-    plugs_set_outputs,
-    plugs_set_inputs,
-    inds_set_physical,
-    inds_set_virtual,
-    inds_set_inputs,
-    inds_set_outputs,
-    setplug!,
-    unsetplug!
+include("Interfaces/TaggedTensorNetwork.jl")
+public TaggedTensorNetwork
+export sites, site, tensor_at, site_at, hassite, nsites, all_sites, all_sites_iter, neighbor_sites, site_incidents
+export links, link, ind_at, link_at, haslink, nlinks, all_links, all_links_iter, neighbor_links, link_incidents
+export setsite!, setlink!, unsetsite!, unsetlink!
+
+# these methods are in the process of being reconsidered
+export bonds, bond, all_bonds, all_bonds_iter, bond_at, hasbond, nbonds, neighbor_bonds
+export plugs, plug, all_plugs, all_plugs_iter, plug_at, hasplug, nplugs
+public plugs_set_in, plugs_set_out, plugs_set_dual
 
 # aliases to `Base` are in "src/Operations/AbstractTensorNetwork.jl"
 include("Operations/TensorNetwork.jl")
