@@ -73,9 +73,6 @@ export GenericTensorNetwork
 include("Components/LayeredTensorNetwork.jl")
 export LayeredTensorNetwork
 
-# extra
-include("Operations/TensorExtra.jl")
-
 # precompilation
 using PrecompileTools
 
