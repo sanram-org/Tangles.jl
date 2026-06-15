@@ -7,12 +7,10 @@ on:
     tags: '*'
     paths:
       - '.github/workflows/format-check.yml'
-      - '.JuliaFormatter.toml'
       - '**/*.jl'
   pull_request:
     paths:
       - '.github/workflows/format-check.yml'
-      - '.JuliaFormatter.toml'
       - '**/*.jl'
 
 concurrency:
@@ -22,9 +20,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code-style-julia:
+  code-style:
     runs-on: ubuntu-latest
     steps:
-      - uses: julia-actions/julia-format@v3
+      - uses: julia-actions/julia-format@v4
         with:
-          version: '2'
+          version: '1'
