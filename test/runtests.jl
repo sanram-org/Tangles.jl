@@ -4,12 +4,12 @@ using SafeTestsets
 target_testsets = isempty(ARGS) ? ["core", "integration"] : ARGS
 
 if "core" in target_testsets
-    @testset "Unit" verbose = true begin
-        @safetestset "TensorNetwork" include("unit/tensor_network.jl")
-        @safetestset "TaggedTensorNetwork" include("unit/tagged_tensor_network.jl")
-        @safetestset "Pluggable" include("unit/pluggable.jl")
-        @safetestset "GenericLattice" include("unit/generic_lattice.jl")
-        @safetestset "LayeredTensorNetwork" include("unit/layered_tensor_network.jl")
+    @testset "Core" verbose = true begin
+        @safetestset "TensorNetwork" include("core/tensor_network.jl")
+        @safetestset "TaggedTensorNetwork" include("core/tagged_tensor_network.jl")
+        @safetestset "Pluggable" include("core/pluggable.jl")
+        @safetestset "GenericLattice" include("core/generic_lattice.jl")
+        @safetestset "LayeredTensorNetwork" include("core/layered_tensor_network.jl")
     end
 end
 
