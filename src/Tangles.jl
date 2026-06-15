@@ -13,14 +13,13 @@ export @site_str, @bond_str, @plug_str, CartesianSite, Bond, Plug, Layer, InterL
 
 using DelegatorTraits
 import DelegatorTraits: DelegatorTrait, ImplementorTrait, Implements, NotImplements
-using DelegatorTraits: @public
 
 abstract type AbstractTensorNetwork end
 
 # NOTE for developers
 # try using functions owned by us (e.g. `mysize` instead of `Base.size`)
 include("Interfaces/UnsafeScope.jl")
-@public UnsafeScopeable
+public UnsafeScopeable
 export @unsafe_region
 
 include("Interfaces/TensorNetwork.jl")
@@ -33,7 +32,7 @@ export inds_set, inds_parallel_to
 export size_inds, size_ind
 
 include("Interfaces/Lattice.jl")
-@public Lattice
+public Lattice
 export sites,
     site, site_at, hassite, nsites, all_sites, all_sites_iter, sites_like, site_like, neighbor_sites, incident_sites
 export bonds,
@@ -41,7 +40,7 @@ export bonds,
 export addsite!, addbond!, rmsite!, rmbond!, setsite!, setbond!, unsetsite!, unsetbond!
 
 include("Interfaces/Pluggable.jl")
-@public Pluggable
+public Pluggable
 export plugs,
     plug,
     plug_at,
