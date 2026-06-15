@@ -9,7 +9,7 @@ using Graphs: Graphs
 Return the neighboring [`Tensor`](@ref)s of `tensor` in the Tensor Network.
 If `open=true`, the `tensor` itself is not included in the result.
 """
-function Graphs.neighbors(tn::Tangles.AbstractTensorNetwork, tensor::Tensor; open::Bool=true)
+function Graphs.neighbors(tn::Tangles.AbstractTensorNetwork, tensor::NamedTensor; open::Bool=true)
     @assert hastensor(tn, tensor) "Tensor not found in TensorNetwork"
     neigh_tensors = mapreduce(∪, inds(tensor)) do index
         tensors(tn; intersects=index)

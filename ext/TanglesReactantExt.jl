@@ -188,25 +188,24 @@ function tangles_skip_rewrites()
     @skip_rewrite_func Tangles.replace_tensor!
     @skip_rewrite_func Tangles.replace_ind!
 
-    # `Lattice` interface
+    # `TaggedTensorNetwork` interface
     @skip_rewrite_type Tangles.sites
-    @skip_rewrite_func Tangles.bonds
+    @skip_rewrite_func Tangles.links
     @skip_rewrite_func Tangles.all_sites
-    @skip_rewrite_func Tangles.all_bonds
+    @skip_rewrite_func Tangles.all_links
     @skip_rewrite_func Tangles.all_sites_iter
-    @skip_rewrite_func Tangles.all_bonds_iter
+    @skip_rewrite_func Tangles.all_links_iter
     @skip_rewrite_func Tangles.hassite
-    @skip_rewrite_func Tangles.hasbond
+    @skip_rewrite_func Tangles.haslink
     @skip_rewrite_func Tangles.nsites
-    @skip_rewrite_func Tangles.nbonds
+    @skip_rewrite_func Tangles.nlinks
     @skip_rewrite_func Tangles.site_at
-    @skip_rewrite_func Tangles.bond_at
+    @skip_rewrite_func Tangles.link_at
     @skip_rewrite_func Tangles.setsite!
-    @skip_rewrite_func Tangles.setbond!
+    @skip_rewrite_func Tangles.setlink!
     @skip_rewrite_func Tangles.unsetsite!
-    @skip_rewrite_func Tangles.unsetbond!
+    @skip_rewrite_func Tangles.unsetlink!
 
-    # `Pluggable` interface
     @skip_rewrite_func Tangles.plugs
     @skip_rewrite_func Tangles.plug
     @skip_rewrite_func Tangles.all_plugs
@@ -214,11 +213,7 @@ function tangles_skip_rewrites()
     @skip_rewrite_func Tangles.hasplug
     @skip_rewrite_func Tangles.nplugs
     @skip_rewrite_func Tangles.plug_at
-    @skip_rewrite_func Tangles.plugs_like
-    @skip_rewrite_func Tangles.plug_like
     @skip_rewrite_func Tangles.plugs_set
-    @skip_rewrite_func Tangles.setplug!
-    @skip_rewrite_func Tangles.unsetplug!
 
     # `AbstractTensorNetwork` methods
     @skip_rewrite_func Tangles.contract

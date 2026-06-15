@@ -66,7 +66,7 @@ function hyperflatten!(tn)
     for (flatindices, hyperindex) in mapping
         # insert COPY tensor
         array = DeltaArray{length(flatindices)}(ones(size(tn, hyperindex)))
-        tensor = Tensor(array, flatindices)
+        tensor = NamedTensor(array, flatindices)
         push!(tn, tensor)
 
         # replace hyperindex for new flat Indices
