@@ -8,18 +8,18 @@
 
 ## Optional methods
 
-| Method                            | Default defintion | Brief description |
-| :-------------------------------- | :---------------- | :---------------- |
-| `all_tensors_iter(tn)`            |                   |                   |
-| `all_inds_iter(tn)`               |                   |                   |
-| `hastensor(tn, tensor)`           |                   |                   |
-| `hasind(tn, ind)`                 |                   |                   |
-| `ntensors_all(tn)`                |                   |                   |
-| `tensors_set_equal(tn, inds)`     |                   |                   |
-| `tensors_set_contain(tn, inds)`   |                   |                   |
-| `tensors_set_intersect(tn, inds)` |                   |                   |
-| `size_inds`                       |                   |                   |
-| `size_ind`                        |                   |                   |
+| Method                            | Brief description |
+| :-------------------------------- | :---------------- |
+| `all_tensors_iter(tn)`            |                   |
+| `all_inds_iter(tn)`               |                   |
+| `hastensor(tn, tensor)`           |                   |
+| `hasind(tn, ind)`                 |                   |
+| `ntensors_all(tn)`                |                   |
+| `tensors_set_equal(tn, inds)`     |                   |
+| `tensors_set_contain(tn, inds)`   |                   |
+| `tensors_set_intersect(tn, inds)` |                   |
+| `size_inds`                       |                   |
+| `size_ind`                        |                   |
 
 ## Mutating methods
 
@@ -58,3 +58,11 @@ These methods are "syntactic sugar" for end users.
 | `ind(tn; at=tag)`          | `ind_at(tn, tag)`                |
 | `ninds(tn; kwargs...)`     | `length(inds(tn; kwargs...))`    |
 | `ninds(tn)`                | `ninds_all(tn)`                  |
+
+## Extra methods
+
+| Method                      | Brief description |
+| :-------------------------- | :---------------- |
+| `arrays(tn; kwargs...)`     |                   |
+| `contract(tn; kwargs...)`   |                   |
+| `resetinds!(tn; kwargs...)` |                   |

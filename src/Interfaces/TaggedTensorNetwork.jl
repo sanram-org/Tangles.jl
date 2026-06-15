@@ -253,10 +253,10 @@ end
 
 # mutating methods
 function setsite! end
-@delegated interface = TaggedTensorNetwork() setsite!(tn, vertex, site)
+@delegated interface = TaggedTensorNetwork() setsite!(tn, tensor, site)
 
 function setlink! end
-@delegated interface = TaggedTensorNetwork() setlink!(tn, edge, link)
+@delegated interface = TaggedTensorNetwork() setlink!(tn, index, link)
 
 function unsetsite! end
 @delegated interface = TaggedTensorNetwork() unsetsite!(tn, site)
@@ -282,3 +282,114 @@ inds_set(tn, ::Val{:physical}) = inds_set_physical(tn)
 inds_set(tn, ::Val{:virtual}) = inds_set_virtual(tn)
 inds_set(tn, ::Val{:inputs}) = inds_set_in(tn)
 inds_set(tn, ::Val{:outputs}) = inds_set_out(tn)
+
+"""
+    canonicalize_inds!(tn)
+
+Rename indices in the Tensor Network to `Index(tag)` where `tag` is the `Link` tag.
+"""
+function canonicalize_inds!(tn)
+    for link in all_links_iter(tn)
+        replace_ind!(tn, ind_at(tn, link), Index(link))
+    end
+    return tn
+end
+
+"""
+    align!(a, ioa, b, iob)
+
+Align the physical indices of `b` to match the physical indices of `a`. `ioa` and `iob` are either `:inputs` or `:outputs`.
+"""
+function align!(a, ioa, b, iob)
+    @assert ioa === :inputs || ioa === :outputs
+    @assert iob === :inputs || iob === :outputs
+
+    # If `reset=true`, then all indices are renamed. If `reset=false`, then only the indices of the input/output sites are renamed.
+
+    # if !isdisjoint(inds(a), inds(b))
+    #     @warn "Overlapping indices"
+    # end
+
+    # if reset
+    #     @debug "[align!] Renaming indices of b"
+    #     resetinds!(b, :gensymclean)
+    # end
+
+    target_plugs_a = plugs(a; set=ioa)
+    target_plugs_b = plugs(b; set=iob)
+    do_dual = ioa == iob ? false : true
+    @assert issetequal(target_plugs_a, do_dual ? adjoint.(target_plugs_b) : target_plugs_b)
+
+    replacements = map(target_plugs_a) do plug_a
+        plug_b = do_dual ? plug_a' : plug_a
+        ind_at(b, plug_b) => ind_at(a, plug_a)
+    end |> Dict
+
+    if issetequal(keys(replacements), values(replacements))
+        return b
+    end
+
+    replace_ind!(b, replacements)
+
+    return a, b
+end
+
+align!((a, b)::P) where {P<:Pair} = align!(a, :outputs, b, :inputs)
+
+"""
+    @align! a => b reset=true
+
+Rename in-place the indices of the input/output sites of two Pluggable Tensor Networks to be able to connect between them.
+"""
+macro align!(expr)
+    @assert Meta.isexpr(expr, :call) && expr.args[1] == :(=>)
+    Base.remove_linenums!(expr)
+    a, b = expr.args[2:end]
+
+    # @assert Meta.isexpr(reset, :(=)) && reset.args[1] == :reset
+
+    @assert Meta.isexpr(a, :call)
+    @assert Meta.isexpr(b, :call)
+    ioa, ida = a.args
+    iob, idb = b.args
+    return quote
+        align!($(esc(ida)), $(Meta.quot(ioa)), $(esc(idb)), $(Meta.quot(iob)))
+        $(esc(idb))
+    end
+end
+
+"""
+    canconnect(a, b)
+
+Return `true` if two [`TaggedTensorNetwork`](@ref man-interface-pluggable)s can be connected. This means:
+
+ 1. The outputs of `a` are a superset of the inputs of `b`.
+ 2. The outputs of `a` and `b` are disjoint except for the sites that are connected.
+"""
+function canconnect(a, b)
+    return plugs(a; set=:out) ⊇ adjoint.(plugs(b; set=:in)) && isdisjoint(
+        setdiff(plugs(a; set=:out), adjoint.(plugs(b; set=:in))),
+        setdiff(plugs(b; set=:in), adjoint.(plugs(b; set=:out))),
+    )
+end
+
+function adjoint_plugs!(tn)
+    # update plug information and rename inner indices
+    # generate mapping
+    mapping = Dict(plug => ind(tn; at=plug) for plug in all_plugs(tn))
+
+    # remove sites preemptively to avoid issues on renaming
+    for _plug in all_plugs_iter(tn)
+        unsetlink!(tn, _plug)
+    end
+
+    # set new site mapping
+    for (_plug, index) in mapping
+        setlink!(tn, index, _plug')
+    end
+
+    # rename inner indices
+    # replace!(tn, map(i -> i => Symbol(i, "'"), inds(tn; set=:virtual)))
+
+    return tn
+end

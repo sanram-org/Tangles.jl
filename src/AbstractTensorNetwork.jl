@@ -177,6 +177,40 @@ function Base.replace!(
     return tn
 end
 
+function replace_inds!(tn, old_new)
+    from, to = first.(old_new), last.(old_new)
+    allinds = inds(tn)
+
+    # condition: from ⊆ allinds
+    @assert from ⊆ allinds "set of old indices must be a subset of current indices"
+
+    # condition: from \ to ∩ allinds = ∅
+    @assert isdisjoint(setdiff(to, from), allinds) """
+        new indices must be either a element of the old indices or not an element of the TensorNetwork's indices
+        """
+
+    overlap = from ∩ to
+    if isempty(overlap)
+        # no overlap so easy replacement
+        for (f, t) in zip(from, to)
+            replace!(tn, f => t)
+        end
+    else
+        # overlap between old and new indices => need a temporary name `replace!`
+        tmp = Dict([i => gensym(i) for i in from])
+
+        # replace old indices with temporary names
+        # TODO maybe do replacement manually and call `handle!` once in the end?
+        replace!(tn, tmp)
+
+        # replace temporary names with new indices
+        replace!(tn, [tmp[f] => t for (f, t) in zip(from, to)])
+    end
+
+    # return the final index mapping
+    return tn
+end
+
 # replace tensor with a TensorNetwork
 function Base.replace!(tn::AbstractTensorNetwork, old_new::Pair{<:Tensor,<:AbstractTensorNetwork})
     checkeffect(tn, ReplaceEffect(old_new))

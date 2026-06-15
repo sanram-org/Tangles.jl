@@ -32,8 +32,15 @@ public tensors_set_equal, tensors_set_contain, tensors_set_intersect
 public inds_set, inds_parallel_to
 public size_inds, size_ind
 
+# extra methods of `TensorNetwork`
+export contract
+public arrays, resetinds!, cart_sites
+
 include("Tags.jl")
 export @site_str, @bond_str, @plug_str, CartesianSite, Bond, Plug, Layer, InterLayer, LayerBond, InterLayerBond, LayerPlug
+
+# helper method
+plugs(tensor::NamedTensor) = filter!(isplug, map(x -> x.label, inds(tensor)))
 
 include("Interfaces/TaggedTensorNetwork.jl")
 public TaggedTensorNetwork
@@ -46,14 +53,12 @@ export bonds, bond, all_bonds, all_bonds_iter, bond_at, hasbond, nbonds, neighbo
 export plugs, plug, all_plugs, all_plugs_iter, plug_at, hasplug, nplugs
 public plugs_set_in, plugs_set_out, plugs_set_dual
 
-# aliases to `Base` are in "src/Operations/AbstractTensorNetwork.jl"
-include("Operations/TensorNetwork.jl")
-export arrays, contract, resetinds!, canonicalize_inds!, cart_sites
+# extra methods of `TaggedTensorNetwork`
+export @align!
+public canonicalize_inds!, adjoint_plugs!, align!
 
-include("Operations/Pluggable.jl")
-export adjoint_plugs!, align!, @align!
-
-include("Operations/AbstractTensorNetwork.jl")
+# aliases to `Base` and other libraries
+include("AbstractTensorNetwork.jl")
 
 # implementations
 include("Components/GenericLattice.jl")
