@@ -92,6 +92,8 @@ isdual(x::PlugKind) = x ∈ (PLUG_IN, SUPER_PLUG_IN_DUAL, SUPER_PLUG_OUT_DUAL)
 
 abstract type Partition <: Tag end
 
+partition(x::Partition) = x
+
 """
     CartesianSite(id)
     CartesianSite(i, j, ...)
@@ -248,11 +250,10 @@ end
 
 LayerSite(site, layer) = LayerSite(site, Layer(layer))
 
-site(x::LayerSite) = site(x.site)
-layer(x::LayerSite) = layer(partition(x))
+site(x::LayerSite) = x.site
 partition(x::LayerSite) = x.layer
 
-Base.show(io::IO, x::LayerSite) = print(io, "$(x.site) at $(repr(layer(x)))")
+Base.show(io::IO, x::LayerSite) = print(io, "$(x.site) at $(repr(partition(x)))")
 
 """
     LayerBond(bond, layer)
@@ -267,9 +268,8 @@ end
 LayerBond(bond, layer) = LayerBond(bond, Layer(layer))
 
 sites(x::LayerBond) = LayerSite.(sites(x.bond), (x.layer,))
-bond(x::LayerBond) = bond(x.bond)
-partition(x::LayerBond) = layer(x)
-layer(x::LayerBond) = layer(x.layer)
+bond(x::LayerBond) = x.bond
+partition(x::LayerBond) = x.layer
 
 # e.g. a closed plug between two same sites on different layers
 """
@@ -284,9 +284,9 @@ end
 
 InterLayerBond(site::S, cut::C) where {S<:Site,C} = InterLayerBond(site, InterLayer(cut))
 
-site(x::InterLayerBond) = site(x.site)
+site(x::InterLayerBond) = x.site
 sites(x::InterLayerBond) = LayerSite.((site(x),), layers(x.cut))
-interlayer(x::InterLayerBond) = x.cut
+partition(x::InterLayerBond) = x.cut
 layers(x::InterLayerBond) = layers(x.cut)
 
 # struct BoundaryBond{S<:Site,B} <: Bond
@@ -326,13 +326,12 @@ end
 LayerPlug(plug, layer) = LayerPlug(plug, Layer(layer))
 
 site(x::LayerPlug) = LayerSite(site(x.plug), x.layer)
-plug(x::LayerPlug) = plug(x.plug)
+plug(x::LayerPlug) = x.plug
 isdual(x::LayerPlug) = isdual(x.plug)
 
-partition(x::LayerPlug) = layer(x)
-layer(x::LayerPlug) = layer(x.layer)
+partition(x::LayerPlug) = x.layer
 
-Base.adjoint(x::LayerPlug) = LayerPlug(adjoint(x.plug), layer(x))
+Base.adjoint(x::LayerPlug) = LayerPlug(adjoint(x.plug), partition(x))
 
 # macros
 dispatch_site_constructor(x::Site) = x
@@ -367,12 +366,13 @@ dispatch_bond_constructor(s) = OpenBond(s)
 function _bond_expr(expr)
     # open bond if only one site is given
     if Meta.isexpr(expr, :call) && expr.args[1] == :|
-        src, _boundary = expr.args[2:end]
-        boundary_expr = MacroTools.postwalk(_boundary) do x
-            Meta.isexpr(x, :$) ? esc(only(x.args)) : x
-        end
-        src_expr = _site_expr(src)
-        return :(BoundaryBond($src_expr, $boundary_expr))
+        # src, _boundary = expr.args[2:end]
+        # boundary_expr = MacroTools.postwalk(_boundary) do x
+        #     Meta.isexpr(x, :$) ? esc(only(x.args)) : x
+        # end
+        # src_expr = _site_expr(src)
+        # return :(BoundaryBond($src_expr, $boundary_expr))
+        error("BoundaryBond not yet supported")
 
     elseif Meta.isexpr(expr, :call) && expr.args[1] == :-
         src, dst = expr.args[2:end]

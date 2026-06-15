@@ -21,13 +21,13 @@ haslayer(tn::LayeredTensorNetwork, _layer::Layer) = _layer in tn.layers
 
 function all_sites_at_layer(tn::LayeredTensorNetwork, _layer::Layer)
     @assert _layer in layers(tn) "Layer $_layer not found in LayeredTensorNetwork"
-    return filter!(s -> layer(s) == _layer, all_sites(tn))
+    return filter!(s -> partition(s) == _layer, all_sites(tn))
 end
 
 function cart_sites(tn::LayeredTensorNetwork)
     sort!(
         filter!(s -> site(s) isa CartesianSite, all_sites(tn));
-        lt=(a, b) -> layer(a) == layer(b) ? site(a) < site(b) : layer(a).id < layer(b).id,
+        lt=(a, b) -> partition(a) == partition(b) ? site(a) < site(b) : partition(a).id < partition(b).id,
     )
 end
 
