@@ -165,7 +165,7 @@ function Base.replace!(tn::AbstractTensorNetwork, old_new::Pair{Ia,Ib}) where {I
 end
 
 # replace tensor
-function Base.replace!(tn::AbstractTensorNetwork, old_new::Pair{<:Tensor,<:Tensor})
+function Base.replace!(tn::AbstractTensorNetwork, old_new::Pair{<:NamedTensor,<:NamedTensor})
     replace_tensor!(tn, old_new.first, old_new.second)
     return tn
 end
@@ -213,7 +213,7 @@ function replace_inds!(tn, old_new)
 end
 
 # replace tensor with a TensorNetwork
-function Base.replace!(tn::AbstractTensorNetwork, old_new::Pair{<:Tensor,<:AbstractTensorNetwork})
+function Base.replace!(tn::AbstractTensorNetwork, old_new::Pair{<:NamedTensor,<:AbstractTensorNetwork})
     checkeffect(tn, ReplaceEffect(old_new))
 
     old, new = old_new
@@ -230,12 +230,12 @@ function Base.replace!(tn::AbstractTensorNetwork, old_new::Pair{<:Tensor,<:Abstr
     return tn
 end
 
-function Base.replace!(tn::AbstractTensorNetwork, @nospecialize(old_new::Pair{<:Tensor,<:Vector{<:Tensor}}))
+function Base.replace!(tn::AbstractTensorNetwork, @nospecialize(old_new::Pair{<:NamedTensor,<:Vector{<:NamedTensor}}))
     replace!(tn, old_new.first => TensorNetwork(old_new.second))
 end
 
 # replace collection of tensors with a tensor (called on `contract!`)
-function Base.replace!(tn::AbstractTensorNetwork, @nospecialize(old_new::Pair{<:Vector{<:Tensor},<:Tensor}))
+function Base.replace!(tn::AbstractTensorNetwork, @nospecialize(old_new::Pair{<:Vector{<:NamedTensor},<:NamedTensor}))
     old, new = old_new
 
     checkeffect(tn, ReplaceEffect(old, new))

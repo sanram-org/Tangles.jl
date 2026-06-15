@@ -50,6 +50,7 @@ end
 
 # useful shortcut
 Tensor(data::AbstractArray, inds::AbstractVecOrTuple{Index}) = NamedTensor(data, inds)
+Tensor(data::AbstractArray, inds::IndexList) = NamedTensor(data, inds)
 
 """
     Base.parent(::NamedTensor)

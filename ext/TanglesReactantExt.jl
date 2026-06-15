@@ -167,7 +167,7 @@ end
 # take less time. It must be called on the top level for precompilation and in `__init__` for runtime.
 function tangles_skip_rewrites()
     # `TensorNetwork` interface
-    @skip_rewrite_type Tangles.tensors
+    @skip_rewrite_func Tangles.tensors
     @skip_rewrite_func Tangles.all_tensors
     @skip_rewrite_func Tangles.all_inds
     @skip_rewrite_func Tangles.hastensor
@@ -189,7 +189,7 @@ function tangles_skip_rewrites()
     @skip_rewrite_func Tangles.replace_ind!
 
     # `TaggedTensorNetwork` interface
-    @skip_rewrite_type Tangles.sites
+    @skip_rewrite_func Tangles.sites
     @skip_rewrite_func Tangles.links
     @skip_rewrite_func Tangles.all_sites
     @skip_rewrite_func Tangles.all_links
@@ -223,8 +223,8 @@ function tangles_skip_rewrites()
     @skip_rewrite_func Tangles.align!
 
     # constructors
-    @skip_rewrite_type Tangles.SimpleTensorNetwork
-    @skip_rewrite_func Tangles.GenericTensorNetwork
+    # @skip_rewrite_type Tangles.SimpleTensorNetwork
+    # @skip_rewrite_type Tangles.GenericTensorNetwork
 end
 
 function __init__()

@@ -134,7 +134,7 @@ function tensors_set_intersect end
 @delegated interface=TensorNetwork() function tensors_set_intersect(tn, _target)
     fallback(tensors_set_intersect)
     target = _target isa Index ? [_target] : _target
-    return filter(t -> !isdisjoint(inds(t), target), all_tensors_iter(tn))
+    return collect(Iterators.filter(t -> !isdisjoint(inds(t), target), all_tensors_iter(tn)))
 end
 
 function inds_set_open end
@@ -189,6 +189,12 @@ function size_ind end
     @assert !isempty(_tensors) "Index $i not found in the Tensor Network"
     return size(first(_tensors), i)
 end
+
+function tensor_at end
+@delegated interface=TensorNetwork() tensor_at(tn, vertex)
+
+function ind_at end
+@delegated interface=TensorNetwork() ind_at(tn, edge)
 
 ## mutating methods
 function addtensor! end

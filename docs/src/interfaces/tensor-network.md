@@ -20,6 +20,8 @@
 | `tensors_set_intersect(tn, inds)` |                   |
 | `size_inds`                       |                   |
 | `size_ind`                        |                   |
+| `tensor_at(tn, v)`                |                   |
+| `ind_at(tn, v)`                   |                   |
 
 ## Mutating methods
 

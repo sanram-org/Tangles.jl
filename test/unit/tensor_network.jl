@@ -152,7 +152,7 @@ function test_mock_tensor_network(tn)
         # returning nothing should be type-stable
         @test isempty(tensors_set_equal(tn, [Index(:not_index)])) broken =
             tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
-        @test tensors_set_equal(tn, [Index(:not_index)]) isa Vector{<:Tensor} broken =
+        @test tensors_set_equal(tn, [Index(:not_index)]) isa Vector{<:NamedTensor} broken =
             tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
     end
 
@@ -171,7 +171,7 @@ function test_mock_tensor_network(tn)
         # returning nothing should be type-stable
         @test isempty(tensors_set_contain(tn, [Index(:not_index)])) broken =
             tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
-        @test tensors_set_contain(tn, [Index(:not_index)]) isa Vector{<:Tensor} broken =
+        @test tensors_set_contain(tn, [Index(:not_index)]) isa Vector{<:NamedTensor} broken =
             tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
     end
 
@@ -188,7 +188,7 @@ function test_mock_tensor_network(tn)
 
         # returning nothing should be type-stable
         @test isempty(tensors_set_intersect(tn, [Index(:not_index)]))
-        @test tensors_set_intersect(tn, [Index(:not_index)]) isa Vector{<:Tensor}
+        @test tensors_set_intersect(tn, [Index(:not_index)]) isa Vector{<:NamedTensor}
     end
 
     @testset "inds_set" begin
