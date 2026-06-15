@@ -1,5 +1,6 @@
 using Test
 using Tangles
+using Tangles: plugs_set_in, plugs_set_out, inds_set_physical, inds_set_virtual, inds_set_in, inds_set_out, adjoint_plugs!, resetinds!, align!
 using Networks
 
 # 2-site state
@@ -9,9 +10,9 @@ fixture1 = let
     constructor = () -> begin
         tn = GenericTensorNetwork([a, b])
 
-        tag_edge!(tn, edge_at(tn, Index(:i)), plug"1")
-        tag_edge!(tn, edge_at(tn, Index(:j)), bond"1-2")
-        tag_edge!(tn, edge_at(tn, Index(:k)), plug"2")
+        setlink!(tn, edge_at(tn, Index(:i)), plug"1")
+        setlink!(tn, edge_at(tn, Index(:j)), bond"1-2")
+        setlink!(tn, edge_at(tn, Index(:k)), plug"2")
 
         return tn
     end
@@ -26,9 +27,9 @@ fixture2 = let
     constructor = () -> begin
         tn = GenericTensorNetwork([a, b])
 
-        tag_edge!(tn, edge_at(tn, Index(:i)), plug"1")
-        tag_edge!(tn, edge_at(tn, Index(:j)), bond"1-2")
-        tag_edge!(tn, edge_at(tn, Index(:k)), plug"2'")
+        setlink!(tn, edge_at(tn, Index(:i)), plug"1")
+        setlink!(tn, edge_at(tn, Index(:j)), bond"1-2")
+        setlink!(tn, edge_at(tn, Index(:k)), plug"2'")
 
         return tn
     end
@@ -74,18 +75,6 @@ end
     end
 end
 
-# TODO test
-@testset "plugs_like" begin
-    # @testset let
-    #     tn = fixture1.constructor()
-    #     @test all(p -> plugs_like(tn, p) == [p], fixture1.all_plugs)
-    #     @test isempty(plugs_like(tn, plug"3"))
-    # end
-end
-
-# TODO test
-@testset "plug_like" begin end
-
 @testset "ind_at(::Plug)" begin
     @testset let
         tn = fixture1.constructor()
@@ -104,13 +93,13 @@ end
     @testset let
         tn = fixture1.constructor()
         @test isempty(plugs_set_in(tn))
-        @test isempty(plugs(tn; set=:inputs))
+        @test isempty(plugs(tn; set=:in))
     end
 
     @testset let
         tn = fixture2.constructor()
         @test issetequal(plugs_set_in(tn), [plug"2'"])
-        @test plugs(tn; set=:inputs) == plugs_set_in(tn)
+        @test plugs(tn; set=:in) == plugs_set_in(tn)
     end
 end
 
@@ -118,13 +107,13 @@ end
     @testset let
         tn = fixture1.constructor()
         @test issetequal(plugs_set_out(tn), fixture1.all_plugs)
-        @test plugs(tn; set=:outputs) == plugs_set_out(tn)
+        @test plugs(tn; set=:out) == plugs_set_out(tn)
     end
 
     @testset let
         tn = fixture2.constructor()
         @test issetequal(plugs_set_out(tn), [plug"1"])
-        @test plugs(tn; set=:outputs) == plugs_set_out(tn)
+        @test plugs(tn; set=:out) == plugs_set_out(tn)
     end
 end
 
@@ -156,31 +145,31 @@ end
     end
 end
 
-@testset "inds_set_inputs" begin
+@testset "inds_set_in" begin
     @testset let
         tn = fixture1.constructor()
-        @test isempty(inds_set_inputs(tn))
+        @test isempty(inds_set_in(tn))
         @test isempty(inds(tn; set=:inputs))
     end
 
     @testset let
         tn = fixture2.constructor()
-        @test issetequal(inds_set_inputs(tn), [Index(:k)])
-        @test inds(tn; set=:inputs) == inds_set_inputs(tn)
+        @test issetequal(inds_set_in(tn), [Index(:k)])
+        @test inds(tn; set=:inputs) == inds_set_in(tn)
     end
 end
 
-@testset "inds_set_outputs" begin
+@testset "inds_set_out" begin
     @testset let
         tn = fixture1.constructor()
-        @test issetequal(inds_set_outputs(tn), [Index(:i), Index(:k)])
-        @test inds(tn; set=:outputs) == inds_set_outputs(tn)
+        @test issetequal(inds_set_out(tn), [Index(:i), Index(:k)])
+        @test inds(tn; set=:outputs) == inds_set_out(tn)
     end
 
     @testset let
         tn = fixture2.constructor()
-        @test issetequal(inds_set_outputs(tn), [Index(:i)])
-        @test inds(tn; set=:outputs) == inds_set_outputs(tn)
+        @test issetequal(inds_set_out(tn), [Index(:i)])
+        @test inds(tn; set=:outputs) == inds_set_out(tn)
     end
 end
 

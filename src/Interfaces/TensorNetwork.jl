@@ -73,7 +73,7 @@ function all_inds end
     _inds = Set{Index}()
     for tensor in all_tensors_iter(tn)
         for ind in inds(tensor)
-            push!(_inds, inds)
+            push!(_inds, ind)
         end
     end
     return collect(_inds)
@@ -111,7 +111,7 @@ end
 function hasind end
 @delegated interface = TensorNetwork() function hasind(tn, ind)
     fallback(hasind)
-    i ∈ all_inds_iter(tn)
+    ind ∈ all_inds_iter(tn)
 end
 
 function ntensors_all end
@@ -186,7 +186,7 @@ function size_inds end
     fallback(size_inds)
     sizes = Dict{Index,Int}()
     for ind in all_inds_iter(tn)
-        sizes[ind] = size_ind(tensor, ind)
+        sizes[ind] = size_ind(tn, ind)
     end
     return sizes
 end
@@ -380,8 +380,8 @@ function resetinds!(tn, method=:gensymnew; kwargs...)
         inds(tn)
     end
 
-    old_new = Dict(ind => new_name_f(ind) for ind in _inds)
-    replace_ind!(tn, old_new)
+    old_new = Pair{Index,Index}[ind => new_name_f(ind) for ind in _inds]
+    replace_inds!(tn, old_new)
 
     return tn
 end

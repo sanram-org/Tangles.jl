@@ -130,7 +130,7 @@ function neighbor_links end
     fallback(neighbor_links)
     _sites = link_incidents(tn, link)
     _neigh_links = Iterators.flatmap(_sites) do _site
-        filter(s -> !is_link_equal(s, link), site_incidents(tn, _site))
+        filter(s -> !isequal(s, link), site_incidents(tn, _site))
     end |> collect
     return unique(_neigh_links)
 end
@@ -205,19 +205,19 @@ end
 function plugs_set_in end
 @delegated interface = TaggedTensorNetwork() function plugs_set_in(tn)
     fallback(plugs_set_in)
-    return filter(x -> isinput(x), all_plugs_iter(tn))
+    return collect(Iterators.filter(x -> isinput(x), all_plugs_iter(tn)))
 end
 
 function plugs_set_out end
 @delegated interface = TaggedTensorNetwork() function plugs_set_out(tn)
     fallback(plugs_set_out)
-    return filter(x -> isoutput(x), all_plugs_iter(tn))
+    return collect(Iterators.filter(x -> isoutput(x), all_plugs_iter(tn)))
 end
 
 function plugs_set_dual end
 @delegated interface = TaggedTensorNetwork() function plugs_set_dual(tn)
     fallback(plugs_set_dual)
-    return filter(x -> isdual(x), all_plugs_iter(tn))
+    return collect(Iterators.filter(x -> isdual(x), all_plugs_iter(tn)))
 end
 
 @delegated interface = TaggedTensorNetwork() function inds_set_physical(tn)
@@ -230,13 +230,13 @@ end
     return setdiff(all_inds(tn), inds_set_physical(tn))
 end
 
-@delegated interface = TaggedTensorNetwork() function inds_set_inputs(tn)
-    fallback(inds_set_inputs)
+@delegated interface = TaggedTensorNetwork() function inds_set_in(tn)
+    fallback(inds_set_in)
     return Index[ind_at(tn, i) for i in plugs_set_in(tn)]
 end
 
-@delegated interface = TaggedTensorNetwork() function inds_set_outputs(tn)
-    fallback(inds_set_outputs)
+@delegated interface = TaggedTensorNetwork() function inds_set_out(tn)
+    fallback(inds_set_out)
     return Index[ind_at(tn, i) for i in plugs_set_out(tn)]
 end
 
@@ -317,13 +317,13 @@ function align!(a, ioa, b, iob)
     replacements = map(target_plugs_a) do plug_a
         plug_b = do_dual ? plug_a' : plug_a
         ind_at(b, plug_b) => ind_at(a, plug_a)
-    end |> Dict
+    end
 
-    if issetequal(keys(replacements), values(replacements))
+    if issetequal(first.(replacements), last.(replacements))
         return b
     end
 
-    replace_ind!(b, replacements)
+    replace_inds!(b, replacements)
 
     return a, b
 end

@@ -34,6 +34,7 @@ end
 NamedTensor(data::AbstractArray, inds) = NamedTensor(Tensor(data), inds)
 
 NamedTensor(data::AbstractArray{T,0}) where {T} = NamedTensor(data, IndexList())
+NamedTensor(data::AbstractArray{T,0}, ::Tuple{}) where {T} = NamedTensor(Tensor(data))
 NamedTensor(data::Tensor{T,0}) where {T} = NamedTensor(data, IndexList())
 NamedTensor(data::Number) = NamedTensor(fill(data))
 
@@ -49,7 +50,7 @@ function NamedTensor{T,N,A}(::NamedTensor, _) where {T,N,A}
 end
 
 # useful shortcut
-Tensor(data::AbstractArray, inds::AbstractVecOrTuple{Index}) = NamedTensor(data, inds)
+Tensor(data::AbstractArray, inds::Vector{Index}) = NamedTensor(data, inds)
 Tensor(data::AbstractArray, inds::IndexList) = NamedTensor(data, inds)
 
 """

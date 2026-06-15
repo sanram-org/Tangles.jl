@@ -304,12 +304,10 @@ function EinExprs.einexpr(
     return EinExprs.einexpr(optimizer, path; kwargs...)
 end
 
-# Lattice interface
-# WARN the decoupling of `Site`/`Link` in `Taggable` can affect this
-
+# TaggedTensorNetwork interface
 Base.getindex(tn::AbstractTensorNetwork, site::Site) = tensor_at(tn, site)
 Base.getindex(tn::AbstractTensorNetwork, coord::Integer...) = getindex(tn, CartesianSite(coord))
-Base.getindex(tn::AbstractTensorNetwork, bond::Bond) = ind_at(tn, bond)
+Base.getindex(tn::AbstractTensorNetwork, link::Link) = ind_at(tn, link)
 
 Base.setindex!(tn::AbstractTensorNetwork, new::NamedTensor, old::NamedTensor) = replace_tensor!(tn, old, new)
 Base.setindex!(tn::AbstractTensorNetwork, new::Index, old::Index) = replace_ind!(tn, old, new)
@@ -328,23 +326,11 @@ function Base.setindex!(tn::AbstractTensorNetwork, tensor::NamedTensor, coord::I
     setindex!(tn, tensor, CartesianSite(coord))
 end
 
-function Base.setindex!(tn::AbstractTensorNetwork, ind::Index, bond::Bond)
-    if hasbond(tn, bond)
-        replace_ind!(tn, ind_at(tn, bond), ind)
+function Base.setindex!(tn::AbstractTensorNetwork, ind::Index, link::Link)
+    if haslink(tn, link)
+        replace_ind!(tn, ind_at(tn, link), ind)
     else
-        setbond!(tn, ind, bond)
-    end
-    return tn
-end
-
-# Pluggable interface
-Base.getindex(tn::AbstractTensorNetwork, plug::Plug) = ind_at(tn, plug)
-
-function Base.setindex!(tn::AbstractTensorNetwork, ind::Index, plug::Plug)
-    if hasplug(tn, plug)
-        replace_ind!(tn, ind_at(tn, plug), ind)
-    else
-        setplug!(tn, ind, plug)
+        setlink!(tn, ind, link)
     end
     return tn
 end

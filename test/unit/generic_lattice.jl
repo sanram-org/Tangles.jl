@@ -5,11 +5,11 @@ using Tangles: neighbor_sites, neighbor_bonds, site_incidents, link_incidents
 @testset let
     lattice = GenericLattice()
 
-    addsite!(lattice, site"1")
+    Tangles.addsite!(lattice, site"1")
     @test issetequal(all_sites(lattice), [site"1"])
     @test isempty(all_bonds(lattice))
 
-    addsite!(lattice, site"2")
+    Tangles.addsite!(lattice, site"2")
     @test issetequal(all_sites(lattice), [site"1", site"2"])
     @test isempty(all_bonds(lattice))
     @test isempty(neighbor_sites(lattice, site"1"))
@@ -18,7 +18,7 @@ using Tangles: neighbor_sites, neighbor_bonds, site_incidents, link_incidents
     @test isempty(site_incidents(lattice, site"2"))
 
     # closed bond
-    addbond!(lattice, bond"1-2")
+    Tangles.addbond!(lattice, bond"1-2")
     @test issetequal(all_sites(lattice), [site"1", site"2"])
     @test issetequal(all_bonds(lattice), [bond"1-2"])
     @test issetequal(neighbor_sites(lattice, site"1"), [site"2"])
@@ -30,7 +30,7 @@ using Tangles: neighbor_sites, neighbor_bonds, site_incidents, link_incidents
 
     # NOTE forbidden for the time being
     # open bond
-    # addbond!(lattice, bond"2-3")
+    # Tangles.addbond!(lattice, bond"2-3")
     # @test issetequal(all_sites(lattice), [site"1", site"2"])
     # @test issetequal(all_bonds(lattice), [bond"1-2", bond"2-3"])
     # @test issetequal(neighbor_sites(lattice, site"1"), [site"2"])

@@ -79,9 +79,9 @@ export LayeredTensorNetwork
 using PrecompileTools
 
 @setup_workload begin
-    a = Tensor(ones(2, 2), Index.([:i, :j]))
-    b = Tensor(ones(2, 2), Index.([:j, :k]))
-    c = Tensor(ones(2, 2, 2), Index.([:k, :l, :i]))
+    a = NamedTensor(ones(2, 2), Index.([:i, :j]))
+    b = NamedTensor(ones(2, 2), Index.([:j, :k]))
+    c = NamedTensor(ones(2, 2, 2), Index.([:k, :l, :i]))
 
     @compile_workload begin
         tn = GenericTensorNetwork([a, b, c])

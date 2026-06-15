@@ -80,7 +80,7 @@ nlinks(tn::GenericTensorNetwork) = length(tn.linkmap)
 site_at(tn::GenericTensorNetwork, vertex::Vertex) = tn.sitemap(vertex)
 site_at(tn::GenericTensorNetwork, tensor::NamedTensor) = site_at(tn, vertex_at(tn, tensor))
 
-link_at(tn::GenericTensorNetwork, edge::Edge) = tn.linkmap(tn, edge)
+link_at(tn::GenericTensorNetwork, edge::Edge) = tn.linkmap(edge)
 link_at(tn::GenericTensorNetwork, ind::Index) = link_at(tn, edge_at(tn, ind))
 
 site_incidents(tn::GenericTensorNetwork, site) = link_at.(Ref(tn), vertex_incidents(tn, vertex_at(tn, site)))
@@ -117,15 +117,15 @@ function generic_rand_state(lattice::GenericLattice, d, χ; rng=Random.default_r
         _inds = [map(Index, _site_incidents); [Index(plug"$site")]]
 
         array = rand(rng, eltype, fill(χ, length(_site_incidents))..., d)
-        tensor = Tensor(array, _inds)
+        tensor = NamedTensor(array, _inds)
 
         addtensor!(tn, tensor)
         setsite!(tn, tensor, site)
-        setplug!(tn, Index(plug"$site"), plug"$site")
+        setlink!(tn, Index(plug"$site"), plug"$site")
     end
 
     for bond in all_bonds_iter(lattice)
-        setbond!(tn, Index(bond), bond)
+        setlink!(tn, Index(bond), bond)
     end
 
     return tn

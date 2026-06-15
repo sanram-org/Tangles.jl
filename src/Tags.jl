@@ -86,7 +86,7 @@ isplug(::AbstractPlug) = true
 end
 
 isinput(x::PlugKind) = x ∈ (PLUG_IN, SUPER_PLUG_IN, SUPER_PLUG_IN_DUAL)
-isoutput(x::PlugKind) = !isinput(x)
+isoutput(x) = !isinput(x)
 
 isdual(x::PlugKind) = x ∈ (PLUG_IN, SUPER_PLUG_IN_DUAL, SUPER_PLUG_OUT_DUAL)
 

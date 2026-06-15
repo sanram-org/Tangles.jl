@@ -6,7 +6,7 @@ target_testsets = isempty(ARGS) ? ["core", "integration"] : ARGS
 if "core" in target_testsets
     @testset "Unit" verbose = true begin
         @safetestset "TensorNetwork" include("unit/tensor_network.jl")
-        @safetestset "Taggable" include("unit/taggable.jl")
+        @safetestset "TaggedTensorNetwork" include("unit/tagged_tensor_network.jl")
         @safetestset "Pluggable" include("unit/pluggable.jl")
         @safetestset "GenericLattice" include("unit/generic_lattice.jl")
         @safetestset "LayeredTensorNetwork" include("unit/layered_tensor_network.jl")

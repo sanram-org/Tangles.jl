@@ -1,10 +1,11 @@
 using Test
 using Tangles
+using Tangles: arrays, tensor_set_equal, tensors_set_equal, tensors_set_contain, tensors_set_intersect, inds_set, inds_parallel_to, size_inds, size_ind
 using DelegatorTraits
 using Serialization
 
 struct MockTensorNetwork <: Tangles.AbstractTensorNetwork
-    tensors::Vector{Tensor}
+    tensors::Vector{NamedTensor}
     unsafe_scope::Ref{Union{Nothing,Tangles.UnsafeScope}}
 
     MockTensorNetwork(tensors; unsafe=nothing) = new(tensors, unsafe)
@@ -74,9 +75,9 @@ DelegatorTraits.DelegatorTrait(::Tangles.UnsafeScopeable, ::WrapperTensorNetwork
 DelegatorTraits.DelegatorTrait(::Tangles.TensorNetwork, ::WrapperTensorNetwork) = DelegateToField{:tn}()
 
 test_tensors = [
-    Tensor(rand(ComplexF64, 2, 3), Index.([:i, :j])),
-    Tensor(rand(ComplexF64, 3, 4), Index.([:j, :k])),
-    Tensor(rand(ComplexF64, 3, 4), Index.([:j, :k])),
+    NamedTensor(rand(ComplexF64, 2, 3), Index.([:i, :j])),
+    NamedTensor(rand(ComplexF64, 3, 4), Index.([:j, :k])),
+    NamedTensor(rand(ComplexF64, 3, 4), Index.([:j, :k])),
 ]
 
 test_inds = Index.([:i, :j, :k])
@@ -101,10 +102,10 @@ function test_mock_tensor_network(tn)
         end
 
         # test a tensor with different data and indices
-        @test !hastensor(tn, Tensor(rand(2, 2), Index.([:not_index, :not_index_2])))
+        @test !hastensor(tn, NamedTensor(rand(2, 2), Index.([:not_index, :not_index_2])))
 
         # test a tensor with different data but same indices
-        @test !hastensor(tn, Tensor(rand(2, 2), Index.([:i, :j])))
+        @test !hastensor(tn, NamedTensor(rand(2, 2), Index.([:i, :j])))
 
         # test with copy (objectid is different so it's not the same)
         # TODO this behavior may change
@@ -201,7 +202,7 @@ function test_mock_tensor_network(tn)
     @testset "inds_parallel_to" begin
         @test isempty(inds_parallel_to(tn, Index(:i)))
 
-        let tn = MockTensorNetwork(Tensor[test_tensors[2], test_tensors[3]])
+        let tn = MockTensorNetwork(NamedTensor[test_tensors[2], test_tensors[3]])
             @test issetequal(inds_parallel_to(tn, Index(:j)), [Index(:k)])
             @test issetequal(inds_parallel_to(tn, Index(:k)), [Index(:j)])
         end
@@ -209,7 +210,7 @@ function test_mock_tensor_network(tn)
 
     @testset "addtensor!" begin
         @testset let tn = copy(tn)
-            new_tensor = Tensor(rand(2, 2), Index.([:m, :i]))
+            new_tensor = NamedTensor(rand(2, 2), Index.([:m, :i]))
             addtensor!(tn, new_tensor)
             @test hastensor(tn, new_tensor)
         end
@@ -218,7 +219,7 @@ function test_mock_tensor_network(tn)
         # TODO broken for `MockTensorNetwork`
         if tn isa SimpleTensorNetwork || tn isa WrapperTensorNetwork{SimpleTensorNetwork}
             @testset let tn = copy(tn)
-                new_tensor = Tensor(rand(2, 3), Index.([:m, :i]))
+                new_tensor = NamedTensor(rand(2, 3), Index.([:m, :i]))
                 @test_throws DimensionMismatch addtensor!(tn, new_tensor)
             end
         end
@@ -274,7 +275,7 @@ function test_mock_tensor_network(tn)
         for tensor in test_tensors
             @test tensor ∈ tn
         end
-        @test Tensor(zeros()) ∉ tn
+        @test NamedTensor(zeros()) ∉ tn
 
         # `hasind`
         for i in test_inds
@@ -421,10 +422,10 @@ end
 
 @testset "setindex!: replace tensor" begin
     tn = GenericTensorNetwork()
-    old_tensor = Tensor(fill(0))
+    old_tensor = NamedTensor(fill(0))
     addtensor!(tn, old_tensor)
 
-    new_tensor = Tensor(fill(1))
+    new_tensor = NamedTensor(fill(1))
     tn[old_tensor] = new_tensor
 
     @test hastensor(tn, new_tensor)
@@ -436,7 +437,7 @@ end
     old_index = Index(:i)
     new_index = Index(:j)
 
-    tensor = Tensor(zeros(2), [old_index])
+    tensor = NamedTensor(zeros(2), [old_index])
     addtensor!(tn, tensor)
 
     tn[old_index] = new_index
@@ -447,7 +448,7 @@ end
 
 @testset "setindex!: add tensor with site" begin
     tn = GenericTensorNetwork()
-    tensor = Tensor(fill(0))
+    tensor = NamedTensor(fill(0))
     tn[site"1"] = tensor
     @test hassite(tn, site"1")
     @test hastensor(tn, tensor)
@@ -456,8 +457,8 @@ end
 
 @testset "setindex!: replace tensor referenced by site" begin
     tn = GenericTensorNetwork()
-    tn[site"1"] = Tensor(fill(0))
-    tensor = Tensor(fill(1))
+    tn[site"1"] = NamedTensor(fill(0))
+    tensor = NamedTensor(fill(1))
     tn[site"1"] = tensor
     @test hassite(tn, site"1")
     @test hastensor(tn, tensor)
@@ -466,7 +467,7 @@ end
 
 @testset "setindex!: set bond" begin
     tn = GenericTensorNetwork()
-    tensor = Tensor(zeros(2), [Index(:i)])
+    tensor = NamedTensor(zeros(2), [Index(:i)])
     addtensor!(tn, tensor)
     tn[bond"1-2"] = Index(:i)
 
@@ -475,7 +476,7 @@ end
 
 @testset "setindex!: replace index referenced by bond" begin
     tn = GenericTensorNetwork()
-    tensor = Tensor(zeros(2), [Index(:i)])
+    tensor = NamedTensor(zeros(2), [Index(:i)])
     addtensor!(tn, tensor)
     tn[bond"1-2"] = Index(:i)
 
@@ -487,7 +488,7 @@ end
 
 @testset "setindex!: set plug" begin
     tn = GenericTensorNetwork()
-    tensor = Tensor(zeros(2), [Index(:i)])
+    tensor = NamedTensor(zeros(2), [Index(:i)])
     addtensor!(tn, tensor)
     tn[plug"1"] = Index(:i)
 
@@ -496,7 +497,7 @@ end
 
 @testset "setindex!: replace index referenced by bond" begin
     tn = GenericTensorNetwork()
-    tensor = Tensor(zeros(2), [Index(:i)])
+    tensor = NamedTensor(zeros(2), [Index(:i)])
     addtensor!(tn, tensor)
     tn[plug"1"] = Index(:i)
 
@@ -508,10 +509,10 @@ end
 
 @testset "canonicalize_inds!" begin
     tn = GenericTensorNetwork()
-    tensor = Tensor(zeros(2, 2), [Index(:i), Index(:j)])
+    tensor = NamedTensor(zeros(2, 2), [Index(:i), Index(:j)])
     addtensor!(tn, tensor)
-    setbond!(tn, Index(:i), bond"1-2")
-    setplug!(tn, Index(:j), plug"1")
+    setlink!(tn, Index(:i), bond"1-2")
+    setlink!(tn, Index(:j), plug"1")
 
     @test ind_at(tn, bond"1-2") == Index(:i)
     @test ind_at(tn, plug"1") == Index(:j)
