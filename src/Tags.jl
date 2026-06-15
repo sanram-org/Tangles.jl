@@ -361,7 +361,7 @@ macro site_str(str)
     _site_expr(expr)
 end
 
-dispatch_bond_constructor(a, b) = SimpleBond(a, b)
+dispatch_bond_constructor(a, b) = Bond(a, b)
 dispatch_bond_constructor(s) = OpenBond(s)
 
 function _bond_expr(expr)
@@ -393,7 +393,7 @@ end
     bond"i-j"
     bond"(i,j,...)-(k,l,...)"
 
-Constructs a [`SimpleBond`](@ref) object.
+Constructs a [`Bond`](@ref) object.
 [`Site`](@ref)s are given as a comma-separated list of integers, and source and destination sites are separated by a `-`.
 """
 macro bond_str(str)
