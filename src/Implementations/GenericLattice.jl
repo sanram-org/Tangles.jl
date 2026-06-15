@@ -1,5 +1,6 @@
 using Bijections
 using Networks
+using Networks: Vertex, Edge
 using UUIDs
 using DelegatorTraits
 
@@ -9,16 +10,16 @@ using DelegatorTraits
 An object that implements the `Lattice` interface to model arbitrary discrete topologies.
 """
 struct GenericLattice
-    graph::IncidentNetwork{Networks.Vertex{UUID},Networks.Edge{UUID}}
-    sitemap::Bijection{Networks.Vertex{UUID},Site}
-    bondmap::Bijection{Networks.Edge{UUID},Bond}
+    graph::IncidentNetwork{Vertex{UUID},Edge{UUID}}
+    sitemap::Bijection{Vertex{UUID},Site}
+    bondmap::Bijection{Edge{UUID},Bond}
 end
 
 function GenericLattice()
     GenericLattice(
-        IncidentNetwork{Networks.Vertex{UUID},Networks.Edge{UUID}}(),
-        Bijection{Networks.Vertex{UUID},Site}(),
-        Bijection{Networks.Edge{UUID},Bond}(),
+        IncidentNetwork{Vertex{UUID},Edge{UUID}}(),
+        Bijection{Vertex{UUID},Site}(),
+        Bijection{Edge{UUID},Bond}(),
     )
 end
 
@@ -33,8 +34,8 @@ Networks.vertex_at(g::GenericLattice, _site) = g.sitemap(_site)
 Networks.edge_at(g::GenericLattice, _bond) = g.bondmap(_bond)
 
 # `Lattice` interface
-DelegatorTraits.ImplementorTrait(::Lattice, ::GenericLattice) = DelegatorTraits.Implements()
-
+# NOTE due to refactors, `Lattice` exists inside the `TaggedTensorNetwork` interface but `GenericLattice` is not a `TensorNetwork`
+# instead we implement the methods without signalling `DelegatorTraits`
 all_sites(g::GenericLattice) = collect(values(g.sitemap))
 all_bonds(g::GenericLattice) = collect(values(g.bondmap))
 all_sites_iter(g::GenericLattice) = values(g.sitemap)
@@ -45,19 +46,16 @@ hasbond(g::GenericLattice, _bond) = hasvalue(g.bondmap, _bond)
 nsites(g::GenericLattice) = length(g.sitemap)
 nbonds(g::GenericLattice) = length(g.bondmap)
 
-# TODO change to `incident_edges` on next Networks.jl release
 site_incidents(g::GenericLattice, _site) = bond_at.(Ref(g), vertex_incidents(g, vertex_at(g, _site)))
-
-# TODO change to `incident_vertices` on next Networks.jl release
 link_incidents(g::GenericLattice, _bond) = site_at.(Ref(g), edge_incidents(g, edge_at(g, _bond)))
 
-site_at(g::GenericLattice, v::Networks.Vertex) = g.sitemap[v]
-bond_at(g::GenericLattice, e::Networks.Edge) = g.bondmap[e]
+site_at(g::GenericLattice, v::Vertex) = g.sitemap[v]
+bond_at(g::GenericLattice, e::Edge) = g.bondmap[e]
 
 function addsite!(g::GenericLattice, _site)
     hassite(g, _site) && return g
-    v = Networks.Vertex(uuid4())
-    addvertex!(g.graph, v)
+    v = Vertex(uuid4())
+    addvertex!(g, v)
     g.sitemap[v] = _site
 
     # TODO change to a "adjacent matrix"-based representation to avoid iterating over all edges
@@ -66,7 +64,7 @@ function addsite!(g::GenericLattice, _site)
     #     if _site in _sites
     #         # link the vertex to the bond
     #         e = edge_at(g, _bond)
-    #         Networks.link!(g.graph, v, e)
+    #         setincident!(g, v, e)
     #     end
     # end
 
@@ -75,8 +73,8 @@ end
 
 function addbond!(g::GenericLattice, _bond)
     hasbond(g, _bond) && return g
-    e = Networks.Edge(uuid4())
-    addedge!(g.graph, e)
+    e = Edge(uuid4())
+    addedge!(g, e)
 
     # filter to allow for open bonds
     # _sites = filter(s -> hassite(g, s), sites(_bond))
@@ -84,7 +82,7 @@ function addbond!(g::GenericLattice, _bond)
 
     for _site in sites(_bond)
         v = vertex_at(g, _site)
-        Networks.link!(g.graph, v, e)
+        setincident!(g, v, e)
     end
     g.bondmap[e] = _bond
     return g

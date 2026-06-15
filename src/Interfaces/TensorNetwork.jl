@@ -28,7 +28,7 @@ tensors(kwargs::NamedTuple{(:equal,)}, tn) = tensors_set_equal(tn, kwargs.equal)
 
 @deprecate tensors(kwargs::NamedTuple{(:contains,)}, tn) tensors(tn; contain=kwargs.contains)
 @deprecate tensors(kwargs::NamedTuple{(:intersects,)}, tn) tensors(tn; intersect=kwargs.intersects)
-@deprecate tensors(kwargs::NamedTuple{(:withinds,)}, tn) tensors(tn; equals=kwargs.withinds)
+@deprecate tensors(kwargs::NamedTuple{(:withinds,)}, tn) tensors(tn; equal=kwargs.withinds)
 
 # TODO move `inds` back here
 # function inds end # WARN moved to `Operations/AbstractTensorNetwork.jl` to avoid type-piracy
@@ -284,9 +284,9 @@ function contract(tn; optimizer=EinExprs.Greedy(), path=EinExprs.einexpr(tn; opt
 
     # copy `tn` and pop tensors to avoid conflicts between tensors with same indices
     tn = GenericTensorNetwork(tensors(tn))
-    cache = IdDict{EinExprs.EinExpr,Tensor}()
+    cache = IdDict{EinExprs.EinExpr,NamedTensor}()
     for leaf in EinExprs.leaves(path)
-        selection = tensors(tn; withinds=EinExprs.head(leaf))
+        selection = tensors(tn; equal=EinExprs.head(leaf))
         if length(selection) > 1
             @warn "Found more than one tensor with index $(EinExprs.head(leaf))... Using first one"
         end

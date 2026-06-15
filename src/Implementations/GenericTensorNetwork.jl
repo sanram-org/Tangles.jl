@@ -4,8 +4,6 @@ using Networks
 # TODO use dictionary with parameterized types
 const SiteBijection = Bijection{Site,Vertex{UUID},Dict{Site,Vertex{UUID}},Dict{Vertex{UUID},Site}}
 const LinkBijection = Bijection{Link,Edge{UUID},Dict{Link,Edge{UUID}},Dict{Edge{UUID},Link}}
-# const BondBijection = Bijection{Bond,Edge{UUID},Dict{Bond,Edge{UUID}},Dict{Edge{UUID},Bond}}
-# const PlugBijection = Bijection{Plug,Edge{UUID},Dict{Plug,Edge{UUID}},Dict{Edge{UUID},Plug}}
 
 struct GenericTensorNetwork <: AbstractTensorNetwork
     tn::SimpleTensorNetwork
@@ -22,7 +20,7 @@ GenericTensorNetwork(tensors; kwargs...) = GenericTensorNetwork(SimpleTensorNetw
 Base.copy(tn::GenericTensorNetwork) = GenericTensorNetwork(copy(tn.tn), copy(tn.sitemap), copy(tn.linkmap))
 
 # Network interface
-DelegatorTrait(::Network, ::GenericTensorNetwork) = DelegateToField{:tn}()
+DelegatorTrait(::Networks.Network, ::GenericTensorNetwork) = DelegateToField{:tn}()
 
 Networks.vertex_at(tn::GenericTensorNetwork, site::Site) = tn.sitemap[site]
 Networks.edge_at(tn::GenericTensorNetwork, link::Link) = tn.linkmap[link]
@@ -41,7 +39,7 @@ function rmtensor!(tn::GenericTensorNetwork, tensor)
     _vertex = vertex_at(tn, tensor)
     if hasvalue(tn.sitemap, _vertex)
         site_tag = tn.sitemap(_vertex)
-        untag_vertex!(tn, site_tag)
+        unsetsite!(tn, site_tag)
     end
 
     # propagate the mutation
@@ -55,7 +53,7 @@ function slice!(tn::GenericTensorNetwork, ind, i::Integer)
     _edge = edge_at(tn, ind)
     if hasvalue(tn.linkmap, _edge)
         link_tag = tn.linkmap(_edge)
-        untag_edge!(tn, link_tag)
+        unsetlink!(tn, link_tag)
     end
 
     # propagate the mutation
@@ -64,121 +62,38 @@ function slice!(tn::GenericTensorNetwork, ind, i::Integer)
     return tn
 end
 
-# Taggable implementation
-ImplementorTrait(::Networks.Taggable, ::GenericTensorNetwork) = Implements()
-
-Networks.vertex_tags(tn::GenericTensorNetwork) = collect(keys(tn.sitemap))
-Networks.edge_tags(tn::GenericTensorNetwork) = collect(keys(tn.linkmap))
-Networks.has_vertex_tag(tn::GenericTensorNetwork, tag) = haskey(tn.sitemap, tag)
-Networks.has_edge_tag(tn::GenericTensorNetwork, tag) = haskey(tn.linkmap, tag)
-Networks.tag_at_vertex(tn::GenericTensorNetwork, vertex::Vertex) = tn.sitemap(vertex)
-Networks.tag_at_edge(tn::GenericTensorNetwork, edge::Edge) = tn.linkmap(edge)
-
-function Networks.tag_vertex!(tn::GenericTensorNetwork, vertex::Vertex, site)
-    hasvertex(tn, vertex) || throw(ArgumentError("Vertex $vertex not found in tensor network."))
-    has_vertex_tag(tn, site) && throw(ArgumentError("Vertex tag $site already tagged in tensor network."))
-    tn.sitemap[site] = vertex
-    return tn
-end
-
-Networks.tag_vertex!(tn::GenericTensorNetwork, tensor::Tensor, site) = tag_vertex!(tn, vertex_at(tn, tensor), site)
-
-function Networks.tag_edge!(tn::GenericTensorNetwork, edge::Edge, link)
-    hasedge(tn, edge) || throw(ArgumentError("Edge $edge not found in tensor network."))
-    has_edge_tag(tn, link) && throw(ArgumentError("Edge tag $link already tagged in tensor network."))
-    tn.linkmap[link] = edge
-    return tn
-end
-
-Networks.tag_edge!(tn::GenericTensorNetwork, ind::Index, link) = tag_edge!(tn, edge_at(tn, ind), link)
-
-function Networks.untag_vertex!(tn::GenericTensorNetwork, site)
-    has_vertex_tag(tn, site) || throw(ArgumentError("Vertex tag $site not found in tensor network."))
-    delete!(tn.sitemap, site)
-    return tn
-end
-
-function Networks.untag_edge!(tn::GenericTensorNetwork, link)
-    has_edge_tag(tn, link) || throw(ArgumentError("Edge tag $link not found in tensor network."))
-    delete!(tn.linkmap, link)
-    return tn
-end
-
-function Networks.replace_vertex_tag!(tn::GenericTensorNetwork, oldtag, newtag)
-    has_vertex_tag(tn, oldtag) || throw(ArgumentError("Vertex tag $oldtag not found in tensor network."))
-    has_vertex_tag(tn, newtag) && throw(ArgumentError("Vertex tag $newtag already tagged in tensor network."))
-    vertex = tn.sitemap[oldtag]
-    delete!(tn.sitemap, oldtag)
-    tn.sitemap[newtag] = vertex
-    return tn
-end
-
-function Networks.replace_edge_tag!(tn::GenericTensorNetwork, oldtag, newtag)
-    has_edge_tag(tn, oldtag) || throw(ArgumentError("Edge tag $oldtag not found in tensor network."))
-    has_edge_tag(tn, newtag) && throw(ArgumentError("Edge tag $newtag already tagged in tensor network."))
-    edge = tn.linkmap[oldtag]
-    delete!(tn.linkmap, oldtag)
-    tn.linkmap[newtag] = edge
-    return tn
-end
-
-# Lattice implementation
-ImplementorTrait(::Lattice, ::GenericTensorNetwork) = Implements()
+# TaggedTensorNetwork implementation
+ImplementorTrait(::TaggedTensorNetwork, ::GenericTensorNetwork) = Implements()
 
 all_sites(tn::GenericTensorNetwork) = collect(all_sites_iter(tn))
-all_bonds(tn::GenericTensorNetwork) = filter!(isbond, edge_tags(tn))
+all_links(tn::GenericTensorNetwork) = collect(all_links_iter(tn))
 
 all_sites_iter(tn::GenericTensorNetwork) = keys(tn.sitemap)
-all_bond_iter(tn::GenericTensorNetwork) = Iterators.filter(isbond, keys(tn.linkmap))
+all_links_iter(tn::GenericTensorNetwork) = keys(tn.linkmap)
 
-hassite(tn::GenericTensorNetwork, site) = has_vertex_tag(tn, site)
-hasbond(tn::GenericTensorNetwork, link) = has_edge_tag(tn, link)
+hassite(tn::GenericTensorNetwork, site) = haskey(tn.sitemap, site)
+haslink(tn::GenericTensorNetwork, link) = haskey(tn.linkmap, link)
 
-nsites(::@NamedTuple{}, tn::GenericTensorNetwork) = length(tn.sitemap)
-nbonds(::@NamedTuple{}, tn::GenericTensorNetwork) = count(isbond, edge_tags(tn))
+nsites(tn::GenericTensorNetwork) = length(tn.sitemap)
+nlinks(tn::GenericTensorNetwork) = length(tn.linkmap)
 
-# TODO change to `incident_edges` on next Networks.jl release
-function site_incidents(tn::GenericTensorNetwork, _site)
-    filter!(isbond, bond_at.(Ref(tn), vertex_incidents(tn, vertex_at(tn, _site))))
-end
-
-# TODO change to `incident_vertices` on next Networks.jl release
-link_incidents(tn::GenericTensorNetwork, _bond) = site_at.(Ref(tn), edge_incidents(tn, edge_at(tn, _bond)))
-
-setsite!(tn::GenericTensorNetwork, vertex, site) = tag_vertex!(tn, vertex, site)
-setbond!(tn::GenericTensorNetwork, edge, bond) = tag_edge!(tn, edge, bond)
-
-unsetsite!(tn::GenericTensorNetwork, site) = untag_vertex!(tn, site)
-unsetbond!(tn::GenericTensorNetwork, bond) = untag_edge!(tn, bond)
-
-site_at(tn::GenericTensorNetwork, vertex::Vertex) = tag_at_vertex(tn, vertex)
+site_at(tn::GenericTensorNetwork, vertex::Vertex) = tn.sitemap(vertex)
 site_at(tn::GenericTensorNetwork, tensor::Tensor) = site_at(tn, vertex_at(tn, tensor))
 
-# TODO should we check that it's a bond?
-bond_at(tn::GenericTensorNetwork, edge::Edge) = tag_at_edge(tn, edge)
-bond_at(tn::GenericTensorNetwork, ind) = bond_at(tn, edge_at(tn, ind))
+link_at(tn::GenericTensorNetwork, edge::Edge) = tn.linkmap(tn, edge)
+link_at(tn::GenericTensorNetwork, ind::Index) = link_at(tn, edge_at(tn, ind))
 
-setsite!(tn::GenericTensorNetwork, tensor::Tensor, site) = tag_vertex!(tn, vertex_at(tn, tensor), site)
-setbond!(tn::GenericTensorNetwork, ind::Index, bond) = tag_edge!(tn, edge_at(tn, ind), bond)
+site_incidents(tn::GenericTensorNetwork, site) = link_at.(Ref(tn), vertex_incidents(tn, vertex_at(tn, site)))
+link_incidents(tn::GenericTensorNetwork, link) = site_at.(Ref(tn), edge_incidents(tn, edge_at(tn, link)))
 
-# Pluggable implementation
-ImplementorTrait(::Pluggable, ::GenericTensorNetwork) = Implements()
+setsite!(tn::GenericTensorNetwork, vertex::Vertex, site) = tn.sitemap[site] = vertex
+setsite!(tn::GenericTensorNetwork, tensor::NamedTensor, site) = tn.sitemap[site] = vertex_at(tn, tensor)
 
-all_plugs(tn::GenericTensorNetwork) = filter!(isplug, edge_tags(tn))
-all_plugs_iter(tn::GenericTensorNetwork) = Iterators.filter(isplug, keys(tn.linkmap))
+setlink!(tn::GenericTensorNetwork, edge::Edge, link) = tn.linkmap[link] = edge
+setlink!(tn::GenericTensorNetwork, ind::Index, link) = tn.linkmap[link] = edge_at(tn, ind)
 
-ind_at(tn::GenericTensorNetwork, plug::Plug) = ind_at(tn, edge_at(tn, plug))
-
-function setplug!(tn::GenericTensorNetwork, edge::Edge, plug)
-    @assert !hasplug(tn, plug) "Plug $plug already found."
-    @assert hasedge(tn, edge) "Edge $edge not found."
-    # TODO check that the edge is not already tagged
-    tag_edge!(tn, edge, plug)
-    return tn
-end
-setplug!(tn::GenericTensorNetwork, ind::Index, plug) = setplug!(tn, edge_at(tn, ind), plug)
-
-unsetplug!(tn::GenericTensorNetwork, plug) = untag_edge!(tn, plug)
+unsetsite!(tn::GenericTensorNetwork, site) = delete!(tn.sitemap, site)
+unsetlink!(tn::GenericTensorNetwork, link) = delete!(tn.linkmap, link)
 
 # derived methods
 Base.:(==)(a::GenericTensorNetwork, b::GenericTensorNetwork) = all(splat(==), zip(tensors(a), tensors(b)))

@@ -1,7 +1,6 @@
 using UUIDs
 using Networks
 using Networks: Vertex, Edge, vertex, edge
-using Muscle: ImmutableVector
 using Bijections
 using Serialization
 using Random
@@ -11,16 +10,16 @@ const IndexBijection{E,I} = Bijection{E,I,Dict{E,I},Dict{I,E}}
 
 struct SimpleTensorNetwork <: AbstractTensorNetwork
     network::IncidentNetwork{Vertex{UUID},Edge{UUID}}
-    tensormap::TensorBijection{Vertex{UUID},Tensor}
+    tensormap::TensorBijection{Vertex{UUID},NamedTensor}
     indmap::IndexBijection{Edge{UUID},Index}
 
     unsafe::Ref{Union{Nothing,UnsafeScope}}
 
     # TODO move to a more open and diverse cache?
-    sorted_tensors::CachedField{Vector{Tensor}}
+    sorted_tensors::CachedField{Vector{NamedTensor}}
 
     function SimpleTensorNetwork(network, tensormap, indmap; unsafe=nothing, check=isnothing(unsafe))
-        sorted_tensors = CachedField{Vector{Tensor}}()
+        sorted_tensors = CachedField{Vector{NamedTensor}}()
         tn = new(network, tensormap, indmap, unsafe, sorted_tensors)
 
         # check index size consistency if not inside an `UnsafeScope`
@@ -35,7 +34,7 @@ end
 function SimpleTensorNetwork()
     SimpleTensorNetwork(
         IncidentNetwork{Vertex{UUID},Edge{UUID}}(),
-        TensorBijection{Vertex{UUID},Tensor}(),
+        TensorBijection{Vertex{UUID},NamedTensor}(),
         IndexBijection{Edge{UUID},Index}(),
     )
 end
@@ -43,7 +42,7 @@ end
 # TODO find a way to remove the `unsafe` keyword argument from the constructor
 function SimpleTensorNetwork(tensors; unsafe::Union{Nothing,UnsafeScope}=nothing)
     network = IncidentNetwork{Vertex{UUID},Edge{UUID}}()
-    tensormap = TensorBijection{Vertex{UUID},Tensor}()
+    tensormap = TensorBijection{Vertex{UUID},NamedTensor}()
     indmap = IndexBijection{Edge{UUID},Index}()
 
     for tensor in tensors
@@ -63,7 +62,7 @@ function SimpleTensorNetwork(tensors; unsafe::Union{Nothing,UnsafeScope}=nothing
                 indmap(ind)
             end
 
-            Networks.link!(network, vertex, edge)
+            setincident!(network, vertex, edge)
         end
     end
 
@@ -86,7 +85,7 @@ end
 # Network interface
 DelegatorTrait(::Network, ::SimpleTensorNetwork) = DelegateToField{:network}()
 
-Networks.vertex_at(tn::SimpleTensorNetwork, tensor::Tensor) = tn.tensormap(tensor)
+Networks.vertex_at(tn::SimpleTensorNetwork, tensor::NamedTensor) = tn.tensormap(tensor)
 Networks.edge_at(tn::SimpleTensorNetwork, index::Index) = tn.indmap(index)
 
 # forbid adding vertices and edges to the network (use `addtensor!` instead)
@@ -95,8 +94,8 @@ Networks.addvertex!(::SimpleTensorNetwork, _) = throw(ErrorException("")) # TODO
 Networks.addedge!(::SimpleTensorNetwork, _) = throw(ErrorException("")) # TODO describe the error
 Networks.rmvertex!(::SimpleTensorNetwork, _) = throw(ErrorException("")) # TODO describe the error
 Networks.rmedge!(::SimpleTensorNetwork, _) = throw(ErrorException("")) # TODO describe the error
-Networks.link!(::SimpleTensorNetwork, _, _) = throw(ErrorException("")) # TODO describe the error
-Networks.unlink!(::SimpleTensorNetwork, _, _) = throw(ErrorException("")) # TODO describe the error
+Networks.setincident!(::SimpleTensorNetwork, _, _) = throw(ErrorException("")) # TODO describe the error
+Networks.unsetincident!(::SimpleTensorNetwork, _, _) = throw(ErrorException("")) # TODO describe the error
 
 # UnsafeScopeable implementation
 ImplementorTrait(::UnsafeScopeable, ::SimpleTensorNetwork) = Implements()
@@ -166,7 +165,7 @@ function tensors_set_contain(tn::SimpleTensorNetwork, indices)
     return target_tensors
 end
 
-function addtensor!(tn::SimpleTensorNetwork, tensor::Tensor)
+function addtensor!(tn::SimpleTensorNetwork, tensor::NamedTensor)
     hastensor(tn, tensor) && return tn
 
     # check index sizes if there isn't an active `UnsafeScope` in the Tensor Network
@@ -194,7 +193,7 @@ function addtensor!(tn::SimpleTensorNetwork, tensor::Tensor)
             edge_at(tn, ind)
         end
 
-        Networks.link!(tn.network, vertex, target_edge)
+        setincident!(tn.network, vertex, target_edge)
     end
 
     # tensors have changed, invalidate cache and reconstruct on next `tensors` call
@@ -203,7 +202,7 @@ function addtensor!(tn::SimpleTensorNetwork, tensor::Tensor)
     return tn
 end
 
-function rmtensor!(tn::SimpleTensorNetwork, tensor::Tensor)
+function rmtensor!(tn::SimpleTensorNetwork, tensor::NamedTensor)
     hastensor(tn, tensor) || throw(ArgumentError("Tensor not found"))
 
     target_vertex = vertex_at(tn, tensor)
@@ -280,7 +279,7 @@ function replace_ind!(tn::SimpleTensorNetwork, old_new::AbstractDict)
     for tensor in all_tensors(tn)
         if !isdisjoint(inds(tensor), keys(old_new))
             new_inds = [get(old_new, ind, ind) for ind in inds(tensor)]
-            new_tensor = Tensor(parent(tensor), new_inds)
+            new_tensor = NamedTensor(parent(tensor), new_inds)
             replace_tensor!(tn, tensor, new_tensor)
         end
     end
@@ -370,7 +369,7 @@ function Base.rand(
         push!.(inputs, (ind,))
     end
 
-    tensors = Tensor[Tensor(rand(eltype, [size_dict[ind] for ind in input]...), tuple(input...)) for input in inputs]
+    tensors = NamedTensor[NamedTensor(rand(eltype, [size_dict[ind] for ind in input]...), tuple(input...)) for input in inputs]
     return SimpleTensorNetwork(tensors)
 end
 
