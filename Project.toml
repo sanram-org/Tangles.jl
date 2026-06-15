@@ -1,7 +1,7 @@
 name = "Tangles"
 uuid = "d2150e0e-da4c-4196-bcf0-8e0aeaf6db16"
-authors = ["Sergio Sánchez Ramírez"]
 version = "0.2.16"
+authors = ["Sergio Sánchez Ramírez"]
 
 [deps]
 Bijections = "e2ed5e7c-b2de-5872-ae92-c73ca462fb04"
