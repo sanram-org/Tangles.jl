@@ -470,8 +470,7 @@ function __einsum_inds_to_dims(a, b, dims::AbstractVecOrTuple{Index})
     return left, right
 end
 
-function einsum(a::NamedTensor, b::NamedTensor)
-    dims = inds(a) ∩ inds(b)
+function einsum(a::NamedTensor, b::NamedTensor; dims=inds(a) ∩ inds(b))
     left, right = __einsum_inds_to_dims(a, b, dims)
     data = einsum(parent(a), parent(b); dims=(left, right))
     _inds = Index[

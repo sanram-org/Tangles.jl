@@ -413,5 +413,5 @@ macro plug_str(str)
     isdual = endswith(str, '\'')
     str = chopsuffix(str, "'")
     site_expr = _site_expr(Meta.parse(str))
-    return :(SimplePlug($(site_expr); isdual=($isdual)))
+    return :(Plug($(site_expr); isdual=($isdual)))
 end
