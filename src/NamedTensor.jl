@@ -48,6 +48,9 @@ function NamedTensor{T,N,A}(::NamedTensor, _) where {T,N,A}
     throw(ArgumentError("Can't wrap a `NamedTensor` with another `NamedTensor`"))
 end
 
+# useful shortcut
+Tensor(data::AbstractArray, inds::AbstractVecOrTuple{Index}) = NamedTensor(data, inds)
+
 """
     Base.parent(::NamedTensor)
 
