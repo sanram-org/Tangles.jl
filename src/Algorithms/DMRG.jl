@@ -341,7 +341,7 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
 
             # move the orthogonality center to the right site
             normalize!(S)
-            hadamard!(Ar, Ar, S)
+            hadamard!(Ar, S)
 
             @unsafe_region ψ begin
                 ψ[site"$i-1"] = Al
@@ -440,7 +440,7 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
 
             # move the orthogonality center to the left site
             normalize!(S)
-            hadamard!(Al, Al, S)
+            hadamard!(Al, S)
 
             @unsafe_region ψ begin
                 ψ[site"$i"] = Al
