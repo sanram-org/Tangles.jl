@@ -171,9 +171,9 @@ function Base.convert(::Type{MPS}, old_tn::ProductState)
         _tensor = tensor_at(old_tn, site"$i")
 
         _array = if i == 1 || i == n
-            reshape(parent(_tensor), 1, length(_tensor))
+            reshape(array(_tensor), 1, length(_tensor))
         else
-            reshape(parent(_tensor), 1, 1, length(_tensor))
+            reshape(array(_tensor), 1, 1, length(_tensor))
         end
 
         _inds = if i == 1
