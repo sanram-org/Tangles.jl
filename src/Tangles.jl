@@ -124,7 +124,6 @@ include("Operations/entropy.jl")
 include("Operations/sample.jl")
 
 include("Algorithms/DMRG.jl")
-import .DMRG: dmrg!, Dmrg1, Dmrg2
 public Dmrg1, Dmrg2
 export dmrg!
 

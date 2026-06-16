@@ -1,7 +1,3 @@
-module DMRG
-
-using ..Tangles
-using ..Tangles: ncart_sites, sweep, unsafe_setform!, adjoint_plugs!
 using Muscle
 using KrylovKit
 
@@ -455,6 +451,4 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
     end
 
     return canonicalize_inds!(ψ), energy
-end
-
 end
