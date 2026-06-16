@@ -3,8 +3,8 @@ using Muscle
 function simple_update! end
 
 # auxiliar functions
-function acting_sites(operator::Tensor)
-    @assert all(isplug, inds(operator)) "Operator indices must be plugs to be treated as an operator"
+function acting_sites(operator::NamedTensor)
+    @assert all(i -> isplug(i.label), inds(operator)) "Operator indices must be plugs to be treated as an operator"
 
     target_plugs = plugs(operator)
     target_plugs_dual = filter(isdual, target_plugs)
@@ -74,10 +74,10 @@ function generic_simple_update!(tn, operator; maxdim=nothing)
     return tn
 end
 
-simple_update!(tn::AbstractTensorNetwork, operator::Tensor; kwargs...) = generic_simple_update!(tn, operator; kwargs...)
+simple_update!(tn::AbstractTensorNetwork, operator::NamedTensor; kwargs...) = generic_simple_update!(tn, operator; kwargs...)
 
 ## `MPS`
-function simple_update!(tn::MPS, operator::Tensor; kwargs...)
+function simple_update!(tn::MPS, operator::NamedTensor; kwargs...)
     op_sites = acting_sites(operator)
 
     # move orthogonality center to operator sites
@@ -90,7 +90,7 @@ function simple_update!(tn::MPS, operator::Tensor; kwargs...)
 end
 
 ## TODO `VidalMPS`
-# function simple_update!(tn::VidalMPS, operator::Tensor; kwargs...)
+# function simple_update!(tn::VidalMPS, operator::NamedTensor; kwargs...)
 
 #     # TODO
 #     Λc = ...

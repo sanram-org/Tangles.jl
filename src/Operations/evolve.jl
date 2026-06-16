@@ -137,7 +137,7 @@ function evolve!(mps::MPS, op::AbstractMPO)
     return mps
 end
 
-function evolve!(tn::AbstractTensorNetwork, op::Tensor)
+function evolve!(tn::AbstractTensorNetwork, op::NamedTensor)
     simple_update!(tn, op)
     return tn
 end

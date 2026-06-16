@@ -7,12 +7,12 @@ using KrylovKit
 
 # helper types
 struct EffectiveHamiltonian
-    le::Tensor
-    re::Tensor
-    op::Tensor
+    le::NamedTensor
+    re::NamedTensor
+    op::NamedTensor
 end
 
-function (ham::EffectiveHamiltonian)(ψ::Tensor)
+function (ham::EffectiveHamiltonian)(ψ::NamedTensor)
     return binary_einsum(binary_einsum(binary_einsum(ham.le, ψ), ham.op), ham.re)
 end
 
