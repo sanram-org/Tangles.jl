@@ -19,7 +19,7 @@ const truncate! = compress!
 const truncate = compress
 
 function generic_mps_compress!(tn; kwargs...)
-    n = count(s -> s isa CartesianSite, Tangles.all_sites_iter(tn))
+    n = count(s -> s isa CartesianSite, all_sites_iter(tn))
     for i in 1:(n - 1)
         generic_mps_compress!(tn, bond"$i-$(i+1)"; kwargs...)
     end

@@ -140,7 +140,7 @@ using PrecompileTools
         tn = GenericTensorNetwork([a, b, c])
         setsite!(tn, c, site"1")
         setlink!(tn, Index(:l), plug"1")
-        Tangles.contract(tn)
+        contract(tn)
     end
 end
 

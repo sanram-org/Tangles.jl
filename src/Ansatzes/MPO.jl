@@ -62,7 +62,7 @@ end
 function checkform(ψ::AbstractMPO, config::BondCanonical; atol=1e-12)
     left, right = minmax(sites(orthog_center(config))...)
 
-    n = count(s -> s isa CartesianSite, Tangles.all_sites_iter(ψ))
+    n = count(s -> s isa CartesianSite, all_sites_iter(ψ))
     for i in 1:n
         if site"$i" < left
             # check left-canonical tensors
@@ -271,7 +271,7 @@ function autompo_periodic(L, one_body, two_body; type=ComplexF64)
 end
 
 cart_sites(tn::AbstractMPO) = sort!(filter!(Base.Fix2(isa, CartesianSite{1}), all_sites(tn)))
-ncart_sites(tn::AbstractMPO) = count(Base.Fix2(isa, CartesianSite{1}), Tangles.all_sites_iter(tn))
+ncart_sites(tn::AbstractMPO) = count(Base.Fix2(isa, CartesianSite{1}), all_sites_iter(tn))
 
 function sweep(tn::AbstractMPO, dir)
     if dir == :rightleft || dir == :rl
