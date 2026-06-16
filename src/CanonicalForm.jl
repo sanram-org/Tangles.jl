@@ -48,7 +48,6 @@ struct MixedCanonical{OrthogCenter} <: CanonicalForm
     orthog_center::OrthogCenter
 end
 
-Base.copy(x::MixedCanonical) = MixedCanonical(copy(orthog_center(x)))
 Base.:(==)(a::MixedCanonical, b::MixedCanonical) = orthog_center(a) == orthog_center(b)
 
 orthog_center(x::MixedCanonical) = x.orthog_center
@@ -71,7 +70,6 @@ struct BondCanonical <: CanonicalForm
     orthog_center::Bond
 end
 
-Base.copy(x::BondCanonical) = BondCanonical(copy(x.orthog_center))
 Base.:(==)(a::BondCanonical, b::BondCanonical) = a.orthog_center == b.orthog_center
 
 orthog_center(x::BondCanonical) = x.orthog_center

@@ -143,7 +143,7 @@ function generic_mps_canonize!(tn, old_form::MixedCanonical, new_form::MixedCano
         generic_canonize_site!(tn, site"$i", bond; method=:qr)
     end
 
-    unsafe_setform!(tn, copy(new_form))
+    unsafe_setform!(tn, new_form)
     return tn
 end
 
@@ -269,7 +269,7 @@ function canonize!(tn::AbstractMPO, old_form::VidalGauge, new_form::MixedCanonic
     # TODO probably there is a better way to propagate these effects
     # sweep && canonize!(NonCanonical(), tn, targetform)
 
-    unsafe_setform!(tn, copy(targetform))
+    unsafe_setform!(tn, targetform)
     return tn
 end
 
