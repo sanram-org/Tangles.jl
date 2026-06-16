@@ -7,6 +7,7 @@ Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 GraphMakie = "1ecd5474-83a3-4783-bb4f-06765db800d2"
 NetworkLayout = "46757867-2c16-5918-afeb-47bfcb05e46a"
 Networks = "634dcf3f-6aa7-47ba-9e85-1fb329c9ebfe"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Reactant = "3c362404-f566-11ee-1572-e11a4b42c853"
 Tangles = "d2150e0e-da4c-4196-bcf0-8e0aeaf6db16"
 
