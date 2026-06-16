@@ -544,7 +544,6 @@ If `dims` is not set, then [`Covariant`](@ref) and [`Contravariant`] dimensions 
 function tensor_qr(a::NamedTensor; vind::Index, dims=factordims(a), kwargs...)
     _dims = factordims(a, dims)
     linds, rinds = factorinds(a, dims)
-    @show _dims linds rinds
     data_q, data_r = tensor_qr(parent(a); dims=_dims, kwargs...)
     q = NamedTensor(data_q, Index[linds; vind])
     r = NamedTensor(data_r, Index[vind; rinds])
