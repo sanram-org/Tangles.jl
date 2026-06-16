@@ -1,7 +1,7 @@
 module DMRG
 
 using ..Tangles
-using ..Tangles: ncart_sites, sweep, unsafe_setform!
+using ..Tangles: ncart_sites, sweep, unsafe_setform!, adjoint_plugs!
 using Muscle
 using KrylovKit
 
