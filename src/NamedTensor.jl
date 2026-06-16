@@ -476,6 +476,7 @@ function hadamard(a::NamedTensor, b::NamedTensor)
         return hadamard(b, a)
     end
 
+    dims=(Int[], Int[])
     for (i, ind) in enumerate(inds(b))
         push!(dims[1], dim(a, ind))
         push!(dims[2], i)

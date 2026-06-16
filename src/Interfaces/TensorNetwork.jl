@@ -313,7 +313,8 @@ function contract(tn; optimizer=EinExprs.Greedy(), path=EinExprs.einexpr(tn; opt
     for intermediate in EinExprs.Branches(path)
         if EinExprs.nargs(intermediate) == 1
             a = only(EinExprs.args(intermediate))
-            cache[intermediate] = Muscle.unary_einsum(parent(cache[a]); dims=EinExprs.suminds(intermediate))
+            # cache[intermediate] = Muscle.unary_einsum(parent(cache[a]); dims=EinExprs.suminds(intermediate))
+            error("unary einsum not yet implemented")
             delete!(cache, a)
         elseif EinExprs.nargs(intermediate) == 2
             a, b = EinExprs.args(intermediate)

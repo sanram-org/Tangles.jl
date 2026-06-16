@@ -191,10 +191,7 @@ function generic_mps_canonize!(tn, old_form::BondCanonical, new_form::MixedCanon
     if old_max <= new_min
         # absorb to the right to form `MixedCanonical(old_max)` and then mixed canonize
         _tensor = tensor_at(tn, old_max)
-
-        # TODO `hadamard!` gives problems when saving `tn` before the current canonical form (i.e. `canonize(tn, ...)`)
-        # Muscle.hadamard!(_tensor, _tensor, s)
-        replace_tensor!(tn, _tensor, hadamard(_tensor, s))
+        hadamard!(_tensor, s)
 
         unsafe_setform!(tn, MixedCanonical(old_max))
         canonize!(tn, new_form)
@@ -202,10 +199,7 @@ function generic_mps_canonize!(tn, old_form::BondCanonical, new_form::MixedCanon
     elseif new_max <= old_min
         # absorb to the left to form `MixedCanonical(old_min)` and then mixed canonize
         _tensor = tensor_at(tn, old_min)
-
-        # TODO `hadamard!` gives problems when saving `tn` before the current canonical form (i.e. `canonize(tn, ...)`)
-        # Muscle.hadamard!(_tensor, _tensor, s)
-        replace_tensor!(tn, _tensor, hadamard(_tensor, s))
+        hadamard!(_tensor, s)
 
         unsafe_setform!(tn, MixedCanonical(old_min))
         canonize!(tn, new_form)

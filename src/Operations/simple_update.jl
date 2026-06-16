@@ -58,8 +58,6 @@ function generic_simple_update!(tn, operator; maxdim=nothing)
         absorb=Muscle.AbsorbEqually(),
     )
 
-    # fix the index renaming of `Muscle.simple_update`
-    # TODO fix it better in Muscle?
     new_tensor_a = replace(new_tensor_a, tmp_contracting_ind_a => ind_at(tn, plug"$site_a"))
     new_tensor_b = replace(new_tensor_b, tmp_contracting_ind_b => ind_at(tn, plug"$site_b"))
 
