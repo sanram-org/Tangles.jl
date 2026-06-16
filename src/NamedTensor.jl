@@ -313,7 +313,7 @@ Base.permutedims(t::NamedTensor{T,0}, ::Base.AbstractVecOrTuple{Index}) where {T
 Base.permutedims!(dest::NamedTensor, src::NamedTensor, perm) = permutedims!(parent(dest), parent(src), perm)
 
 function Base.permutedims(t::NamedTensor{T}, perm::Base.AbstractVecOrTuple{Index}) where {T}
-    perm = Int[findfirst(is_equal_label(ind), inds(t)) for ind in perm]
+    perm = Int[findfirst(==(ind), inds(t)) for ind in perm]
     return permutedims(t, perm)
 end
 
