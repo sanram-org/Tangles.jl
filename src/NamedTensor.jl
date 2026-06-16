@@ -508,6 +508,7 @@ end
 
 factordims(x::NamedTensor, dims::NTuple{2,Vector{Int}}) = factordims(parent(x), dims)
 factordims(x::NamedTensor, dims::Vector{Vector{Int}}) = factordims(parent(x), dims)
+factordims(x::NamedTensor, dims::Tuple{<:AbstractVecOrTuple, <:AbstractVecOrTuple}) = factordims(x, dims[1], dims[2])
 
 function factordims(x::NamedTensor, left::AbstractVecOrTuple{Int}, right::AbstractVecOrTuple{Int})
     return factordims(parent(x), (left, right))
