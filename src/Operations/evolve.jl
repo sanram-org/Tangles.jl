@@ -26,7 +26,7 @@ function generic_evolve_mps_mpo_direct!(mps, op)
     @unsafe_region mps for i in 1:nsites(mps)
         tensor_mps = tensor_at(mps, site"$i")
         tensor_op = tensor_at(op, site"$i")
-        c = binary_einsum(tensor_mps, tensor_op)
+        c = einsum(tensor_mps, tensor_op)
         c = replace(c, ind_at(op, plug"$i") => ind_at(mps, plug"$i"))
 
         # fuse virtual indices
@@ -54,12 +54,12 @@ function generic_evolve_mps_mpo_zipup!(mps, op; maxdim=nothing, threhold=nothing
     op = resetinds!(copy(op))
     align!(mps, :outputs, op, :inputs)
 
-    C₁ = binary_einsum(tensor_at(mps, site"1"), tensor_at(op, site"1"))
+    C₁ = einsum(tensor_at(mps, site"1"), tensor_at(op, site"1"))
     C₁ = replace(C₁, ind_at(op, plug"1") => ind_at(mps, plug"1"))
 
     # better use truncated `eigen` or truncated `svd`?
     ind_s = Index(gensym(:tmp))
-    U, S, V = tensor_svd_thin(C₁; inds_u=[ind_at(mps, plug"1")], ind_s)
+    U, S, V = tensor_svd(C₁; dims=[ind_at(mps, plug"1")], vind=ind_s)
     if !isnothing(maxdim)
         U = view(U, ind_s => 1:min(maxdim, length(S)))
         S = view(S, ind_s => 1:min(maxdim, length(S)))
@@ -73,7 +73,7 @@ function generic_evolve_mps_mpo_zipup!(mps, op; maxdim=nothing, threhold=nothing
     end
 
     # absorb the singular values into V to shift right the orthogonality center
-    R = binary_einsum(V, S; dims=Index[])
+    R = hadamard(V, S)
 
     # rename temporal index to the bond index
     U = replace(U, ind_s => ind_at(mps, bond"1-2"))
@@ -83,13 +83,13 @@ function generic_evolve_mps_mpo_zipup!(mps, op; maxdim=nothing, threhold=nothing
 
         for i in 2:(nsites(mps) - 1)
             _site = site"$i"
-            R = binary_einsum(binary_einsum(R, tensor_at(mps, _site)), tensor_at(op, _site))
+            R = einsum(einsum(R, tensor_at(mps, _site)), tensor_at(op, _site))
             R = replace(R, ind_at(op, plug"$i") => ind_at(mps, plug"$i"))
 
             # rename left temporal index to the bond index
             R = replace(R, ind_s => ind_at(mps, bond"$(i - 1) - $i"))
 
-            U, S, V = tensor_svd_thin(R; inds_u=[ind_at(mps, plug"$i"), ind_at(mps, bond"$(i - 1) - $i")], ind_s)
+            U, S, V = tensor_svd(R; dims=[ind_at(mps, plug"$i"), ind_at(mps, bond"$(i - 1) - $i")], vind=ind_s)
 
             if !isnothing(maxdim)
                 U = view(U, ind_s => 1:min(maxdim, length(S)))
@@ -105,7 +105,7 @@ function generic_evolve_mps_mpo_zipup!(mps, op; maxdim=nothing, threhold=nothing
             end
 
             # absorb the singular values into V to shift right the orthogonality center
-            R = binary_einsum(V, S; dims=Index[])
+            R = hadamard(V, S)
 
             # rename temporal index to the bond index
             U = replace(U, ind_s => ind_at(mps, bond"$i - $(i + 1)"))
@@ -115,8 +115,8 @@ function generic_evolve_mps_mpo_zipup!(mps, op; maxdim=nothing, threhold=nothing
 
         # last site
         i = nsites(mps)
-        R = binary_einsum(R, tensor_at(mps, site"$i"))
-        R = binary_einsum(R, tensor_at(op, site"$i"))
+        R = einsum(R, tensor_at(mps, site"$i"))
+        R = einsum(R, tensor_at(op, site"$i"))
         R = replace(R, ind_at(op, plug"$i") => ind_at(mps, plug"$i"))
 
         # rename left temporal index to the bond index

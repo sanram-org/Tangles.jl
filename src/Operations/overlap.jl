@@ -23,9 +23,9 @@ function overlap(a::ProductState, b::AbstractMPS)
     issetequal(sites(a), sites(b)) || throw(ArgumentError("Both `ProductStates` must have the same sites"))
     align!(a, :outputs, b, :outputs)
 
-    _tensor = binary_einsum(tensor_at(a, site"1"), tensor_at(b, site"1"))
+    _tensor = einsum(tensor_at(a, site"1"), tensor_at(b, site"1"))
     for i in 2:nsites(a)
-        _tensor = binary_einsum(_tensor, binary_einsum(tensor_at(a, site"$i"), tensor_at(b, site"$i")))
+        _tensor = einsum(_tensor, einsum(tensor_at(a, site"$i"), tensor_at(b, site"$i")))
     end
 
     return _tensor
@@ -39,11 +39,11 @@ function overlap(a::MPS, b::MPS)
     b = resetinds!(conj(b))
     align!(a, :outputs, b, :outputs)
 
-    left_env = binary_einsum(tensor_at(a, site"1"), tensor_at(b, site"1"))
+    left_env = einsum(tensor_at(a, site"1"), tensor_at(b, site"1"))
 
     # left-to-right contraction sweep
     for i in 2:nsites(a)
-        left_env = binary_einsum(binary_einsum(left_env, tensor_at(a, site"$i")), tensor_at(b, site"$i"))
+        left_env = einsum(einsum(left_env, tensor_at(a, site"$i")), tensor_at(b, site"$i"))
     end
 
     return left_env

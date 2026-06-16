@@ -22,8 +22,7 @@ function absorb!(tn::AbstractMPO, bond, target_site)
 
     # absorb to the target tensor
     Γ = tensor_at(tn, target_site)
-    A = binary_einsum(Γ, Λ; dims=Index[])
-    replace_tensor!(tn, Γ, A)
+    hadamard!(Γ, Λ)
 
     # remove Λ from the tensor network
     rmtensor!(tn, Λ)

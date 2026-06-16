@@ -33,7 +33,7 @@ function sample(ψ::MPS, nsamples=1; batchdim=4)
 
         for i in 1:nsites(ψ)
             # compute the marginal probability distribution for the current site
-            t = binary_einsum(proj_tensor, tensor_at(tn, site"$i"))
+            t = einsum(proj_tensor, tensor_at(tn, site"$i"))
             physind = ind_at(tn, plug"$i")
 
             if i != nsites(ψ)

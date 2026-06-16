@@ -37,13 +37,13 @@ function generic_canonize_site!(tn, _site::Site, _bond::Bond; method=:qr)
     size(tn, ind_iso_dir) == 1 && return tn
 
     if method === :svd
-        U, s, V = tensor_svd_thin(A; inds_u=inds_a_only, inds_v=inds_b_only, ind_s=ind_virtual)
+        U, s, V = tensor_svd(A; dims=(inds_a_only, inds_b_only), vind=ind_virtual)
 
         # absorb singular values
-        V = binary_einsum(s, V; dims=Index[])
+        hadamard!(V, s)
 
         # contract V against next lane tensor
-        V = binary_einsum(B, V)
+        V = einsum(B, V)
 
         # rename back bond index
         U = replace(U, ind_virtual => ind_iso_dir)
@@ -54,10 +54,10 @@ function generic_canonize_site!(tn, _site::Site, _bond::Bond; method=:qr)
         replace!(tn, B => V)
 
     elseif method === :qr
-        Q, R = tensor_qr_thin(A; inds_q=inds_a_only, inds_r=inds_b_only, ind_virtual=ind_virtual)
+        Q, R = tensor_qr(A; dims=(inds_a_only, inds_b_only), vind=ind_virtual)
 
         # contract R against next lane tensor
-        R = binary_einsum(R, B)
+        R = einsum(R, B)
 
         # rename back bond index
         Q = replace(Q, ind_virtual => ind_iso_dir)
@@ -93,10 +93,10 @@ function generic_bond_canonize_site!(tn, _site::Site, _bond::Bond)
     size(tn, ind_iso_dir) == 1 && return tn
 
     # it's just like `generic_canonize_site!(; method=:svd)` but we do not absorb the singular values
-    U, s, V = tensor_svd_thin(A; inds_u=inds_a_only, inds_v=inds_b_only, ind_s=ind_virtual)
+    U, s, V = tensor_svd(A; dims=(inds_a_only, inds_b_only), vind=ind_virtual)
 
     # contract V against next lane tensor
-    V = binary_einsum(B, V)
+    V = einsum(B, V)
 
     # rename back bond index
     U = replace(U, ind_virtual => ind_iso_dir)
@@ -291,7 +291,7 @@ function canonize!(tn::AbstractMPO, old_form::NonCanonical, new_form::VidalGauge
         Λᵢ = tensor(tn; at=bond)
 
         Aᵢ₊₁ = tensor(tn; at=site"$(i + 1)")
-        replace!(tn, Aᵢ₊₁ => contract(Aᵢ₊₁, Λᵢ; dims=Index[]))
+        hadamard!(Aᵢ₊₁, Λᵢ)
     end
 
     # tensors at i in "A" form, need to contract (Λᵢ)⁻¹ with A to get Γᵢ
@@ -300,8 +300,7 @@ function canonize!(tn::AbstractMPO, old_form::NonCanonical, new_form::VidalGauge
         Λᵢ = tensor(tn; at=bond)
         Aᵢ = tensor(tn; at=site"$i")
         Λᵢ⁻¹ = Tensor(diag(pinv(Diagonal(parent(Λᵢ)); atol=1e-64)), inds(Λᵢ))
-        Γᵢ = contract(Aᵢ, Λᵢ⁻¹; dims=Index[])
-        replace!(tn, Aᵢ => Γᵢ)
+        hadamard!(Aᵢ, Λᵢ⁻¹)
     end
 
     unsafe_setform!(tn, Canonical())

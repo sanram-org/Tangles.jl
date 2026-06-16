@@ -13,7 +13,7 @@ struct EffectiveHamiltonian
 end
 
 function (ham::EffectiveHamiltonian)(ψ::NamedTensor)
-    return binary_einsum(binary_einsum(binary_einsum(ham.le, ψ), ham.op), ham.re)
+    return einsum(einsum(einsum(ham.le, ψ), ham.op), ham.re)
 end
 
 abstract type Algorithm end
@@ -68,10 +68,10 @@ function dmrg!(::Dmrg1, ψ::MPS, op::MPO, nsweeps=4; ishermitian=true, krylovdim
         canonize!(ψbra, site"$i")
 
         #! format: off
-        envs[bond"$i - $(i+1)"] = binary_einsum(
-            binary_einsum(
+        envs[bond"$i - $(i+1)"] = einsum(
+            einsum(
                 op[site"$i+1"],
-                binary_einsum(
+                einsum(
                     ψ[site"$i+1"],
                     envs[bond"$(i+1) - $(i+2)"]
                 )
@@ -102,9 +102,9 @@ function dmrg!(::Dmrg1, ψ::MPS, op::MPO, nsweeps=4; ishermitian=true, krylovdim
                 )
             end
             #! format: off
-            envs[bond"$(i-1) - $i"] = binary_einsum(
-                binary_einsum(
-                    binary_einsum(
+            envs[bond"$(i-1) - $i"] = einsum(
+                einsum(
+                    einsum(
                         envs[bond"$(i-2) - $(i-1)"],
                         ψ[site"$(i-1)"]
                     ),
@@ -164,9 +164,9 @@ function dmrg!(::Dmrg1, ψ::MPS, op::MPO, nsweeps=4; ishermitian=true, krylovdim
                 )
             end
             #! format: off
-            envs[bond"$i - $(i+1)"] = binary_einsum(
-                binary_einsum(
-                    binary_einsum(
+            envs[bond"$i - $(i+1)"] = einsum(
+                einsum(
+                    einsum(
                         envs[bond"$(i+1) - $(i+2)"],
                         ψ[site"$(i+1)"]
                     ),
@@ -238,10 +238,10 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
         canonize!(ψbra, site"$i")
 
         #! format: off
-        envs[bond"$i - $(i+1)"] = binary_einsum(
-            binary_einsum(
+        envs[bond"$i - $(i+1)"] = einsum(
+            einsum(
                 op[site"$i+1"],
-                binary_einsum(
+                einsum(
                     ψ[site"$i+1"],
                     envs[bond"$(i+1) - $(i+2)"]
                 )
@@ -279,9 +279,9 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
                 # end
 
                 #! format: off
-                envs[bond"$(i-2) - $(i-1)"] = binary_einsum(
-                    binary_einsum(
-                        binary_einsum(
+                envs[bond"$(i-2) - $(i-1)"] = einsum(
+                    einsum(
+                        einsum(
                             envs[bond"$(i-3) - $(i-2)"],
                             ψ[site"$(i-2)"]
                         ),
@@ -294,9 +294,9 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
 
             # construct effective hamiltonian and solve for the ground state
             Heff = EffectiveHamiltonian(
-                envs[bond"$(i-2) - $(i-1)"], envs[bond"$i - $(i+1)"], binary_einsum(op[site"$i-1"], op[site"$i"])
+                envs[bond"$(i-2) - $(i-1)"], envs[bond"$i - $(i+1)"], einsum(op[site"$i-1"], op[site"$i"])
             )
-            xθ = binary_einsum(ψ[site"$i-1"], ψ[site"$i"])
+            xθ = einsum(ψ[site"$i-1"], ψ[site"$i"])
 
             # replace indices (`Heff(x)` returns bra indices, but we want ket indices)
             replacements = [
@@ -334,7 +334,7 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
                 push!(inds_v, ind_at(ψ, bond"$i - $(i+1)"))
             end
 
-            Al, S, Ar = tensor_svd_thin(y; inds_u, ind_s=ind_at(ψ, bond"$(i-1) - $i"), inds_v)
+            Al, S, Ar = tensor_svd(y; dims=(inds_u, inds_v), vind=ind_at(ψ, bond"$(i-1) - $i"))
 
             # NOTE we directly take the 1:maxdim slice because SVD is already sorted
             keep = 1:min(maxdim, length(S))
@@ -378,9 +378,9 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
                 end
 
                 #! format: off
-                envs[bond"$(i+1) - $(i+2)"] = binary_einsum(
-                    binary_einsum(
-                        binary_einsum(
+                envs[bond"$(i+1) - $(i+2)"] = einsum(
+                    einsum(
+                        einsum(
                             envs[bond"$(i+2) - $(i+3)"],
                             ψ[site"$(i+2)"]
                         ),
@@ -393,9 +393,9 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
 
             # construct effective hamiltonian and solve for the ground state
             Heff = EffectiveHamiltonian(
-                envs[bond"$(i-1) - $i"], envs[bond"$(i+1) - $(i+2)"], binary_einsum(op[site"$i+1"], op[site"$i"])
+                envs[bond"$(i-1) - $i"], envs[bond"$(i+1) - $(i+2)"], einsum(op[site"$i+1"], op[site"$i"])
             )
-            xθ = binary_einsum(ψ[site"$i+1"], ψ[site"$i"])
+            xθ = einsum(ψ[site"$i+1"], ψ[site"$i"])
 
             # replace indices (`Heff(x)` returns bra indices, but we want ket indices)
             replacements = [
@@ -433,7 +433,7 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
                 push!(inds_v, ind_at(ψ, bond"$(i+1) - $(i+2)"))
             end
 
-            Al, S, Ar = tensor_svd_thin(y; inds_u, ind_s=ind_at(ψ, bond"$i - $(i+1)"), inds_v)
+            Al, S, Ar = tensor_svd(y; dims=(inds_u, inds_v), vind=ind_at(ψ, bond"$i - $(i+1)"))
 
             # NOTE we directly take the 1:maxdim slice because SVD is already sorted
             keep = 1:min(maxdim, length(S))

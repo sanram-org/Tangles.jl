@@ -10,7 +10,7 @@ include("Index.jl")
 export Index
 
 @reexport import Muscle:
-    Tensor, variance, extend, expand, fuse, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
+    Tensor, variance, extend, expand, fuse, hadamard, hadamard!, einsum, einsum!, tensor_qr, tensor_svd, tensor_eigen, simple_update
 include("NamedTensor.jl")
 export NamedTensor
 

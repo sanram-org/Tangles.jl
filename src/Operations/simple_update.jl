@@ -29,7 +29,7 @@ function generic_simple_update!(tn, operator; maxdim=nothing)
         tmp_contracting_ind = Index(gensym(:tmp))
         tensor = replace(_tensor, ind_at(tn, plug"$_site") => tmp_contracting_ind)
         operator = replace(operator, Index(plug"$_site'") => tmp_contracting_ind)
-        new_tensor = Muscle.binary_einsum(tensor, operator)
+        new_tensor = einsum(tensor, operator)
         replace_tensor!(tn, _tensor, new_tensor)
         return tn
     end
@@ -48,15 +48,12 @@ function generic_simple_update!(tn, operator; maxdim=nothing)
         operator, Index(plug"$site_a'") => tmp_contracting_ind_a, Index(plug"$site_b'") => tmp_contracting_ind_b
     )
 
-    new_tensor_a, new_tensor_b = Muscle.simple_update(
+    new_tensor_a, new_tensor_b = simple_update(
         tensor_a,
-        tmp_contracting_ind_a, # ind_physical_a,
         tensor_b,
-        tmp_contracting_ind_b, # ind_physical_b,
-        ind_at(tn, bond"$site_a-$site_b"), # ind_bond_ab,
-        operator,
-        Index(plug"$site_a"), # ind_physical_op_a,
-        Index(plug"$site_b"); # ind_physical_op_b;
+        operator;
+        physical_inds=(tmp_contracting_ind_a, tmp_contracting_ind_b),
+        bond_ind=ind_at(tn, bond"$site_a-$site_b"),
         maxdim,
         absorb=Muscle.AbsorbEqually(),
     )
@@ -100,8 +97,8 @@ end
 #     Γr = ...
 
 #     # prepare orthogonality center around target sites
-#     a = binary_einsum(binary_einsum(Λl, Γl), Λc)
-#     b = binary_einsum(Γr, Λr)
+#     a = hadamard(hadamard(Γl, Λl), Λc)
+#     b = hadamard(Γr, Λr)
 
 #     # perform simple update routine
 #     new_a, new_Λc, new_b = Muscle.simple_update(a, b, ...; absorb=Muscle.DontAbsorb())

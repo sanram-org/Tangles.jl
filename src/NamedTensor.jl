@@ -471,6 +471,30 @@ function isisometry(tensor::NamedTensor, _inds; kwargs...)
     return isisometry(parent(tensor), dims; kwargs...)
 end
 
+function hadamard(a::NamedTensor, b::NamedTensor)
+    if ndims(a) < ndims(b)
+        return hadamard(b, a)
+    end
+
+    for (i, ind) in enumerate(inds(b))
+        push!(dims[1], dim(a, ind))
+        push!(dims[2], i)
+    end
+    c = hadamard(parent(a), parent(b); dims)
+    return NamedTensor(c, copy(inds(a)))
+end
+
+function hadamard!(c::NamedTensor, a::NamedTensor)
+    @assert inds(a) ⊆ inds(c) 
+    dims=(Int[], Int[])
+    for (i, ind) in enumerate(inds(a))
+        push!(dims[1], dim(c, ind))
+        push!(dims[2], i)
+    end
+    hadamard!(parent(c), parent(a); dims)
+    return c
+end
+
 __einsum_inds_to_dims(_, _, dims::AbstractVecOrTuple{<:AbstractVecOrTuple{<:Integer}}) = dims
 function __einsum_inds_to_dims(a, b, dims::AbstractVecOrTuple{Index})
     left = map(Base.Fix1(dim, a), dims)
@@ -604,5 +628,6 @@ function simple_update(
     bond_dims = (dim(a, bond_ind), dim(b, bond_ind))
     physical_dims = (dim(a, physical_inds[1]), dim(b, physical_inds[2]))
 
-    return simple_update(parent(a), parent(b), parent(g); physical_dims, bond_dims, kwargs...)
+    new_a, new_b = simple_update(parent(a), parent(b), parent(g); physical_dims, bond_dims, kwargs...)
+    return NamedTensor(new_a, copy(inds(a))), NamedTensor(new_b, copy(inds(b)))
 end
