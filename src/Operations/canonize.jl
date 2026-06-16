@@ -128,8 +128,8 @@ function generic_mps_canonize!(tn, old_form::MixedCanonical, new_form::MixedCano
     old_form == new_form && return tn
 
     # TODO maybe use sth different to `.id`?
-    src_left, src_right = site(min_orthog_center(old_form)).id[1], site(max_orthog_center(old_form)).id[1]
-    dst_left, dst_right = site(min_orthog_center(new_form)).id[1] - 1, site(max_orthog_center(new_form)).id[1] + 1
+    src_left, src_right = min_orthog_center(old_form).id[1], max_orthog_center(old_form).id[1]
+    dst_left, dst_right = min_orthog_center(new_form).id[1] - 1, max_orthog_center(new_form).id[1] + 1
 
     # left-to-right QR sweep (left-canonical tensors)
     for i in src_left:dst_left
