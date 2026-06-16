@@ -15,7 +15,7 @@ mutable struct MatrixProductState <: AbstractMPS
     form::CanonicalForm
 end
 
-MatrixProductState(tn::GenericTensorNetwork) = MatrixProductState(tn, MixedCanonical(sites(tn)))
+MatrixProductState(tn::GenericTensorNetwork) = MatrixProductState(tn, NonCanonical())
 
 const MPS = MatrixProductState
 
@@ -197,7 +197,7 @@ function Base.convert(::Type{MPS}, old_tn::ProductState)
         end
     end
 
-    return MPS(tn, MixedCanonical(sites(tn)))
+    return MPS(tn, NonCanonical())
 end
 
 function bondsizes(psi::MPS; sorted::Bool=true)
