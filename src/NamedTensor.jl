@@ -354,14 +354,12 @@ function Base.view(t::NamedTensor; kw...)
     return view(t, kw...)
 end
 
-# NOTE: `conj` is automatically managed because `NamedTensor` inherits from `AbstractArray`,
-# but there is a bug when calling `conj` on `NamedTensor{T,0}` which makes it return a `NamedTensor{NamedTensor{Complex, 0}, 0}`
 """
     Base.conj(::NamedTensor)
 
 Return the conjugate of the tensor.
 """
-Base.conj(x::NamedTensor{<:Complex,0}) = NamedTensor(conj(parent(x)))
+Base.conj(x::NamedTensor) = NamedTensor(conj(parent(x)), copy(inds(x)))
 
 """
     Base.adjoint(::NamedTensor)
