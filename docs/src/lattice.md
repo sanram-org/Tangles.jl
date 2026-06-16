@@ -31,10 +31,10 @@ A [`Ansatz`](@ref) is a [`Quantum`](@ref) Tensor Network with a fixed graph stru
 ```@repl examples
 lattice = Lattice(Val(:chain), 4)
 tn = TensorNetwork([
-    Tensor(rand(2,2), (:p1, :v12)),
-    Tensor(rand(2,2,4), (:p2, :v12, :v23)),
-    Tensor(rand(2,4,2), (:p3, :v23, :v34)),
-    Tensor(rand(2,2), (:p4, :v34)),
+    NamedTensor(rand(2,2), (:p1, :v12)),
+    NamedTensor(rand(2,2,4), (:p2, :v12, :v23)),
+    NamedTensor(rand(2,4,2), (:p3, :v23, :v34)),
+    NamedTensor(rand(2,2), (:p4, :v34)),
 ])
 qtn = Quantum(tn, Dict([site"1" => :p1, site"2" => :p2, site"3" => :p3, site"4" => :p4]))
 ansatz = Ansatz(qtn, lattice)

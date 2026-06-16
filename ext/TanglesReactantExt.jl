@@ -249,9 +249,9 @@ end
 #             error("Unsupported runtime: $(Reactant.XLA.REACTANT_XLA_RUNTIME)")
 #         end
 
-#         a = Tensor(Reactant.to_rarray(ones(2, 2); client), [:i, :j])
-#         b = Tensor(Reactant.to_rarray(ones(2, 2); client), [:j, :k])
-#         c = Tensor(Reactant.to_rarray(ones(2, 2, 2); client), [:k, :l, :i])
+#         a = NamedTensor(Reactant.to_rarray(ones(2, 2); client), [:i, :j])
+#         b = NamedTensor(Reactant.to_rarray(ones(2, 2); client), [:j, :k])
+#         c = NamedTensor(Reactant.to_rarray(ones(2, 2, 2); client), [:k, :l, :i])
 
 #         @compile_workload begin
 #             tn = GenericTensorNetwork([a, b, c])

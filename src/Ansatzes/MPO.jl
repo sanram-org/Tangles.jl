@@ -116,7 +116,7 @@ function MPO(arrays::Vector; order=defaultorder(MPO))
             end
         end |> collect
 
-        _tensor = Tensor(array, inds)
+        _tensor = NamedTensor(array, inds)
         addtensor!(tn, _tensor)
         setsite!(tn, _tensor, site"$i")
         setlink!(tn, Index(plug"$i"), plug"$i")

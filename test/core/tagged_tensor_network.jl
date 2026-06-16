@@ -35,9 +35,9 @@ function DelegatorTraits.DelegatorTrait(interface, tn::WrapperTaggableTensorNetw
 end
 
 test_tensors = [
-    Tensor(zeros(2, 2), [Index(:i), Index(:j)]),
-    Tensor(zeros(2, 3), [Index(:j), Index(:k)]),
-    Tensor(zeros(2), [Index(:j)]),
+    NamedTensor(zeros(2, 2), [Index(:i), Index(:j)]),
+    NamedTensor(zeros(2, 3), [Index(:j), Index(:k)]),
+    NamedTensor(zeros(2), [Index(:j)]),
 ]
 
 test_tn = SimpleTensorNetwork(test_tensors)

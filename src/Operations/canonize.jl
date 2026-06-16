@@ -293,7 +293,7 @@ function canonize!(tn::AbstractMPO, old_form::NonCanonical, new_form::VidalGauge
         bond = bond"$(i - 1) - $i"
         Λᵢ = tensor(tn; at=bond)
         Aᵢ = tensor(tn; at=site"$i")
-        Λᵢ⁻¹ = Tensor(diag(pinv(Diagonal(parent(Λᵢ)); atol=1e-64)), inds(Λᵢ))
+        Λᵢ⁻¹ = NamedTensor(diag(pinv(Diagonal(parent(Λᵢ)); atol=1e-64)), inds(Λᵢ))
         hadamard!(Aᵢ, Λᵢ⁻¹)
     end
 

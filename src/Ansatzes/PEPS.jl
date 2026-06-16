@@ -39,7 +39,7 @@ function PEPS(arrays::AbstractMatrix{<:AbstractArray}; order=defaultorder(PEPS))
                 end
             end
 
-            _tensor = Tensor(arrays[i, j], _inds)
+            _tensor = NamedTensor(arrays[i, j], _inds)
             addtensor!(tn, _tensor)
             setsite!(tn, _tensor, site"$i, $j")
 

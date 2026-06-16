@@ -51,9 +51,9 @@ function dmrg!(::Dmrg1, ψ::MPS, op::MPO, nsweeps=4; ishermitian=true, krylovdim
     @align! outputs(op) => inputs(ψbra)
 
     # construct environment on the boundaries as scalar 1 to avoid problems
-    envs = Dict{Bond,Tensor}()
-    envs[bond"0 - 1"] = Tensor(fill(1.0), Index[])
-    envs[bond"$n - $(n + 1)"] = Tensor(fill(1.0), Index[])
+    envs = Dict{Bond,NamedTensor}()
+    envs[bond"0 - 1"] = NamedTensor(fill(1.0), Index[])
+    envs[bond"$n - $(n + 1)"] = NamedTensor(fill(1.0), Index[])
 
     # construct right environments
     for _site in Iterators.drop(sweep(ψ, :left), 1)
@@ -221,9 +221,9 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
     @align! outputs(op) => inputs(ψbra)
 
     # construct environment on the boundaries as scalar 1 to avoid problems
-    envs = Dict{Bond,Tensor}()
-    envs[bond"0 - 1"] = Tensor(fill(1.0), Index[])
-    envs[bond"$n - $(n + 1)"] = Tensor(fill(1.0), Index[])
+    envs = Dict{Bond,NamedTensor}()
+    envs[bond"0 - 1"] = NamedTensor(fill(1.0), Index[])
+    envs[bond"$n - $(n + 1)"] = NamedTensor(fill(1.0), Index[])
 
     # construct right environments
     for _site in Iterators.drop(sweep(ψ, :left), 1)
@@ -335,9 +335,9 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
             # NOTE we directly take the 1:maxdim slice because SVD is already sorted
             keep = 1:min(maxdim, length(S))
 
-            S = Tensor(S[ind_at(ψ, bond"$(i-1) - $i") => keep], inds(S))
-            Al = Tensor(Al[ind_at(ψ, bond"$(i-1) - $i") => keep], inds(Al))
-            Ar = Tensor(Ar[ind_at(ψ, bond"$(i-1) - $i") => keep], inds(Ar))
+            S = NamedTensor(S[ind_at(ψ, bond"$(i-1) - $i") => keep], inds(S))
+            Al = NamedTensor(Al[ind_at(ψ, bond"$(i-1) - $i") => keep], inds(Al))
+            Ar = NamedTensor(Ar[ind_at(ψ, bond"$(i-1) - $i") => keep], inds(Ar))
 
             # move the orthogonality center to the right site
             normalize!(S)
@@ -434,9 +434,9 @@ function dmrg!(::Dmrg2, ψ::MPS, op::MPO, nsweeps=4; maxdim=128, ishermitian=tru
             # NOTE we directly take the 1:maxdim slice because SVD is already sorted
             keep = 1:min(maxdim, length(S))
 
-            S = Tensor(S[ind_at(ψ, bond"$i - $(i+1)") => keep], inds(S))
-            Al = Tensor(Al[ind_at(ψ, bond"$i - $(i+1)") => keep], inds(Al))
-            Ar = Tensor(Ar[ind_at(ψ, bond"$i - $(i+1)") => keep], inds(Ar))
+            S = NamedTensor(S[ind_at(ψ, bond"$i - $(i+1)") => keep], inds(S))
+            Al = NamedTensor(Al[ind_at(ψ, bond"$i - $(i+1)") => keep], inds(Al))
+            Ar = NamedTensor(Ar[ind_at(ψ, bond"$i - $(i+1)") => keep], inds(Ar))
 
             # move the orthogonality center to the left site
             normalize!(S)

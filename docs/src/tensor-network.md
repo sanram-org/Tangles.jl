@@ -28,12 +28,12 @@ For example, this Tensor Network...
 
 ```@repl plot
 tn = TensorNetwork([
-    Tensor(zeros(2,2), (:i, :m)), # A
-    Tensor(zeros(2,2,2), (:i, :j, :p)), # B
-    Tensor(zeros(2,2,2), (:n, :j, :k)), # C
-    Tensor(zeros(2,2,2), (:p, :k, :l)), # D
-    Tensor(zeros(2,2,2), (:m, :n, :o)), # E
-    Tensor(zeros(2,2), (:o, :l)), # F
+    NamedTensor(zeros(2,2), (:i, :m)), # A
+    NamedTensor(zeros(2,2,2), (:i, :j, :p)), # B
+    NamedTensor(zeros(2,2,2), (:n, :j, :k)), # C
+    NamedTensor(zeros(2,2,2), (:p, :k, :l)), # D
+    NamedTensor(zeros(2,2,2), (:m, :n, :o)), # E
+    NamedTensor(zeros(2,2), (:o, :l)), # F
 ])
 ```
 

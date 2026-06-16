@@ -14,8 +14,8 @@ using Networks
 
 # 2-site state
 fixture1 = let
-    a = Tensor(zeros(2, 2), [Index(:i), Index(:j)])
-    b = Tensor(zeros(2, 3), [Index(:j), Index(:k)])
+    a = NamedTensor(zeros(2, 2), [Index(:i), Index(:j)])
+    b = NamedTensor(zeros(2, 3), [Index(:j), Index(:k)])
     constructor = () -> begin
         tn = GenericTensorNetwork([a, b])
 
@@ -31,8 +31,8 @@ end
 
 # 2-site operator with input on site 2 and output on site 1
 fixture2 = let
-    a = Tensor(zeros(2, 2), [Index(:i), Index(:j)])
-    b = Tensor(zeros(2, 3), [Index(:j), Index(:k)])
+    a = NamedTensor(zeros(2, 2), [Index(:i), Index(:j)])
+    b = NamedTensor(zeros(2, 3), [Index(:j), Index(:k)])
     constructor = () -> begin
         tn = GenericTensorNetwork([a, b])
 

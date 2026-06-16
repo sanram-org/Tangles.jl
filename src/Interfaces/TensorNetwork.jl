@@ -345,8 +345,8 @@ end
 #     a, b = tensors(tn; contain=ind)
 #     tmpind = gensym(ind)
 
-#     tU = Tensor(U, [ind, tmpind])
-#     tUinv = Tensor(Uinv, [tmpind, ind])
+#     tU = NamedTensor(U, [ind, tmpind])
+#     tUinv = NamedTensor(Uinv, [tmpind, ind])
 
 #     gauged_a = replace(contract(a, tU), tmpind => ind)
 #     gauged_b = replace(contract(tUinv, b), tmpind => ind)

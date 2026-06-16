@@ -258,7 +258,7 @@ function test_mock_tensor_network(tn)
         # WARN no longer allowed by default
         # @testset let tn = copy(tn)
         #     tensor_to_replace = test_tensors[1]
-        #     new_tensor = Tensor(rand(2, 3), Index.([:m, :j]))
+        #     new_tensor = NamedTensor(rand(2, 3), Index.([:m, :j]))
 
         #     # not allowed by default
         #     @test_throws ArgumentError replace_tensor!(tn, tensor_to_replace, new_tensor)

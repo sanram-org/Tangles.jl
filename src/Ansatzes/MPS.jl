@@ -80,7 +80,7 @@ function MPS(arrays::AbstractVector{<:AbstractArray}; order=defaultorder(MPS)) #
             end
         end |> collect
 
-        _tensor = Tensor(array, inds)
+        _tensor = NamedTensor(array, inds)
         addtensor!(tn, _tensor)
         setsite!(tn, _tensor, site"$i")
         setlink!(tn, Index(plug"$i"), plug"$i")
@@ -184,7 +184,7 @@ function Base.convert(::Type{MPS}, old_tn::ProductState)
             [Index(bond"$(i - 1)-$i"), Index(bond"$i-$(i + 1)"), Index(plug"$i")]
         end
 
-        new_tensor = Tensor(_array, _inds)
+        new_tensor = NamedTensor(_array, _inds)
 
         addtensor!(tn, new_tensor)
         setsite!(tn, new_tensor, site"$i")

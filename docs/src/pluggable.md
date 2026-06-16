@@ -45,7 +45,7 @@ A [`Quantum`](@ref) is just a [`TensorNetwork`](@ref) with a mapping between ind
 It implements the [`AbstractQuantum`](@ref Tenet.AbstractQuantum) interface so any subtype of [`AbstractQuantum`](@ref Tenet.AbstractQuantum) can access to its features.
 
 ```@repl examples
-tn = TensorNetwork([Tensor(zeros(2,2,2), [:p1,:i,:k]), Tensor(zeros(2,2,2), [:p2,:i,:j]), Tensor(zeros(2,2,2), [:p3,:j,:k])])
+tn = TensorNetwork([NamedTensor(zeros(2,2,2), [:p1,:i,:k]), NamedTensor(zeros(2,2,2), [:p2,:i,:j]), NamedTensor(zeros(2,2,2), [:p3,:j,:k])])
 qtn = Quantum(tn, Dict([site"1" => :p1, site"2" => :p2, site"3" => :p3]))
 ```
 

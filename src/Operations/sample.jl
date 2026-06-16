@@ -29,7 +29,7 @@ function sample(ψ::MPS, nsamples=1; batchdim=4)
     tn = canonize(ψ, MixedCanonical(site"1"))
 
     for k_batch in 0:(ceil(Int, nsamples / batchdim) - 1)
-        proj_tensor = Tensor(ones(Int, batchdim), [batchind])
+        proj_tensor = NamedTensor(ones(Int, batchdim), [batchind])
 
         for i in 1:nsites(ψ)
             # compute the marginal probability distribution for the current site
@@ -38,7 +38,7 @@ function sample(ψ::MPS, nsamples=1; batchdim=4)
 
             if i != nsites(ψ)
                 bondind = only(filter(x -> x != physind && x != batchind, inds(t)))
-                proj_tensor = Tensor(zeros(eltype(t), batchdim, size(t, bondind)), [batchind, bondind])
+                proj_tensor = NamedTensor(zeros(eltype(t), batchdim, size(t, bondind)), [batchind, bondind])
             end
 
             # randomly sample a value from the marginal distribution

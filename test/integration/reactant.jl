@@ -10,8 +10,8 @@ using Networks
 # TODO test `traced_getfield`
 
 @testset "contract" begin
-    A = Tensor([1.0 2.0; 3.0 4.0], (:i, :j))
-    B = Tensor([5.0 6.0; 7.0 8.0], (:j, :k))
+    A = NamedTensor([1.0 2.0; 3.0 4.0], (:i, :j))
+    B = NamedTensor([5.0 6.0; 7.0 8.0], (:j, :k))
     tn = GenericTensorNetwork([A, B])
     tn_re = adapt(ConcreteRArray, tn)
 
@@ -22,8 +22,8 @@ using Networks
 end
 
 @testset "autodiff - contract" begin
-    A = Tensor([1.0, 2.0], (:i,))
-    B = Tensor([3.0, 4.0], (:i,))
+    A = NamedTensor([1.0, 2.0], (:i,))
+    B = NamedTensor([3.0, 4.0], (:i,))
     tn = GenericTensorNetwork([A, B])
     tn_re = adapt(ConcreteRArray, tn)
 
